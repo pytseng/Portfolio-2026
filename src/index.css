@@ -1,0 +1,132 @@
+:root {
+  --bg: #eef2f4;
+  --bg-deep: #0d1418;
+  --surface: #f7f9fa;
+  --ink: #12181c;
+  --ink-soft: #3d4a52;
+  --muted: #6b7880;
+  --line: rgba(18, 24, 28, 0.12);
+  --accent: #0e7c86;
+  --accent-soft: #d7eef0;
+  --hero-glow: rgba(14, 124, 134, 0.28);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Newsreader', Georgia, serif;
+  --font-ui: 'DM Sans', sans-serif;
+  --radius: 18px;
+  --content-max: 42rem;
+  --toc-width: 15.5rem;
+  --topbar-h: 3.5rem;
+  --toc-mobile-h: 4.25rem;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(14, 124, 134, 0.1), transparent 55%),
+    radial-gradient(90% 60% at 0% 20%, rgba(18, 24, 28, 0.05), transparent 50%),
+    linear-gradient(180deg, #f4f7f8 0%, var(--bg) 40%, #e8eef1 100%);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0 0 0.75rem;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 9vw, 4.5rem);
+}
+
+h2 {
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+}
+
+h3 {
+  font-size: clamp(1.2rem, 3.5vw, 1.45rem);
+}
+
+p,
+li {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+p {
+  margin: 0 0 1.1rem;
+}
+
+ul,
+ol {
+  margin: 0 0 1.25rem;
+  padding-left: 1.2rem;
+}
+
+strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+blockquote {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.1rem;
+  border-left: 3px solid var(--accent);
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+cite {
+  display: block;
+  margin-top: 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-style: normal;
+  color: var(--muted);
+}
+
+#root {
+  min-height: 100svh;
+}
