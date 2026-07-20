@@ -12,8 +12,9 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-WEST, SOUTH, EAST, NORTH = -73.10, -49.32, -72.96, -49.23
-ZOOM = 13
+# Broader Patagonia footprint (zoom 9 = even wider tiles)
+WEST, SOUTH, EAST, NORTH = -74.40, -50.40, -71.70, -48.15
+ZOOM = 9
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "public" / "fitz-roy"
 
@@ -42,23 +43,13 @@ def decode_terrarium(img: Image.Image) -> np.ndarray:
     return arr[:, :, 0] * 256.0 + arr[:, :, 1] + arr[:, :, 2] / 256.0 - 32768.0
 
 
-def resize_bilinear(dem: np.ndarray, target: int) -> np.ndarray:
-    h, w = dem.shape
-    ys = np.linspace(0, h - 1, target)
-    xs = np.linspace(0, w - 1, target)
-    out = np.zeros((target, target), dtype=np.float32)
-    for j, yy in enumerate(ys):
-        for i, xx in enumerate(xs):
-            y0, x0 = int(np.floor(yy)), int(np.floor(xx))
-            y1, x1 = min(y0 + 1, h - 1), min(x0 + 1, w - 1)
-            wy, wx = yy - y0, xx - x0
-            out[j, i] = (
-                dem[y0, x0] * (1 - wx) * (1 - wy)
-                + dem[y0, x1] * wx * (1 - wy)
-                + dem[y1, x0] * (1 - wx) * wy
-                + dem[y1, x1] * wx * wy
-            )
-    return out
+def resize_dem(dem: np.ndarray, target: int) -> np.ndarray:
+    """Fast bilinear resize via PIL (keeps float32 elevation)."""
+    img = Image.fromarray(dem, mode="F")
+    return np.asarray(
+        img.resize((target, target), Image.Resampling.BILINEAR),
+        dtype=np.float32,
+    )
 
 
 def main() -> None:
@@ -81,8 +72,10 @@ def main() -> None:
         rows.append(np.concatenate(row, axis=1))
 
     dem = np.concatenate(rows, axis=0)
-    if dem.shape[0] > 768:
-        dem = resize_bilinear(dem, 768)
+    # Higher-res heightfield for the browser mesh
+    target = 1536
+    if dem.shape[0] != target or dem.shape[1] != target:
+        dem = resize_dem(dem, target)
 
     hmin, hmax = float(dem.min()), float(dem.max())
     norm = (dem - hmin) / max(1e-6, hmax - hmin)

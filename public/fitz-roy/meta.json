@@ -2,23 +2,23 @@
   "name": "Cerro Fitz Roy massif (Patagonia)",
   "source": "AWS Terrain Tiles \u2014 Terrarium encoding (Mapzen / open data)",
   "sourceUrl": "https://registry.opendata.aws/terrain-tiles/",
-  "zoom": 13,
+  "zoom": 9,
   "tiles": {
-    "xMin": 2432,
-    "xMax": 2435,
-    "yMin": 5386,
-    "yMax": 5389
+    "xMin": 150,
+    "xMax": 154,
+    "yMin": 334,
+    "yMax": 339
   },
   "bbox": {
-    "west": -73.125,
-    "south": -49.325121991040014,
-    "east": -72.94921875,
-    "north": -49.21042044565029
+    "west": -74.53125,
+    "south": -50.73645513701065,
+    "east": -71.015625,
+    "north": -47.98992166741417
   },
-  "width": 768,
-  "height": 768,
-  "elevationMin": 444.0,
-  "elevationMax": 2875.86572265625,
+  "width": 1536,
+  "height": 1536,
+  "elevationMin": -1592.0833740234375,
+  "elevationMax": 3534.5,
   "center": {
     "lat": -49.2712,
     "lon": -73.0432

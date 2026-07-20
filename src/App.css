@@ -582,6 +582,7 @@
   display: grid;
   align-items: end;
   overflow: hidden;
+  cursor: none;
 }
 
 .bio-hero__stage {
@@ -593,34 +594,90 @@
   position: absolute;
   inset: 0;
   touch-action: none;
-  cursor: crosshair;
-  background: #e8eef2;
+  cursor: none;
+  background: #f0e8f4;
 }
 
-.fog-hero__credit {
+/* Soft peripheral blur + fade so DEM tile edges dissolve */
+.fog-hero::before,
+.fog-hero::after {
+  content: '';
   position: absolute;
-  right: 0.85rem;
-  bottom: 0.7rem;
-  z-index: 2;
-  margin: 0;
+  inset: 0;
+  z-index: 1;
   pointer-events: none;
-  font-family: var(--font-ui);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: rgba(18, 24, 28, 0.45);
+}
+
+.fog-hero::before {
+  backdrop-filter: blur(22px) saturate(1.08);
+  -webkit-backdrop-filter: blur(22px) saturate(1.08);
+  mask-image: radial-gradient(
+    ellipse 56% 50% at 50% 46%,
+    transparent 0%,
+    transparent 38%,
+    rgba(0, 0, 0, 0.55) 70%,
+    #000 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 56% 50% at 50% 46%,
+    transparent 0%,
+    transparent 38%,
+    rgba(0, 0, 0, 0.55) 70%,
+    #000 100%
+  );
+}
+
+.fog-hero::after {
+  background: radial-gradient(
+    ellipse 62% 56% at 50% 45%,
+    transparent 34%,
+    rgba(240, 220, 236, 0.18) 65%,
+    rgba(220, 232, 248, 0.62) 100%
+  );
 }
 
 .fog-hero--fallback {
   background:
-    radial-gradient(ellipse 80% 60% at 50% 40%, #d8e4ee, transparent 70%),
-    linear-gradient(180deg, #c5d4e2 0%, #e8eef4 55%, #d5ddd6 100%);
+    radial-gradient(ellipse 80% 60% at 50% 40%, #f6e8f0, transparent 70%),
+    linear-gradient(180deg, #d8e8f8 0%, #f0e8f4 55%, #e8f0f8 100%);
 }
 
 .fog-hero canvas {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.fog-hero__axe {
+  position: absolute;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  pointer-events: none;
+  transform: translate(-12%, -88%);
+  transform-origin: 30% 85%;
+  filter: drop-shadow(0 2px 3px rgba(40, 30, 50, 0.25));
+  will-change: transform;
+}
+
+.fog-hero__axe--hit {
+  animation: axe-strike 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@keyframes axe-strike {
+  0% {
+    transform: translate(-12%, -88%) rotate(0deg) scale(1);
+  }
+  28% {
+    transform: translate(-12%, -88%) rotate(-48deg) scale(1.12);
+  }
+  55% {
+    transform: translate(-8%, -72%) rotate(28deg) scale(0.96);
+  }
+  100% {
+    transform: translate(-12%, -88%) rotate(0deg) scale(1);
+  }
 }
 
 .bio-hero__content {
@@ -631,10 +688,12 @@
   padding: 2rem 0 3.25rem;
   animation: rise-in 0.9s ease both;
   pointer-events: none;
+  cursor: auto;
 }
 
 .bio-hero__content .bio-hero__cta {
   pointer-events: auto;
+  cursor: pointer;
 }
 
 .bio-hero__eyebrow {
@@ -659,20 +718,13 @@
 }
 
 .bio-hero__tagline {
-  margin: 0.7rem 0 1rem;
+  margin: 0.85rem 0 1.35rem;
+  max-width: 28rem;
   font-family: var(--font-ui);
-  font-size: clamp(1.05rem, 3.5vw, 1.25rem);
+  font-size: clamp(1.05rem, 3.5vw, 1.3rem);
   font-weight: 600;
+  line-height: 1.35;
   color: var(--ink-soft);
-}
-
-.bio-hero__hint {
-  margin: 0 0 1rem;
-  font-family: var(--font-ui);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--muted);
 }
 
 .bio-hero__cta {

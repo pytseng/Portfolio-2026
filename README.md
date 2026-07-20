@@ -23,7 +23,7 @@ Content mirrors [pytseng.com](https://www.pytseng.com/). Each project page inclu
 
 ### Fitz Roy DEM
 
-Height data lives in `public/fitz-roy/` (generated from open AWS elevation tiles).
+Height data lives in `public/fitz-roy/` — a wide Patagonia footprint from AWS Terrain Tiles (zoom 9, 1536² DEM).
 
 ```bash
 python3 scripts/fetch-fitz-roy-dem.py

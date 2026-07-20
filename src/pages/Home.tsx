@@ -19,10 +19,11 @@ export function Home() {
         </div>
 
         <div className="bio-hero__content">
-          <p className="bio-hero__eyebrow">Portfolio 2026</p>
           <h1 className="bio-hero__name">Po Yen Tseng</h1>
-          <p className="bio-hero__tagline">I Design, I Code, I Full-Stack.</p>
-          <p className="bio-hero__hint">Move or tap to clear the fog</p>
+          <p className="bio-hero__tagline">
+            😊 Good at making design that scales and fun. Also mountaineering
+            🏔️
+          </p>
           <a className="bio-hero__cta" href="#works">
             Explore works
             <span aria-hidden="true">↓</span>
