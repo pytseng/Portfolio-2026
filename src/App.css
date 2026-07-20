@@ -570,6 +570,14 @@
 
 /* ——— Home: bio hero + works ——— */
 
+.app-view--parked {
+  position: fixed;
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
 .home {
   min-height: 100svh;
   background: #f4f7f9;

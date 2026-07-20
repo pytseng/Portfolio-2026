@@ -1,10 +1,7 @@
-/** Soft crack SFX + soothing ambient pad (Web Audio). */
+/** Soft crack SFX on hero click (Web Audio). */
 
 let ctx: AudioContext | null = null
 let master: GainNode | null = null
-let musicGain: GainNode | null = null
-let musicStarted = false
-const nodes: AudioScheduledSourceNode[] = []
 
 function ensureCtx() {
   if (!ctx) {
@@ -12,28 +9,16 @@ function ensureCtx() {
     master = ctx.createGain()
     master.gain.value = 0.85
     master.connect(ctx.destination)
-    musicGain = ctx.createGain()
-    musicGain.gain.value = 0
-    musicGain.connect(master)
   }
   if (ctx.state === 'suspended') void ctx.resume()
   return ctx
 }
 
-function noiseBuffer(audio: AudioContext, seconds: number, brown = false) {
+function noiseBuffer(audio: AudioContext, seconds: number) {
   const len = Math.floor(audio.sampleRate * seconds)
   const buffer = audio.createBuffer(1, len, audio.sampleRate)
   const data = buffer.getChannelData(0)
-  let last = 0
-  for (let i = 0; i < len; i++) {
-    const white = Math.random() * 2 - 1
-    if (brown) {
-      last = (last + 0.02 * white) / 1.02
-      data[i] = last * 3.5
-    } else {
-      data[i] = white
-    }
-  }
+  for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1
   return buffer
 }
 
@@ -74,107 +59,9 @@ export function playCrackSound() {
   osc.stop(now + 0.12)
 }
 
-/** Warm, slow ambient bed — starts once from a user gesture. */
-export function startAmbientMusic() {
-  const audio = ensureCtx()
-  if (!musicGain || musicStarted) return
-  musicStarted = true
-  const now = audio.currentTime
-
-  // Soft lowpass bus for the whole pad
-  const padFilter = audio.createBiquadFilter()
-  padFilter.type = 'lowpass'
-  padFilter.frequency.value = 680
-  padFilter.Q.value = 0.3
-  padFilter.connect(musicGain)
-
-  // Breath / air bed
-  const air = audio.createBufferSource()
-  air.buffer = noiseBuffer(audio, 4, true)
-  air.loop = true
-  const airFilter = audio.createBiquadFilter()
-  airFilter.type = 'lowpass'
-  airFilter.frequency.value = 340
-  const airGain = audio.createGain()
-  airGain.gain.value = 0.028
-  air.connect(airFilter)
-  airFilter.connect(airGain)
-  airGain.connect(padFilter)
-  air.start(now)
-  nodes.push(air)
-
-  // Open, consonant voicing (Cmaj9-ish): C3 E3 G3 B3 D4 — all sine, very quiet
-  const chord = [130.81, 164.81, 196.0, 246.94, 293.66]
-  for (let i = 0; i < chord.length; i++) {
-    const osc = audio.createOscillator()
-    osc.type = 'sine'
-    osc.frequency.value = chord[i]
-
-    // Ultra-slow pitch drift (almost unnoticeable)
-    const lfo = audio.createOscillator()
-    lfo.type = 'sine'
-    lfo.frequency.value = 0.015 + i * 0.006
-    const lfoGain = audio.createGain()
-    lfoGain.gain.value = 0.8 + i * 0.15
-    lfo.connect(lfoGain)
-    lfoGain.connect(osc.frequency)
-
-    // Slow amplitude swell per voice (out of phase)
-    const trem = audio.createOscillator()
-    trem.type = 'sine'
-    trem.frequency.value = 0.03 + i * 0.011
-    const tremGain = audio.createGain()
-    tremGain.gain.value = 0.012
-    const voiceGain = audio.createGain()
-    voiceGain.gain.value = 0.028 + (i === 0 ? 0.018 : 0)
-    trem.connect(tremGain)
-    tremGain.connect(voiceGain.gain)
-
-    osc.connect(voiceGain)
-    voiceGain.connect(padFilter)
-    osc.start(now)
-    lfo.start(now)
-    trem.start(now)
-    nodes.push(osc, lfo, trem)
-  }
-
-  // High airy shimmer (barely there)
-  const shimmer = audio.createOscillator()
-  shimmer.type = 'sine'
-  shimmer.frequency.value = 523.25 // C5
-  const shLfo = audio.createOscillator()
-  shLfo.frequency.value = 0.05
-  const shLfoGain = audio.createGain()
-  shLfoGain.gain.value = 0.01
-  shLfo.connect(shLfoGain)
-  shLfoGain.connect(shimmer.frequency)
-  const shGain = audio.createGain()
-  shGain.gain.value = 0.012
-  shimmer.connect(shGain)
-  shGain.connect(padFilter)
-  shimmer.start(now)
-  shLfo.start(now)
-  nodes.push(shimmer, shLfo)
-
-  // Very slow fade in
-  musicGain.gain.cancelScheduledValues(now)
-  musicGain.gain.setValueAtTime(0, now)
-  musicGain.gain.linearRampToValueAtTime(0.7, now + 6)
-}
-
 export function stopHeroAudio() {
   if (!ctx) return
-  for (const n of nodes) {
-    try {
-      n.stop()
-    } catch {
-      /* already stopped */
-    }
-  }
-  nodes.length = 0
   void ctx.close()
   ctx = null
   master = null
-  musicGain = null
-  musicStarted = false
 }

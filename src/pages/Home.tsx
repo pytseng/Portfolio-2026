@@ -8,13 +8,13 @@ const FogRevealHero = lazy(() =>
   })),
 )
 
-export function Home() {
+export function Home({ live = true }: { live?: boolean }) {
   return (
     <div className="home">
       <section className="bio-hero" aria-label="Bio">
         <div className="bio-hero__stage">
           <Suspense fallback={<div className="fog-hero fog-hero--fallback" />}>
-            <FogRevealHero />
+            <FogRevealHero active={live} />
           </Suspense>
         </div>
 

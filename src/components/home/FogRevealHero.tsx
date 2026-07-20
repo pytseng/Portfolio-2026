@@ -1,10 +1,6 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import {
-  playCrackSound,
-  startAmbientMusic,
-  stopHeroAudio,
-} from './heroAudio'
+import { playCrackSound, stopHeroAudio } from './heroAudio'
 
 type DemMeta = {
   name: string
@@ -249,9 +245,13 @@ async function loadDem() {
   return { meta, elev: new Float32Array(buffer) }
 }
 
-export function FogRevealHero() {
+export function FogRevealHero({ active = true }: { active?: boolean }) {
   const mountRef = useRef<HTMLDivElement>(null)
   const axeRef = useRef<HTMLImageElement>(null)
+  const activeRef = useRef(active)
+  const wakeRef = useRef<(() => void) | null>(null)
+  const pauseRef = useRef<(() => void) | null>(null)
+  activeRef.current = active
 
   useEffect(() => {
     const mount = mountRef.current
@@ -261,10 +261,11 @@ export function FogRevealHero() {
     let disposed = false
     let raf = 0
     let renderer: THREE.WebGLRenderer | null = null
+    let tearDown: (() => void) | null = null
 
     const boot = async () => {
       const { meta, elev } = await loadDem()
-      if (disposed || !mount) return
+      if (disposed || !mount.isConnected) return
 
       const isMobile = window.matchMedia('(max-width: 720px)').matches
       const segs = isMobile ? 240 : 384
@@ -273,11 +274,21 @@ export function FogRevealHero() {
         antialias: !isMobile,
         powerPreference: 'high-performance',
       })
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.75 : 2.25))
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2))
       renderer.setClearColor(0xf0e8f4, 1)
       renderer.toneMapping = THREE.ACESFilmicToneMapping
       renderer.toneMappingExposure = 1.38
       mount.appendChild(renderer.domElement)
+
+      if (disposed) {
+        renderer.dispose()
+        renderer.forceContextLoss()
+        if (renderer.domElement.parentElement === mount) {
+          mount.removeChild(renderer.domElement)
+        }
+        renderer = null
+        return
+      }
 
       const scene = new THREE.Scene()
       const fogColor = new THREE.Color(0xf2eaf4)
@@ -320,6 +331,12 @@ export function FogRevealHero() {
         targetPolar: Math.PI / 2 - Math.PI / 6,
         targetRadius: span * 0.28,
       }
+
+      // WASD / arrows — smooth, slow look
+      const keys = { left: false, right: false, up: false, down: false }
+      const keysActive = () => keys.left || keys.right || keys.up || keys.down
+      const KEY_YAW = 0.28 // rad/s
+      const KEY_PITCH = 0.18
 
       const applyOrbitCamera = () => {
         const sinP = Math.sin(orbit.polar)
@@ -460,20 +477,24 @@ export function FogRevealHero() {
         })
       }
 
-      // ~100× prior count via InstancedMesh (GPU instances)
-      const bubbleCount = isMobile ? 24_000 : 52_000
-      const bubbleGeo = new THREE.SphereGeometry(1, 8, 8)
-      const bubbleMat = new THREE.MeshBasicMaterial({
-        transparent: true,
-        opacity: 0.62,
-        depthWrite: false,
-        toneMapped: false,
-        vertexColors: true,
-      })
-      const bubbleMesh = new THREE.InstancedMesh(bubbleGeo, bubbleMat, bubbleCount)
-      bubbleMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
-      bubbleMesh.frustumCulled = false
+      // Soft point sprites — colorful + dense without mesh cost
+      // Dense but CPU-safe — full per-frame updates of 300k+ points cause freezes
+      const bubbleCount = isMobile ? 48_000 : 96_000
+      const bubbleCanvas = document.createElement('canvas')
+      bubbleCanvas.width = bubbleCanvas.height = 64
+      const bctx = bubbleCanvas.getContext('2d')!
+      const grad = bctx.createRadialGradient(32, 32, 0, 32, 32, 32)
+      grad.addColorStop(0, 'rgba(255,255,255,0.95)')
+      grad.addColorStop(0.28, 'rgba(255,255,255,0.7)')
+      grad.addColorStop(0.55, 'rgba(255,255,255,0.22)')
+      grad.addColorStop(1, 'rgba(255,255,255,0)')
+      bctx.fillStyle = grad
+      bctx.fillRect(0, 0, 64, 64)
+      const bubbleTex = new THREE.CanvasTexture(bubbleCanvas)
+      bubbleTex.colorSpace = THREE.SRGBColorSpace
 
+      const bubblePositions = new Float32Array(bubbleCount * 3)
+      const bubbleColors = new Float32Array(bubbleCount * 3)
       const baseX = new Float32Array(bubbleCount)
       const baseY = new Float32Array(bubbleCount)
       const baseZ = new Float32Array(bubbleCount)
@@ -492,39 +513,84 @@ export function FogRevealHero() {
       const posY = new Float32Array(bubbleCount)
       const posZ = new Float32Array(bubbleCount)
       const reactA = new Float32Array(bubbleCount)
-      const scaleA = new Float32Array(bubbleCount)
-      const pink = new THREE.Color(0xff6eb8)
-      const blue = new THREE.Color(0x5ec8ff)
+      const lightPink = new THREE.Color(0xffc2de)
+      const lightSky = new THREE.Color(0xb8e7ff)
       const tint = new THREE.Color()
-      const bubbleMat4 = new THREE.Matrix4()
-      const bubblePos = new THREE.Vector3()
-      const bubbleScale = new THREE.Vector3()
-      const bubbleQuat = new THREE.Quaternion()
+      const groundY = peakH * 0.02
 
       for (let i = 0; i < bubbleCount; i++) {
         baseX[i] = (Math.random() - 0.5) * worldW * 1.05
-        baseY[i] = peakH * (0.05 + Math.random() * 0.95)
+        // Rise height above ground — bubbles always originate at ground level
+        ampY[i] = peakH * (0.18 + Math.random() * 0.55)
+        baseY[i] = groundY
         baseZ[i] = (Math.random() - 0.5) * worldD * 1.05
         phaseA[i] = Math.random() * Math.PI * 2
         speedA[i] = 0.3 + Math.random() * 0.6
         ampX[i] = 1.0 + Math.random() * 3.4
-        ampY[i] = 2.0 + Math.random() * 5.0
         ampZ[i] = 1.0 + Math.random() * 3.4
         reactA[i] = 0.55 + Math.random() * 0.85
-        scaleA[i] = 0.03 + Math.random() * 0.1
+        const a0 = phaseA[i]
+        const y0 = groundY + (0.4 + 0.6 * (0.5 + 0.5 * Math.sin(a0))) * ampY[i]
         posX[i] = baseX[i]
-        posY[i] = baseY[i]
+        posY[i] = y0
         posZ[i] = baseZ[i]
-        tint.copy(pink).lerp(blue, Math.random())
-        bubbleMesh.setColorAt(i, tint)
-        bubblePos.set(baseX[i], baseY[i], baseZ[i])
-        bubbleScale.setScalar(scaleA[i])
-        bubbleMat4.compose(bubblePos, bubbleQuat, bubbleScale)
-        bubbleMesh.setMatrixAt(i, bubbleMat4)
+        bubblePositions[i * 3] = baseX[i]
+        bubblePositions[i * 3 + 1] = y0
+        bubblePositions[i * 3 + 2] = baseZ[i]
+        tint.copy(lightPink).lerp(lightSky, Math.random() < 0.5 ? 0 : 1)
+        bubbleColors[i * 3] = tint.r
+        bubbleColors[i * 3 + 1] = tint.g
+        bubbleColors[i * 3 + 2] = tint.b
       }
-      if (bubbleMesh.instanceColor) bubbleMesh.instanceColor.needsUpdate = true
-      bubbleMesh.instanceMatrix.needsUpdate = true
-      scene.add(bubbleMesh)
+
+      const bubbleDriftY = (i: number, a: number) =>
+        groundY + (0.4 + 0.6 * (0.5 + 0.5 * Math.sin(a))) * ampY[i]
+
+      const bubbleScales = new Float32Array(bubbleCount)
+      const regenDelay = new Float32Array(bubbleCount)
+      for (let i = 0; i < bubbleCount; i++) bubbleScales[i] = 1
+
+      const bubbleGeo = new THREE.BufferGeometry()
+      const bubblePosAttr = new THREE.BufferAttribute(bubblePositions, 3)
+      bubblePosAttr.setUsage(THREE.DynamicDrawUsage)
+      const bubbleScaleAttr = new THREE.BufferAttribute(bubbleScales, 1)
+      bubbleScaleAttr.setUsage(THREE.DynamicDrawUsage)
+      bubbleGeo.setAttribute('position', bubblePosAttr)
+      bubbleGeo.setAttribute('color', new THREE.BufferAttribute(bubbleColors, 3))
+      bubbleGeo.setAttribute('aScale', bubbleScaleAttr)
+
+      const bubbleSizeBase = isMobile ? 1.35 : 1.85
+      const bubbleMat = new THREE.PointsMaterial({
+        size: bubbleSizeBase,
+        map: bubbleTex,
+        transparent: true,
+        opacity: 0.9,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        vertexColors: true,
+        sizeAttenuation: true,
+        toneMapped: false,
+      })
+      bubbleMat.onBeforeCompile = (shader) => {
+        shader.vertexShader =
+          'attribute float aScale;\n' +
+          shader.vertexShader.replace(
+            'gl_PointSize = size;',
+            'gl_PointSize = size * max(aScale, 0.0);',
+          )
+      }
+      bubbleMat.customProgramCacheKey = () => 'bubble-ascale'
+
+      const bubblePoints = new THREE.Points(bubbleGeo, bubbleMat)
+      bubblePoints.frustumCulled = false
+      scene.add(bubblePoints)
+
+      const writeBubblePos = (i: number, x: number, y: number, z: number) => {
+        const o = i * 3
+        bubblePositions[o] = x
+        bubblePositions[o + 1] = y
+        bubblePositions[o + 2] = z
+      }
 
       const pointerNdc = new THREE.Vector2(0, 0)
       const pointerVel = new THREE.Vector2(0, 0)
@@ -534,8 +600,12 @@ export function FogRevealHero() {
       const bubblePlane = new THREE.Plane()
       let pointerLive = false
       let exploding = false
+      let regenerating = false
       let explodeStart = 0
+      let regenStart = 0
       const EXPLODE_DUR = 0.9
+      const REGEN_STAGGER = 7.5
+      const REGEN_GROW = 2.2
       let lastBubbleT = 0
 
       const syncMouseWorld = () => {
@@ -554,7 +624,7 @@ export function FogRevealHero() {
         for (let i = 0; i < bubbleCount; i++) {
           const a = t * speedA[i] + phaseA[i]
           const px = baseX[i] + Math.sin(a * 0.65) * ampX[i] + offX[i]
-          const py = baseY[i] + Math.sin(a) * ampY[i] + offY[i]
+          const py = bubbleDriftY(i, a) + offY[i]
           const pz = baseZ[i] + Math.cos(a * 0.5) * ampZ[i] + offZ[i]
           posX[i] = px
           posY[i] = py
@@ -570,9 +640,12 @@ export function FogRevealHero() {
           offX[i] = 0
           offY[i] = 0
           offZ[i] = 0
+          bubbleScales[i] = 1
         }
+        regenerating = false
         exploding = true
         explodeStart = t
+        bubbleScaleAttr.needsUpdate = true
       }
 
       scene.add(new THREE.AmbientLight(0xf0e8f8, 0.85))
@@ -632,7 +705,6 @@ export function FogRevealHero() {
         // reflow so animation restarts
         void axeEl?.offsetWidth
         axeEl?.classList.add('fog-hero__axe--hit')
-        startAmbientMusic()
         playCrackSound()
         explodeBubbles()
         glitchUntil = tNow() + 0.16 + Math.random() * 0.14
@@ -717,8 +789,46 @@ export function FogRevealHero() {
         applyOrbitCamera()
       }
 
+      const setKey = (e: KeyboardEvent, down: boolean) => {
+        if (!activeRef.current) return
+        const k = e.key.length === 1 ? e.key.toLowerCase() : e.key
+        let hit = false
+        if (k === 'a' || k === 'ArrowLeft') {
+          keys.left = down
+          hit = true
+        } else if (k === 'd' || k === 'ArrowRight') {
+          keys.right = down
+          hit = true
+        } else if (k === 'w' || k === 'ArrowUp') {
+          keys.up = down
+          hit = true
+        } else if (k === 's' || k === 'ArrowDown') {
+          keys.down = down
+          hit = true
+        }
+        if (hit) {
+          e.preventDefault()
+          if (down) {
+            orbit.targetAzimuth = orbit.azimuth
+            orbit.targetPolar = orbit.polar
+            orbit.targetRadius = orbit.radius
+            orbit.idleUntil = tNow() + 6
+          }
+        }
+      }
+      const onKeyDown = (e: KeyboardEvent) => setKey(e, true)
+      const onKeyUp = (e: KeyboardEvent) => setKey(e, false)
+      const onBlurKeys = () => {
+        keys.left = keys.right = keys.up = keys.down = false
+      }
+
+      let frameParity = 0
       const animate = () => {
+        raf = 0
         if (!renderer || disposed) return
+        // Parked route / background tab: stop the loop until woken
+        if (!activeRef.current || document.hidden) return
+
         const t = (performance.now() - start) / 1000
 
         terrainMat.uniforms.uTime.value = t
@@ -734,7 +844,33 @@ export function FogRevealHero() {
         }
         grainMat.uniforms.uGlitch.value = glitch
 
-        if (!orbit.dragging) {
+        const dt = Math.min(0.05, Math.max(0, t - lastBubbleT))
+        lastBubbleT = t
+
+        if (!orbit.dragging && keysActive()) {
+          if (keys.left) orbit.targetAzimuth += KEY_YAW * dt
+          if (keys.right) orbit.targetAzimuth -= KEY_YAW * dt
+          if (keys.up) {
+            orbit.targetPolar = THREE.MathUtils.clamp(
+              orbit.targetPolar - KEY_PITCH * dt,
+              orbit.minPolar,
+              orbit.maxPolar,
+            )
+          }
+          if (keys.down) {
+            orbit.targetPolar = THREE.MathUtils.clamp(
+              orbit.targetPolar + KEY_PITCH * dt,
+              orbit.minPolar,
+              orbit.maxPolar,
+            )
+          }
+          orbit.idleUntil = t + 6
+          // Soft follow — eased, not snappy
+          const ease = 1 - Math.exp(-2.2 * dt)
+          orbit.azimuth += (orbit.targetAzimuth - orbit.azimuth) * ease
+          orbit.polar += (orbit.targetPolar - orbit.polar) * ease
+          applyOrbitCamera()
+        } else if (!orbit.dragging) {
           if (t >= orbit.idleUntil) pickIdleTarget()
           // Slow random wander when idle
           orbit.azimuth += (orbit.targetAzimuth - orbit.azimuth) * 0.008
@@ -754,9 +890,6 @@ export function FogRevealHero() {
           b.mesh.rotation.z = Math.sin(a * 6) * 0.35
         }
 
-        const dt = Math.min(0.05, Math.max(0, t - lastBubbleT))
-        lastBubbleT = t
-
         if (exploding) {
           const progress = Math.min(1, (t - explodeStart) / EXPLODE_DUR)
           const shrink = (1 - progress) * (1 - progress)
@@ -768,14 +901,15 @@ export function FogRevealHero() {
             velX[i] *= 0.985
             velY[i] *= 0.985
             velZ[i] *= 0.985
-            bubblePos.set(posX[i], posY[i], posZ[i])
-            bubbleScale.setScalar(scaleA[i] * shrink * (1.15 + (1 - progress) * 0.5))
-            bubbleMat4.compose(bubblePos, bubbleQuat, bubbleScale)
-            bubbleMesh.setMatrixAt(i, bubbleMat4)
+            bubbleScales[i] = shrink * (1.1 + (1 - progress) * 0.4)
+            writeBubblePos(i, posX[i], posY[i], posZ[i])
           }
-          bubbleMesh.instanceMatrix.needsUpdate = true
+          bubblePosAttr.needsUpdate = true
+          bubbleScaleAttr.needsUpdate = true
           if (progress >= 1) {
             exploding = false
+            regenerating = true
+            regenStart = t
             for (let i = 0; i < bubbleCount; i++) {
               velX[i] = 0
               velY[i] = 0
@@ -784,8 +918,39 @@ export function FogRevealHero() {
               offY[i] = 0
               offZ[i] = 0
               phaseA[i] = Math.random() * Math.PI * 2
+              regenDelay[i] = Math.random() * REGEN_STAGGER
+              bubbleScales[i] = 0
+              writeBubblePos(i, baseX[i], groundY, baseZ[i])
             }
+            bubblePosAttr.needsUpdate = true
+            bubbleScaleAttr.needsUpdate = true
           }
+        } else if (regenerating) {
+          let pending = 0
+          for (let i = 0; i < bubbleCount; i++) {
+            const age = t - regenStart - regenDelay[i]
+            if (age <= 0) {
+              bubbleScales[i] = 0
+              pending++
+              writeBubblePos(i, baseX[i], groundY, baseZ[i])
+              continue
+            }
+            const grow = Math.min(1, age / REGEN_GROW)
+            const ease = 1 - (1 - grow) * (1 - grow)
+            bubbleScales[i] = ease
+            if (grow < 1) pending++
+
+            const a = t * speedA[i] + phaseA[i]
+            const driftX = baseX[i] + Math.sin(a * 0.65) * ampX[i]
+            const driftY = bubbleDriftY(i, a)
+            const driftZ = baseZ[i] + Math.cos(a * 0.5) * ampZ[i]
+            // Rise from ground into float height
+            const y = groundY + (driftY - groundY) * ease
+            writeBubblePos(i, driftX, y, driftZ)
+          }
+          bubblePosAttr.needsUpdate = true
+          bubbleScaleAttr.needsUpdate = true
+          if (pending === 0) regenerating = false
         } else {
           const hit = syncMouseWorld()
           const influenceR = span * 0.24
@@ -795,11 +960,12 @@ export function FogRevealHero() {
           const mz = mouseWorld.z
           const pvx = pointerVel.x
           const pvy = pointerVel.y
-
+          // Idle float: stagger updates (1/4 of bubbles per frame) when the cursor is idle
           for (let i = 0; i < bubbleCount; i++) {
+            if (!pointerLive && (i & 3) !== frameParity) continue
             const a = t * speedA[i] + phaseA[i]
             const driftX = baseX[i] + Math.sin(a * 0.65) * ampX[i]
-            const driftY = baseY[i] + Math.sin(a) * ampY[i]
+            const driftY = bubbleDriftY(i, a)
             const driftZ = baseZ[i] + Math.cos(a * 0.5) * ampZ[i]
 
             let ox = offX[i]
@@ -836,12 +1002,10 @@ export function FogRevealHero() {
             offX[i] = ox
             offY[i] = oy
             offZ[i] = oz
-            bubblePos.set(driftX + ox, driftY + oy, driftZ + oz)
-            bubbleScale.setScalar(scaleA[i])
-            bubbleMat4.compose(bubblePos, bubbleQuat, bubbleScale)
-            bubbleMesh.setMatrixAt(i, bubbleMat4)
+            writeBubblePos(i, driftX + ox, driftY + oy, driftZ + oz)
           }
-          bubbleMesh.instanceMatrix.needsUpdate = true
+          frameParity = (frameParity + 1) & 3
+          bubblePosAttr.needsUpdate = true
         }
         pointerVel.multiplyScalar(0.85)
 
@@ -852,8 +1016,25 @@ export function FogRevealHero() {
         raf = requestAnimationFrame(animate)
       }
 
+      const wake = () => {
+        if (disposed || !renderer) return
+        if (!activeRef.current || document.hidden) return
+        if (!raf) raf = requestAnimationFrame(animate)
+      }
+      const pause = () => {
+        if (raf) cancelAnimationFrame(raf)
+        raf = 0
+      }
+      wakeRef.current = wake
+      pauseRef.current = pause
+
+      const onVisibility = () => {
+        if (document.hidden) pause()
+        else wake()
+      }
+      document.addEventListener('visibilitychange', onVisibility)
+
       resize()
-      animate()
 
       const onEnter = (e: PointerEvent) => {
         if (axeEl) axeEl.style.opacity = '1'
@@ -868,6 +1049,9 @@ export function FogRevealHero() {
       if (axeEl) axeEl.style.opacity = '0'
 
       window.addEventListener('resize', resize)
+      window.addEventListener('keydown', onKeyDown)
+      window.addEventListener('keyup', onKeyUp)
+      window.addEventListener('blur', onBlurKeys)
       canvas.addEventListener('pointerdown', onDown)
       canvas.addEventListener('pointermove', onMove)
       canvas.addEventListener('pointerup', onUp)
@@ -876,9 +1060,14 @@ export function FogRevealHero() {
       canvas.addEventListener('pointerleave', onLeave)
       canvas.addEventListener('wheel', onWheel, { passive: false })
 
-      ;(mount as HTMLDivElement & { __cleanup?: () => void }).__cleanup = () => {
-        cancelAnimationFrame(raf)
+      tearDown = () => {
+        if (raf) cancelAnimationFrame(raf)
+        raf = 0
+        document.removeEventListener('visibilitychange', onVisibility)
         window.removeEventListener('resize', resize)
+        window.removeEventListener('keydown', onKeyDown)
+        window.removeEventListener('keyup', onKeyUp)
+        window.removeEventListener('blur', onBlurKeys)
         canvas.removeEventListener('pointerdown', onDown)
         canvas.removeEventListener('pointermove', onMove)
         canvas.removeEventListener('pointerup', onUp)
@@ -894,18 +1083,32 @@ export function FogRevealHero() {
         birdMat.dispose()
         bubbleGeo.dispose()
         bubbleMat.dispose()
-        bubbleMesh.dispose()
+        bubbleTex.dispose()
         ground.geometry.dispose()
         ;(ground.material as THREE.Material).dispose()
         river.geometry.dispose()
         ;(river.material as THREE.Material).dispose()
         sceneTarget.dispose()
         grainMat.dispose()
-        renderer?.dispose()
-        if (renderer?.domElement.parentElement === mount) {
-          mount.removeChild(renderer.domElement)
+        if (renderer) {
+          renderer.dispose()
+          renderer.forceContextLoss()
+          if (renderer.domElement.parentElement === mount) {
+            mount.removeChild(renderer.domElement)
+          }
+          renderer = null
         }
+        tearDown = null
+        wakeRef.current = null
+        pauseRef.current = null
       }
+
+      if (disposed) {
+        tearDown()
+        return
+      }
+
+      wake()
     }
 
     boot().catch((err) => {
@@ -914,13 +1117,20 @@ export function FogRevealHero() {
 
     return () => {
       disposed = true
-      cancelAnimationFrame(raf)
+      if (raf) cancelAnimationFrame(raf)
+      raf = 0
       stopHeroAudio()
-      const el = mount as HTMLDivElement & { __cleanup?: () => void }
-      el.__cleanup?.()
-      el.__cleanup = undefined
+      tearDown?.()
+      tearDown = null
+      wakeRef.current = null
+      pauseRef.current = null
     }
   }, [])
+
+  useEffect(() => {
+    if (active) wakeRef.current?.()
+    else pauseRef.current?.()
+  }, [active])
 
   return (
     <div className="fog-hero" ref={mountRef} aria-hidden="true">
