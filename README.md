@@ -4,7 +4,7 @@ Mobile-first portfolio for Po Yen Tseng — interactive home bio + case study pa
 
 ## Structure
 
-- `/` — Home: needle-mountain bio hero + project listing
+- `/` — Home: 3D fantasy mountain viewport with fog-reveal + project listing
 - `/readme` — README.MD
 - `/forma-editor` — Forma Editor
 - `/gen-ai` — Gen AI in Render Studio
@@ -18,8 +18,16 @@ Content mirrors [pytseng.com](https://www.pytseng.com/). Each project page inclu
 
 - Vite + React + TypeScript
 - React Router
-- Three.js (Patagonia-inspired needle mountain hero)
+- Three.js hero: real Fitz Roy DEM (AWS Terrain Tiles / Terrarium GIS) + fog clear + local zoom
 - Framer Motion (TOC sheet)
+
+### Fitz Roy DEM
+
+Height data lives in `public/fitz-roy/` (generated from open AWS elevation tiles).
+
+```bash
+python3 scripts/fetch-fitz-roy-dem.py
+```
 
 ## Develop
 

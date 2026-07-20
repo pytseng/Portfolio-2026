@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Large source HDRIs (use converted public/* web assets instead)
+*.exr
+*.hdr
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

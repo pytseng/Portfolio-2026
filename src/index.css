@@ -1,14 +1,14 @@
 :root {
-  --bg: #eef2f4;
-  --bg-deep: #0d1418;
-  --surface: #f7f9fa;
+  --bg: #f4f7f9;
+  --bg-deep: #e8eef2;
+  --surface: #ffffff;
   --ink: #12181c;
   --ink-soft: #3d4a52;
   --muted: #6b7880;
-  --line: rgba(18, 24, 28, 0.12);
+  --line: rgba(18, 24, 28, 0.1);
   --accent: #0e7c86;
   --accent-soft: #d7eef0;
-  --hero-glow: rgba(14, 124, 134, 0.28);
+  --hero-glow: rgba(14, 124, 134, 0.14);
   --font-display: 'Syne', sans-serif;
   --font-body: 'Newsreader', Georgia, serif;
   --font-ui: 'DM Sans', sans-serif;

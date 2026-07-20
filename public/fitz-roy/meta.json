@@ -1,0 +1,28 @@
+{
+  "name": "Cerro Fitz Roy massif (Patagonia)",
+  "source": "AWS Terrain Tiles \u2014 Terrarium encoding (Mapzen / open data)",
+  "sourceUrl": "https://registry.opendata.aws/terrain-tiles/",
+  "zoom": 13,
+  "tiles": {
+    "xMin": 2432,
+    "xMax": 2435,
+    "yMin": 5386,
+    "yMax": 5389
+  },
+  "bbox": {
+    "west": -73.125,
+    "south": -49.325121991040014,
+    "east": -72.94921875,
+    "north": -49.21042044565029
+  },
+  "width": 768,
+  "height": 768,
+  "elevationMin": 444.0,
+  "elevationMax": 2875.86572265625,
+  "center": {
+    "lat": -49.2712,
+    "lon": -73.0432
+  },
+  "attribution": "Elevation \u00a9 AWS Terrain Tiles / Mapzen open data",
+  "note": "SRTM-derived tiles under-sample sharp granite spires vs true Fitz Roy summit (3405 m). Vertical exaggeration applied in the 3D viewport."
+}

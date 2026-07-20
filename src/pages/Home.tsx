@@ -2,9 +2,9 @@ import { lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { projects } from '../data/projects'
 
-const NeedleMountain = lazy(() =>
-  import('../components/home/NeedleMountain').then((m) => ({
-    default: m.NeedleMountain,
+const FogRevealHero = lazy(() =>
+  import('../components/home/FogRevealHero').then((m) => ({
+    default: m.FogRevealHero,
   })),
 )
 
@@ -13,25 +13,16 @@ export function Home() {
     <div className="home">
       <section className="bio-hero" aria-label="Bio">
         <div className="bio-hero__stage">
-          <Suspense fallback={<div className="needle-mount" />}>
-            <NeedleMountain />
+          <Suspense fallback={<div className="fog-hero fog-hero--fallback" />}>
+            <FogRevealHero />
           </Suspense>
-          <div className="bio-hero__veil" aria-hidden="true" />
         </div>
 
         <div className="bio-hero__content">
           <p className="bio-hero__eyebrow">Portfolio 2026</p>
           <h1 className="bio-hero__name">Po Yen Tseng</h1>
           <p className="bio-hero__tagline">I Design, I Code, I Full-Stack.</p>
-          <p className="bio-hero__body">
-            Po here, I specialize in turning conceptual ideas into reality, with
-            a knack for deep-diving into complex problems, I’m pretty good at
-            the messy early stages of emerging tech. Previous role at Unity, I
-            designed and shipped nearly every product for the Automotive and
-            Manufacturing verticals, and led design for the digital twin
-            authoring team. After a sabbatical for family reason and personal
-            growth, I’m ready for new challenges.
-          </p>
+          <p className="bio-hero__hint">Move or tap to clear the fog</p>
           <a className="bio-hero__cta" href="#works">
             Explore works
             <span aria-hidden="true">↓</span>
