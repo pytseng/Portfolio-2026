@@ -400,32 +400,6 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       })
       scene.add(new THREE.Mesh(skyGeo, skyMat))
 
-      const ground = new THREE.Mesh(
-        new THREE.CircleGeometry(Math.max(worldW, worldD) * 2.8, 64),
-        new THREE.MeshBasicMaterial({
-          color: 0xa8c4f0,
-          transparent: true,
-          opacity: 0.2,
-          depthWrite: false,
-        }),
-      )
-      ground.rotation.x = -Math.PI / 2
-      ground.position.y = -0.8
-      scene.add(ground)
-
-      const river = new THREE.Mesh(
-        new THREE.PlaneGeometry(worldW * 0.08, worldD * 1.1, 1, 24),
-        new THREE.MeshBasicMaterial({
-          color: 0x96bbff,
-          transparent: true,
-          opacity: 0.72,
-        }),
-      )
-      river.rotation.x = -Math.PI / 2
-      river.rotation.z = 0.18
-      river.position.set(-worldW * 0.05, -0.2, 0)
-      scene.add(river)
-
       const terrainGeo = new THREE.PlaneGeometry(worldW, worldD, segs, segs)
       terrainGeo.rotateX(-Math.PI / 2)
       const elevNorm = new Float32Array(terrainGeo.attributes.position.count)
@@ -488,6 +462,397 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         return {
           y: (meters - elevMin) * heightScale,
           n: THREE.MathUtils.clamp((meters - elevMin) / elevSpan, 0, 1),
+        }
+      }
+
+      // Ponds — organic blobs of still water pooled in low basins
+      const pondGeos: THREE.BufferGeometry[] = []
+      const pondMat = new THREE.MeshBasicMaterial({
+        color: 0xaecbff,
+        transparent: true,
+        opacity: 0.85,
+        depthWrite: false,
+      })
+      const makePondGeometry = () => {
+        // Wobbly closed outline from layered radial harmonics
+        const n = 26
+        const k2 = 2 + ((Math.random() * 2) | 0)
+        const k3 = 4 + ((Math.random() * 3) | 0)
+        const a2 = 0.16 + Math.random() * 0.14
+        const a3 = 0.06 + Math.random() * 0.08
+        const ph2 = Math.random() * Math.PI * 2
+        const ph3 = Math.random() * Math.PI * 2
+        const pts: THREE.Vector2[] = []
+        for (let i = 0; i < n; i++) {
+          const ang = (i / n) * Math.PI * 2
+          const r =
+            1 +
+            a2 * Math.sin(k2 * ang + ph2) +
+            a3 * Math.sin(k3 * ang + ph3)
+          pts.push(new THREE.Vector2(Math.cos(ang) * r, Math.sin(ang) * r))
+        }
+        const geo = new THREE.ShapeGeometry(new THREE.Shape(pts), 10)
+        pondGeos.push(geo)
+        return geo
+      }
+      {
+        const spots: { x: number; z: number }[] = []
+        let guard = 0
+        while (spots.length < 5 && guard < 1200) {
+          guard++
+          const x = (Math.random() - 0.5) * worldW * 0.8
+          const z = (Math.random() - 0.5) * worldD * 0.8
+          const { y, n } = terrainAt(x, z)
+          if (n > 0.12) continue
+          // Only true basins — surroundings must rise above the center
+          const r = 5
+          let basin = true
+          for (let k = 0; k < 6; k++) {
+            const a = (k / 6) * Math.PI * 2
+            if (terrainAt(x + Math.cos(a) * r, z + Math.sin(a) * r).y < y - 0.3) {
+              basin = false
+              break
+            }
+          }
+          if (!basin) continue
+          if (spots.some((s) => Math.hypot(s.x - x, s.z - z) < worldW * 0.12)) continue
+          spots.push({ x, z })
+          const pond = new THREE.Mesh(makePondGeometry(), pondMat)
+          pond.rotation.x = -Math.PI / 2
+          pond.rotation.z = Math.random() * Math.PI * 2
+          // Lake-sized bodies of water
+          const pr = 5.5 + Math.random() * 5.5
+          pond.scale.set(pr, pr * (0.7 + Math.random() * 0.5), 1)
+          pond.position.set(x, y + 0.55, z)
+          scene.add(pond)
+        }
+      }
+
+      // Streams — ribbons of water running downhill, with waterfall foam
+      const streamGeos: THREE.BufferGeometry[] = []
+      const streamMat = new THREE.MeshBasicMaterial({
+        color: 0xaecbff,
+        transparent: true,
+        opacity: 0.82,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      })
+      const foamMat = new THREE.MeshBasicMaterial({
+        color: 0xf2f7ff,
+        transparent: true,
+        opacity: 0.9,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      })
+      {
+        const step = 1.3
+        for (let s = 0; s < 4; s++) {
+          // Start at mid elevation
+          let sx = 0
+          let sz = 0
+          let found = false
+          for (let k = 0; k < 300 && !found; k++) {
+            const x = (Math.random() - 0.5) * worldW * 0.7
+            const z = (Math.random() - 0.5) * worldD * 0.7
+            const { n } = terrainAt(x, z)
+            if (n > 0.22 && n < 0.42) {
+              sx = x
+              sz = z
+              found = true
+            }
+          }
+          if (!found) continue
+          // Steepest-descent walk down the terrain
+          const path: THREE.Vector3[] = []
+          let cx = sx
+          let cz = sz
+          let cy = terrainAt(cx, cz).y
+          path.push(new THREE.Vector3(cx, cy, cz))
+          for (let i = 0; i < 150; i++) {
+            let bestX = cx
+            let bestZ = cz
+            let bestY = cy
+            for (let d = 0; d < 10; d++) {
+              const a = (d / 10) * Math.PI * 2
+              const nx = cx + Math.cos(a) * step
+              const nz = cz + Math.sin(a) * step
+              const ny = terrainAt(nx, nz).y
+              if (ny < bestY) {
+                bestY = ny
+                bestX = nx
+                bestZ = nz
+              }
+            }
+            if (bestY >= cy - 1e-4) break
+            cx = bestX
+            cz = bestZ
+            cy = bestY
+            path.push(new THREE.Vector3(cx, cy, cz))
+            if (terrainAt(cx, cz).n < 0.045) break
+          }
+          if (path.length < 8) continue
+
+          const w = 0.55 + Math.random() * 0.4
+          const positions: number[] = []
+          const dir = new THREE.Vector3()
+          const perp = new THREE.Vector3()
+          for (let i = 0; i < path.length - 1; i++) {
+            const p0 = path[i]
+            const p1 = path[i + 1]
+            dir.subVectors(p1, p0)
+            dir.y = 0
+            if (dir.lengthSq() < 1e-6) continue
+            dir.normalize()
+            perp.set(-dir.z, 0, dir.x).multiplyScalar(w)
+            const y0 = p0.y + 0.14
+            const y1 = p1.y + 0.14
+            positions.push(
+              p0.x + perp.x, y0, p0.z + perp.z,
+              p0.x - perp.x, y0, p0.z - perp.z,
+              p1.x + perp.x, y1, p1.z + perp.z,
+              p0.x - perp.x, y0, p0.z - perp.z,
+              p1.x - perp.x, y1, p1.z - perp.z,
+              p1.x + perp.x, y1, p1.z + perp.z,
+            )
+            // Waterfall foam sheet over steep drops
+            const drop = p0.y - p1.y
+            if (drop > 2.0) {
+              const foamGeo = new THREE.PlaneGeometry(w * 2.6, drop + 0.7)
+              streamGeos.push(foamGeo)
+              const foam = new THREE.Mesh(foamGeo, foamMat)
+              foam.position.set(
+                (p0.x + p1.x) / 2,
+                (p0.y + p1.y) / 2 + 0.25,
+                (p0.z + p1.z) / 2,
+              )
+              foam.lookAt(foam.position.x + dir.x, foam.position.y, foam.position.z + dir.z)
+              scene.add(foam)
+            }
+          }
+          const geo = new THREE.BufferGeometry()
+          geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+          streamGeos.push(geo)
+          scene.add(new THREE.Mesh(geo, streamMat))
+        }
+      }
+
+      // Clouds — soft white cumulus puffs drifting above the peaks
+      type Cloud = { group: THREE.Group; speed: number }
+      const clouds: Cloud[] = []
+      const cloudCount = isMobile ? 4 : 6
+      const cloudGeos: THREE.BufferGeometry[] = [new THREE.SphereGeometry(1, 14, 10)]
+      const cloudMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: new THREE.Color(0xffffff).multiplyScalar(0.32),
+        roughness: 1,
+        transparent: true,
+        opacity: 0.92,
+        depthWrite: false,
+      })
+      for (let i = 0; i < cloudCount; i++) {
+        const group = new THREE.Group()
+        const len = 5 + Math.random() * 5
+        const puffs = 8 + ((Math.random() * 5) | 0)
+        for (let k = 0; k < puffs; k++) {
+          const u = k / (puffs - 1)
+          const centerBoost = 1 - Math.abs(u - 0.5) * 2
+          const puff = new THREE.Mesh(cloudGeos[0], cloudMat)
+          // Organic scatter — gaussian-ish clumping instead of a straight row
+          const spread = (Math.random() + Math.random() - 1) * 0.5
+          puff.position.set(
+            (u - 0.5) * len + spread * 3.2,
+            centerBoost * (0.5 + Math.random() * 1.0) + (Math.random() - 0.5) * 0.8,
+            (Math.random() + Math.random() - 1) * 2.4,
+          )
+          // Irregular lumps — every axis gets its own squash
+          const s = 1.3 + centerBoost * 1.5 + Math.random() * 0.9
+          puff.scale.set(
+            s * (0.8 + Math.random() * 0.5),
+            s * (0.42 + Math.random() * 0.3),
+            s * (0.6 + Math.random() * 0.5),
+          )
+          puff.rotation.y = Math.random() * Math.PI
+          group.add(puff)
+        }
+        // Hang around the peaks, not high above them
+        group.position.set(
+          (Math.random() - 0.5) * worldW * 1.2,
+          peakH * (0.72 + Math.random() * 0.32),
+          (Math.random() - 0.5) * worldD * 0.8,
+        )
+        group.rotation.y = Math.random() * Math.PI
+        scene.add(group)
+        clouds.push({ group, speed: 0.9 + Math.random() * 1.4 })
+      }
+
+      // Sky fleet — hot air balloons, zeppelins, and dragons
+      const skyGeos: THREE.BufferGeometry[] = []
+      const skyMats: THREE.Material[] = []
+      const trackG = <T extends THREE.BufferGeometry>(g: T): T => {
+        skyGeos.push(g)
+        return g
+      }
+      const trackM = <T extends THREE.Material>(m: T): T => {
+        skyMats.push(m)
+        return m
+      }
+
+      type Balloon = {
+        group: THREE.Group
+        speed: number
+        phase: number
+        baseY: number
+      }
+      const balloons: Balloon[] = []
+      {
+        const envGeo = trackG(new THREE.SphereGeometry(1, 14, 12))
+        const skirtGeo = trackG(new THREE.ConeGeometry(0.72, 0.9, 8, 1, true))
+        const basketGeo = trackG(new THREE.BoxGeometry(0.55, 0.45, 0.55))
+        const basketMat = trackM(
+          new THREE.MeshStandardMaterial({ color: 0x9a7b5f, roughness: 0.9 }),
+        )
+        const balloonColors = [0xf49d9d, 0x96bbff, 0xf4f493]
+        for (let i = 0; i < 3; i++) {
+          const group = new THREE.Group()
+          const mat = trackM(
+            new THREE.MeshStandardMaterial({
+              color: balloonColors[i % balloonColors.length],
+              roughness: 0.55,
+            }),
+          )
+          const env = new THREE.Mesh(envGeo, mat)
+          env.scale.set(1.6, 1.95, 1.6)
+          group.add(env)
+          const skirt = new THREE.Mesh(skirtGeo, mat)
+          skirt.rotation.x = Math.PI
+          skirt.position.y = -2.15
+          group.add(skirt)
+          const basket = new THREE.Mesh(basketGeo, basketMat)
+          basket.position.y = -2.9
+          group.add(basket)
+          group.position.set(
+            (Math.random() - 0.5) * worldW * 0.9,
+            peakH * (0.85 + Math.random() * 0.45),
+            (Math.random() - 0.5) * worldD * 0.7,
+          )
+          scene.add(group)
+          balloons.push({
+            group,
+            speed: 0.5 + Math.random() * 0.7,
+            phase: Math.random() * Math.PI * 2,
+            baseY: group.position.y,
+          })
+        }
+      }
+
+      type Zeppelin = { group: THREE.Group; speed: number; phase: number; baseY: number }
+      const zeppelins: Zeppelin[] = []
+      {
+        const hullGeo = trackG(new THREE.SphereGeometry(1, 16, 12))
+        const hullMat = trackM(
+          new THREE.MeshStandardMaterial({ color: 0xe4e7f2, roughness: 0.5 }),
+        )
+        const finGeo = trackG(new THREE.BoxGeometry(0.9, 0.85, 0.08))
+        const finMat = trackM(
+          new THREE.MeshStandardMaterial({ color: 0xf49d9d, roughness: 0.6 }),
+        )
+        const gondolaGeo = trackG(new THREE.BoxGeometry(1.2, 0.32, 0.45))
+        const gondolaMat = trackM(
+          new THREE.MeshStandardMaterial({ color: 0x6a7a90, roughness: 0.7 }),
+        )
+        for (let i = 0; i < 2; i++) {
+          const group = new THREE.Group()
+          const hull = new THREE.Mesh(hullGeo, hullMat)
+          hull.scale.set(3.4, 0.95, 0.95)
+          group.add(hull)
+          const finV = new THREE.Mesh(finGeo, finMat)
+          finV.position.set(-2.9, 0.35, 0)
+          group.add(finV)
+          const finH = new THREE.Mesh(finGeo, finMat)
+          finH.rotation.x = Math.PI / 2
+          finH.position.set(-2.9, 0, 0)
+          group.add(finH)
+          const gondola = new THREE.Mesh(gondolaGeo, gondolaMat)
+          gondola.position.y = -1.05
+          group.add(gondola)
+          group.position.set(
+            (Math.random() - 0.5) * worldW * 0.9,
+            peakH * (1.0 + Math.random() * 0.4),
+            (Math.random() - 0.5) * worldD * 0.7,
+          )
+          scene.add(group)
+          zeppelins.push({
+            group,
+            speed: 1.4 + Math.random() * 1.0,
+            phase: Math.random() * Math.PI * 2,
+            baseY: group.position.y,
+          })
+        }
+      }
+
+      type Dragon = {
+        segs: THREE.Mesh[]
+        wingL: THREE.Mesh
+        wingR: THREE.Mesh
+        radius: number
+        speed: number
+        height: number
+        phase: number
+        center: THREE.Vector3
+      }
+      const dragons: Dragon[] = []
+      {
+        const segGeo = trackG(new THREE.SphereGeometry(1, 10, 8))
+        const dragonMat = trackM(
+          new THREE.MeshStandardMaterial({ color: 0x86c2a4, roughness: 0.5 }),
+        )
+        const wingGeo = trackG(new THREE.BufferGeometry())
+        wingGeo.setAttribute(
+          'position',
+          new THREE.BufferAttribute(
+            new Float32Array([0, 0, 0, 2.2, 0.5, -0.4, 1.1, 0.15, 0.55]),
+            3,
+          ),
+        )
+        wingGeo.computeVertexNormals()
+        const wingMat = trackM(
+          new THREE.MeshStandardMaterial({
+            color: 0x74b8a0,
+            roughness: 0.6,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.9,
+          }),
+        )
+        const segCount = 9
+        for (let i = 0; i < 2; i++) {
+          const segs: THREE.Mesh[] = []
+          for (let k = 0; k < segCount; k++) {
+            const seg = new THREE.Mesh(segGeo, dragonMat)
+            const s = 0.85 * (1 - k / segCount) + 0.18
+            seg.scale.setScalar(s)
+            scene.add(seg)
+            segs.push(seg)
+          }
+          const wingL = new THREE.Mesh(wingGeo, wingMat)
+          const wingR = new THREE.Mesh(wingGeo, wingMat)
+          wingR.scale.x = -1
+          scene.add(wingL)
+          scene.add(wingR)
+          dragons.push({
+            segs,
+            wingL,
+            wingR,
+            radius: 22 + Math.random() * 26,
+            speed: 0.18 + Math.random() * 0.14,
+            height: peakH * (0.75 + Math.random() * 0.45),
+            phase: Math.random() * Math.PI * 2,
+            center: new THREE.Vector3(
+              (Math.random() - 0.5) * worldW * 0.4,
+              0,
+              (Math.random() - 0.5) * worldD * 0.4,
+            ),
+          })
         }
       }
 
@@ -991,16 +1356,23 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const bubbleCount = isMobile ? 1600 : 3800
       const bubbleGeo = new THREE.SphereGeometry(1, 8, 8)
       const bubbleMat = new THREE.MeshStandardMaterial({
-        color: 0xf49d9d,
+        color: 0xffffff,
         transparent: true,
         opacity: 0.72,
         roughness: 0.08,
         metalness: 0.45,
-        emissive: new THREE.Color(0xf49d9d).multiplyScalar(0.42),
+        emissive: new THREE.Color(0xffffff).multiplyScalar(0.3),
         depthWrite: false,
       })
       const bubbleMesh = new THREE.InstancedMesh(bubbleGeo, bubbleMat, bubbleCount)
       bubbleMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+      // Light tints of the primary yellow and blue
+      {
+        const bubbleTints = [new THREE.Color(0xfaf8d0), new THREE.Color(0xcbdcff)]
+        for (let i = 0; i < bubbleCount; i++) {
+          bubbleMesh.setColorAt(i, bubbleTints[(Math.random() * bubbleTints.length) | 0])
+        }
+      }
       scene.add(bubbleMesh)
 
       const baseX = new Float32Array(bubbleCount)
@@ -1157,7 +1529,7 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         void axeEl?.offsetWidth
         axeEl?.classList.add('fog-hero__axe--hit')
         playCrackSound()
-        glitchUntil = tNow() + 0.16 + Math.random() * 0.14
+        glitchUntil = tNow() + 0.06 + Math.random() * 0.04
         // Burst from a point near the look target / camera mid-view
         const origin = lookTarget.clone().add(
           new THREE.Vector3(
@@ -1287,7 +1659,7 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         let glitch = 0
         if (t < glitchUntil) {
           const remain = glitchUntil - t
-          glitch = Math.min(1, remain * 10) * (0.7 + 0.3 * Math.sin(t * 100))
+          glitch = Math.min(1, remain * 22) * (0.7 + 0.3 * Math.sin(t * 100))
           if (Math.random() > 0.65) glitch = Math.min(1, glitch + 0.4)
         }
         grainMat.uniforms.uGlitch.value = glitch
@@ -1342,6 +1714,53 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
           const a = t * isl.speed + isl.phase
           isl.group.position.y = isl.baseY + Math.sin(a) * isl.amp
           isl.group.rotation.y += isl.spin * dt
+        }
+
+        for (const cl of clouds) {
+          cl.group.position.x += cl.speed * dt
+          if (cl.group.position.x > worldW * 0.75) {
+            cl.group.position.x = -worldW * 0.75
+            cl.group.position.z = (Math.random() - 0.5) * worldD * 0.8
+          }
+        }
+
+        for (const bl of balloons) {
+          bl.group.position.x += bl.speed * dt
+          bl.group.position.y = bl.baseY + Math.sin(t * 0.4 + bl.phase) * 1.4
+          if (bl.group.position.x > worldW * 0.7) {
+            bl.group.position.x = -worldW * 0.7
+            bl.group.position.z = (Math.random() - 0.5) * worldD * 0.7
+          }
+        }
+
+        for (const zp of zeppelins) {
+          zp.group.position.x += zp.speed * dt
+          zp.group.position.y = zp.baseY + Math.sin(t * 0.3 + zp.phase) * 0.8
+          zp.group.rotation.z = Math.sin(t * 0.35 + zp.phase) * 0.03
+          if (zp.group.position.x > worldW * 0.75) {
+            zp.group.position.x = -worldW * 0.75
+            zp.group.position.z = (Math.random() - 0.5) * worldD * 0.7
+          }
+        }
+
+        for (const dr of dragons) {
+          const a = t * dr.speed + dr.phase
+          for (let k = 0; k < dr.segs.length; k++) {
+            const ak = a - k * 0.055
+            dr.segs[k].position.set(
+              dr.center.x + Math.cos(ak) * dr.radius,
+              dr.height + Math.sin(ak * 2.2) * 2.2 + Math.sin(ak * 5) * 0.7,
+              dr.center.z + Math.sin(ak) * dr.radius,
+            )
+          }
+          // Wings ride the second segment and flap
+          const anchor = dr.segs[1]
+          const heading = -a + Math.PI / 2
+          const flap = Math.sin(t * 6 + dr.phase) * 0.55
+          dr.wingL.position.copy(anchor.position)
+          dr.wingR.position.copy(anchor.position)
+          dr.wingL.rotation.set(0, heading, 0.35 + flap)
+          dr.wingR.rotation.set(0, heading, -(0.35 + flap))
         }
 
         const bursting = t < burstUntil
@@ -1506,10 +1925,15 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         pathGeo.dispose()
         pathMat.dispose()
         pathMesh.dispose()
-        ground.geometry.dispose()
-        ;(ground.material as THREE.Material).dispose()
-        river.geometry.dispose()
-        ;(river.material as THREE.Material).dispose()
+        for (const g of pondGeos) g.dispose()
+        pondMat.dispose()
+        for (const g of streamGeos) g.dispose()
+        streamMat.dispose()
+        foamMat.dispose()
+        for (const g of cloudGeos) g.dispose()
+        cloudMat.dispose()
+        for (const g of skyGeos) g.dispose()
+        for (const m of skyMats) m.dispose()
         sceneTarget.dispose()
         grainMat.dispose()
         if (renderer) {
