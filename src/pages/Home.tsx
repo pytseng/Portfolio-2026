@@ -18,6 +18,8 @@ export function Home({ live = true }: { live?: boolean }) {
           </Suspense>
         </div>
 
+        <div className="bio-hero__grid" aria-hidden="true" />
+
         <div className="bio-hero__content">
           <h1 className="bio-hero__name">Po Yen Tseng</h1>
           <p className="bio-hero__tagline">
