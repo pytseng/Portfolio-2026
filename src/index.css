@@ -1,14 +1,22 @@
 :root {
-  --bg: #f4f7f9;
-  --bg-deep: #e8eef2;
+  /* Site palette */
+  --pink: #f49d9d;
+  --blue: #96bbff;
+  --yellow: #f4f493;
+  --gray: #cfcfcf;
+
+  --bg: #f6f6f4;
+  --bg-deep: #cfcfcf;
   --surface: #ffffff;
-  --ink: #12181c;
-  --ink-soft: #3d4a52;
-  --muted: #6b7880;
-  --line: rgba(18, 24, 28, 0.1);
-  --accent: #0e7c86;
-  --accent-soft: #d7eef0;
-  --hero-glow: rgba(14, 124, 134, 0.14);
+  --ink: #1f1f1f;
+  --ink-soft: #4a4a4a;
+  --muted: #7a7a7a;
+  --line: rgba(31, 31, 31, 0.12);
+  --accent: #f49d9d;
+  --accent-2: #96bbff;
+  --accent-soft: #fce4e4;
+  --highlight: #f4f493;
+  --hero-glow: rgba(150, 187, 255, 0.22);
   --font-display: 'Syne', sans-serif;
   --font-body: 'Newsreader', Georgia, serif;
   --font-ui: 'DM Sans', sans-serif;
@@ -40,9 +48,9 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(120% 80% at 100% 0%, rgba(14, 124, 134, 0.1), transparent 55%),
-    radial-gradient(90% 60% at 0% 20%, rgba(18, 24, 28, 0.05), transparent 50%),
-    linear-gradient(180deg, #f4f7f8 0%, var(--bg) 40%, #e8eef1 100%);
+    radial-gradient(120% 80% at 100% 0%, rgba(244, 157, 157, 0.22), transparent 55%),
+    radial-gradient(90% 60% at 0% 18%, rgba(150, 187, 255, 0.2), transparent 50%),
+    linear-gradient(180deg, #faf9f6 0%, var(--bg) 42%, #e8e8e6 100%);
 }
 
 img {
@@ -112,7 +120,7 @@ blockquote {
   margin: 0 0 1.5rem;
   padding: 1rem 1.1rem;
   border-left: 3px solid var(--accent);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(244, 244, 147, 0.28);
   font-size: 1.08rem;
   line-height: 1.6;
   color: var(--ink);

@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { projects } from '../data/projects'
+import { HeroGrid } from '../components/home/HeroGrid'
 
 const FogRevealHero = lazy(() =>
   import('../components/home/FogRevealHero').then((m) => ({
@@ -12,24 +13,31 @@ export function Home({ live = true }: { live?: boolean }) {
   return (
     <div className="home">
       <section className="bio-hero" aria-label="Bio">
+        <HeroGrid active={live} />
+
         <div className="bio-hero__stage">
           <Suspense fallback={<div className="fog-hero fog-hero--fallback" />}>
             <FogRevealHero active={live} />
           </Suspense>
         </div>
 
-        <div className="bio-hero__grid" aria-hidden="true" />
-
         <div className="bio-hero__content">
+          <p className="bio-hero__eyebrow">Portfolio — 2026</p>
           <h1 className="bio-hero__name">Po Yen Tseng</h1>
           <p className="bio-hero__tagline">
-            😊 Good at making design that scales and fun. Also mountaineering
-            🏔️
+            Deconstruct, construct, and everything in between
           </p>
-          <a className="bio-hero__cta" href="#works">
-            Explore works
-            <span aria-hidden="true">↓</span>
-          </a>
+          <div className="bio-hero__actions">
+            <a className="bio-hero__cta" href="#works">
+              Explore works
+              <span className="bio-hero__cta-arrow" aria-hidden="true">
+                ↓
+              </span>
+            </a>
+            <span className="bio-hero__hint">
+              Drag to explore · click to pop the bubbles
+            </span>
+          </div>
         </div>
       </section>
 

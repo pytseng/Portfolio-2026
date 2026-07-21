@@ -67,10 +67,12 @@ void main() {
 
   vec3 sun = normalize(uSunDir);
   float ndl = max(dot(n, sun), 0.0);
-  float lit = mix(0.72, 1.2, smoothstep(0.0, 1.0, ndl));
-  vec3 warm = vec3(1.0, 0.9, 0.94);
-  vec3 cool = vec3(0.78, 0.88, 1.0);
-  vec3 shade = mix(cool, warm, ndl * 0.85 + 0.15);
+  // Soft half-Lambert for smoother, less faceted shading
+  float wrap = ndl * 0.5 + 0.5;
+  float lit = mix(0.78, 1.15, wrap * wrap);
+  vec3 warm = vec3(1.0, 0.92, 0.95);
+  vec3 cool = vec3(0.82, 0.9, 1.0);
+  vec3 shade = mix(cool, warm, wrap);
   vec3 col = albedo * lit * shade;
 
   float valleyMist = (1.0 - smoothstep(0.05, 0.4, vElev)) * 0.28;
@@ -82,12 +84,12 @@ void main() {
   col = mix(col, uFogColor, fog);
 
   float snowAmt = smoothstep(0.5, 0.78, vElev);
-  float spark = step(0.988, fract(sin(dot(vWorldPos.xz, vec2(12.9898, 78.233))) * 43758.5453));
-  col += spark * snowAmt * 0.55;
+  float spark = smoothstep(0.992, 0.999, fract(sin(dot(vWorldPos.xz, vec2(12.9898, 78.233))) * 43758.5453));
+  col += spark * snowAmt * 0.28;
 
-  // Fine surface grain
-  float g = fract(sin(dot(vWorldPos.xz * 12.0, vec2(12.9898, 78.233))) * 43758.5453);
-  col += (g - 0.5) * 0.035;
+  // Soft micro-variation (kept subtle for a polished look)
+  float g = fract(sin(dot(vWorldPos.xz * 8.0, vec2(12.9898, 78.233))) * 43758.5453);
+  col += (g - 0.5) * 0.012;
 
   gl_FragColor = vec4(col, 1.0);
 }
@@ -107,9 +109,9 @@ void main() {
 
   // Slow dreamy hue drift across the sky
   float drift = sin(uTime * 0.07) * 0.5 + 0.5;
-  vec3 top = mix(uTop, vec3(0.78, 0.72, 0.92), drift * 0.35);
-  vec3 mid = mix(uMid, vec3(0.92, 0.86, 0.96), (1.0 - drift) * 0.3);
-  vec3 hor = mix(uHorizon, vec3(0.98, 0.88, 0.92), sin(uTime * 0.05 + 1.2) * 0.25 + 0.25);
+  vec3 top = mix(uTop, vec3(0.59, 0.73, 1.0), drift * 0.45);
+  vec3 mid = mix(uMid, vec3(0.96, 0.62, 0.62), (1.0 - drift) * 0.4);
+  vec3 hor = mix(uHorizon, vec3(0.96, 0.96, 0.58), sin(uTime * 0.05 + 1.2) * 0.3 + 0.3);
 
   vec3 col = mix(uBottom, hor, smoothstep(-0.2, 0.1, h));
   col = mix(col, mid, smoothstep(0.1, 0.45, h));
@@ -118,8 +120,8 @@ void main() {
   // Soft aurora ribbons near the horizon / mid sky
   float ribbon = sin(n.x * 6.0 + uTime * 0.12) * cos(n.z * 4.0 - uTime * 0.08);
   ribbon = smoothstep(0.35, 0.9, ribbon) * smoothstep(-0.05, 0.25, h) * (1.0 - smoothstep(0.55, 0.9, h));
-  col += vec3(0.35, 0.2, 0.4) * ribbon * 0.18;
-  col += vec3(0.2, 0.35, 0.55) * ribbon * 0.12 * (sin(uTime * 0.2) * 0.5 + 0.5);
+  col += vec3(0.96, 0.62, 0.62) * ribbon * 0.22;
+  col += vec3(0.59, 0.73, 1.0) * ribbon * 0.18 * (sin(uTime * 0.2) * 0.5 + 0.5);
 
   // Drifting cloud bands
   float clouds = sin(n.x * 7.0 + uTime * 0.018) * sin(n.z * 4.5 - uTime * 0.012);
@@ -133,7 +135,8 @@ void main() {
   // Breathing brightness
   col *= 0.96 + 0.04 * sin(uTime * 0.15);
 
-  gl_FragColor = vec4(col, 1.0);
+  // Fully transparent — grid layer behind the canvas is the backdrop
+  gl_FragColor = vec4(col, 0.0);
 }
 `
 
@@ -182,13 +185,12 @@ void main() {
   // Pink / blue flash bands
   if (g > 0.01) {
     float scan = step(0.82, hash(vec2(floor(uv.y * 60.0), floor(uTime * 30.0))));
-    vec3 pink = vec3(1.0, 0.55, 0.82);
-    vec3 blue = vec3(0.45, 0.78, 1.0);
+    vec3 pink = vec3(0.96, 0.62, 0.62);
+    vec3 blue = vec3(0.59, 0.73, 1.0);
     float which = step(0.5, hash(vec2(floor(uv.y * 20.0), floor(uTime * 12.0))));
     col = mix(col, mix(pink, blue, which), scan * 0.55 * g);
     col = mix(col, pink, hash(uv * 40.0 + uTime) * 0.12 * g);
     col = mix(col, blue, hash(uv.yx * 55.0 - uTime) * 0.12 * g);
-    // Brief horizontal noise bars
     float bar = step(0.92, hash(vec2(floor(uv.y * 90.0), floor(uTime * 50.0))));
     col += mix(pink, blue, which) * bar * 0.35 * g;
   }
@@ -199,8 +201,14 @@ void main() {
   col += grain * (uStrength + g * 0.08);
 
   float vig = smoothstep(1.15, 0.35, length(vUv - 0.5));
-  col *= mix(0.92, 1.0, vig);
-  gl_FragColor = vec4(col, 1.0);
+  col *= mix(0.97, 1.0, vig);
+
+  // Primary-color glass tint over the whole viewport
+  vec3 glassTint = vec3(0.588, 0.733, 1.0);
+  col = mix(col, glassTint, 0.16);
+
+  float alpha = texture2D(uScene, uv).a;
+  gl_FragColor = vec4(col, alpha);
 }
 `
 
@@ -268,16 +276,20 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       if (disposed || !mount.isConnected) return
 
       const isMobile = window.matchMedia('(max-width: 720px)').matches
-      const segs = isMobile ? 240 : 384
+      // Higher mesh density → smoother slopes (DEM is 1536²)
+      const segs = isMobile ? 384 : 640
 
       renderer = new THREE.WebGLRenderer({
-        antialias: !isMobile,
+        antialias: true,
         powerPreference: 'high-performance',
+        alpha: true,
+        premultipliedAlpha: false,
       })
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2))
-      renderer.setClearColor(0xf0e8f4, 1)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.75 : 2))
+      renderer.setClearColor(0x000000, 0)
       renderer.toneMapping = THREE.ACESFilmicToneMapping
-      renderer.toneMappingExposure = 1.38
+      renderer.toneMappingExposure = 1.32
+      renderer.outputColorSpace = THREE.SRGBColorSpace
       mount.appendChild(renderer.domElement)
 
       if (disposed) {
@@ -291,7 +303,7 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       }
 
       const scene = new THREE.Scene()
-      const fogColor = new THREE.Color(0xf2eaf4)
+      const fogColor = new THREE.Color(0xb8c8e8)
       scene.fog = new THREE.Fog(fogColor, 180, 680)
 
       const latMid = (meta.bbox.north + meta.bbox.south) / 2
@@ -318,18 +330,18 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const orbit = {
         azimuth: 0.72,
         polar: Math.PI / 2 - Math.PI / 6,
-        radius: span * 0.28,
+        radius: span * 0.32,
         minPolar: 0.45,
         maxPolar: 1.2,
         minRadius: span * 0.14,
-        maxRadius: span * 0.34,
+        maxRadius: span * 0.36,
         dragging: false,
         lastX: 0,
         lastY: 0,
         idleUntil: 0,
         targetAzimuth: 0.72,
         targetPolar: Math.PI / 2 - Math.PI / 6,
-        targetRadius: span * 0.28,
+        targetRadius: span * 0.32,
       }
 
       // WASD / arrows — smooth, slow look
@@ -369,11 +381,12 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const skyMat = new THREE.ShaderMaterial({
         side: THREE.BackSide,
         depthWrite: false,
+        transparent: true,
         uniforms: {
-          uTop: { value: new THREE.Color(0xb8d4f0) },
-          uMid: { value: new THREE.Color(0xd8e8f8) },
-          uHorizon: { value: new THREE.Color(0xf6e4ee) },
-          uBottom: { value: new THREE.Color(0xe8d8ec) },
+          uTop: { value: new THREE.Color(0x96bbff) },
+          uMid: { value: new THREE.Color(0xf49d9d) },
+          uHorizon: { value: new THREE.Color(0xf4f493) },
+          uBottom: { value: new THREE.Color(0xa8c4f0) },
           uTime: { value: 0 },
         },
         vertexShader: `
@@ -389,7 +402,12 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
 
       const ground = new THREE.Mesh(
         new THREE.CircleGeometry(Math.max(worldW, worldD) * 2.8, 64),
-        new THREE.MeshBasicMaterial({ color: 0xd8e4f0 }),
+        new THREE.MeshBasicMaterial({
+          color: 0xa8c4f0,
+          transparent: true,
+          opacity: 0.2,
+          depthWrite: false,
+        }),
       )
       ground.rotation.x = -Math.PI / 2
       ground.position.y = -0.8
@@ -398,9 +416,9 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const river = new THREE.Mesh(
         new THREE.PlaneGeometry(worldW * 0.08, worldD * 1.1, 1, 24),
         new THREE.MeshBasicMaterial({
-          color: 0xa8d8f0,
+          color: 0x96bbff,
           transparent: true,
-          opacity: 0.65,
+          opacity: 0.72,
         }),
       )
       river.rotation.x = -Math.PI / 2
@@ -413,12 +431,33 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const elevNorm = new Float32Array(terrainGeo.attributes.position.count)
       {
         const pos = terrainGeo.attributes.position
+        const rawH = new Float32Array(pos.count)
         for (let i = 0; i < pos.count; i++) {
           const x = pos.getX(i)
           const z = pos.getZ(i)
           const u = x / worldW + 0.5
           const v = z / worldD + 0.5
-          const meters = Math.max(elevMin, sampleElev(elev, meta.width, meta.height, u, v))
+          rawH[i] = Math.max(elevMin, sampleElev(elev, meta.width, meta.height, u, v))
+        }
+        // Light 3×3 blur on heights → softer normals, less faceted look
+        const cols = segs + 1
+        const rows = segs + 1
+        for (let i = 0; i < pos.count; i++) {
+          const cx = i % cols
+          const cy = (i / cols) | 0
+          let sum = 0
+          let wSum = 0
+          for (let oy = -1; oy <= 1; oy++) {
+            for (let ox = -1; ox <= 1; ox++) {
+              const nx = cx + ox
+              const ny = cy + oy
+              if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue
+              const w = ox === 0 && oy === 0 ? 4 : ox === 0 || oy === 0 ? 2 : 1
+              sum += rawH[ny * cols + nx] * w
+              wSum += w
+            }
+          }
+          const meters = sum / wSum
           pos.setY(i, (meters - elevMin) * heightScale)
           elevNorm[i] = THREE.MathUtils.clamp((meters - elevMin) / elevSpan, 0, 1)
         }
@@ -440,6 +479,592 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         fragmentShader: terrainFragment,
       })
       scene.add(new THREE.Mesh(terrainGeo, terrainMat))
+
+      // Terrain height lookup for placing props
+      const terrainAt = (x: number, z: number) => {
+        const u = x / worldW + 0.5
+        const v = z / worldD + 0.5
+        const meters = Math.max(elevMin, sampleElev(elev, meta.width, meta.height, u, v))
+        return {
+          y: (meters - elevMin) * heightScale,
+          n: THREE.MathUtils.clamp((meters - elevMin) / elevSpan, 0, 1),
+        }
+      }
+
+      // Forest patches — a few dense groves instead of scattered trees
+      const forestCenters: { x: number; z: number; r: number }[] = []
+      {
+        let guard = 0
+        while (forestCenters.length < 6 && guard < 900) {
+          guard++
+          const x = (Math.random() - 0.5) * worldW * 0.8
+          const z = (Math.random() - 0.5) * worldD * 0.8
+          const { n } = terrainAt(x, z)
+          if (n < 0.06 || n > 0.3) continue
+          if (
+            forestCenters.some((c) => Math.hypot(c.x - x, c.z - z) < worldW * 0.14)
+          )
+            continue
+          forestCenters.push({ x, z, r: 9 + Math.random() * 8 })
+        }
+      }
+
+      const treeCount = isMobile ? 130 : 300
+      const trunkGeo = new THREE.CylinderGeometry(0.09, 0.14, 1, 5)
+      trunkGeo.translate(0, 0.5, 0)
+      const trunkMat = new THREE.MeshStandardMaterial({
+        color: 0x7d6a63,
+        roughness: 0.9,
+      })
+      const foliageGeo = new THREE.ConeGeometry(0.55, 1, 7)
+      foliageGeo.translate(0, 0.5, 0)
+      const foliageMat = new THREE.MeshStandardMaterial({ roughness: 0.7 })
+      const trunkMesh = new THREE.InstancedMesh(trunkGeo, trunkMat, treeCount)
+      const foliageMesh = new THREE.InstancedMesh(foliageGeo, foliageMat, treeCount)
+      {
+        const dummy = new THREE.Object3D()
+        // Coherent green family, one blue-green accent
+        const foliageColors = [
+          new THREE.Color(0x86c2a4),
+          new THREE.Color(0x9ccfb4),
+          new THREE.Color(0x74b8a0),
+          new THREE.Color(0x8fbfc9),
+        ]
+        const tint = new THREE.Color()
+        let placed = 0
+        let guard = 0
+        while (placed < treeCount && guard < treeCount * 50 && forestCenters.length > 0) {
+          guard++
+          const c = forestCenters[placed % forestCenters.length]
+          // Cluster falloff — denser toward the grove center
+          const rad = (Math.random() + Math.random()) * 0.5 * c.r
+          const ang = Math.random() * Math.PI * 2
+          const x = c.x + Math.cos(ang) * rad
+          const z = c.z + Math.sin(ang) * rad
+          const { y, n } = terrainAt(x, z)
+          if (n < 0.04 || n > 0.34) continue
+          const h = 2.2 + Math.random() * 3.0
+          dummy.position.set(x, y - 0.15, z)
+          dummy.rotation.set(0, Math.random() * Math.PI * 2, 0)
+          dummy.scale.set(h * 0.5, h * 0.35, h * 0.5)
+          dummy.updateMatrix()
+          trunkMesh.setMatrixAt(placed, dummy.matrix)
+          dummy.position.set(x, y + h * 0.22, z)
+          dummy.scale.set(h * 0.55, h, h * 0.55)
+          dummy.updateMatrix()
+          foliageMesh.setMatrixAt(placed, dummy.matrix)
+          tint
+            .copy(foliageColors[(Math.random() * foliageColors.length) | 0])
+            .offsetHSL(0, 0, (Math.random() - 0.5) * 0.05)
+          foliageMesh.setColorAt(placed, tint)
+          placed++
+        }
+        trunkMesh.count = placed
+        foliageMesh.count = placed
+      }
+      scene.add(trunkMesh)
+      scene.add(foliageMesh)
+
+      // Glowing crystals on mid slopes
+      const crystalGeo = new THREE.IcosahedronGeometry(1, 0)
+      const crystalMats = [
+        new THREE.MeshStandardMaterial({
+          color: 0x96bbff,
+          emissive: new THREE.Color(0x96bbff).multiplyScalar(0.55),
+          roughness: 0.15,
+          metalness: 0.2,
+          transparent: true,
+          opacity: 0.9,
+        }),
+        new THREE.MeshStandardMaterial({
+          color: 0xf4f493,
+          emissive: new THREE.Color(0xf4f493).multiplyScalar(0.5),
+          roughness: 0.15,
+          metalness: 0.2,
+          transparent: true,
+          opacity: 0.9,
+        }),
+      ]
+      const crystalCountEach = isMobile ? 10 : 20
+      const crystalMeshes = crystalMats.map(
+        (m) => new THREE.InstancedMesh(crystalGeo, m, crystalCountEach),
+      )
+      {
+        const dummy = new THREE.Object3D()
+        for (const mesh of crystalMeshes) {
+          let placed = 0
+          let guard = 0
+          while (placed < crystalCountEach && guard < crystalCountEach * 40) {
+            guard++
+            const x = (Math.random() - 0.5) * worldW * 0.85
+            const z = (Math.random() - 0.5) * worldD * 0.85
+            const { y, n } = terrainAt(x, z)
+            if (n < 0.25 || n > 0.62) continue
+            const s = 0.7 + Math.random() * 1.6
+            dummy.position.set(x, y + s * 0.3, z)
+            dummy.rotation.set(
+              Math.random() * 0.6,
+              Math.random() * Math.PI * 2,
+              Math.random() * 0.6,
+            )
+            dummy.scale.set(s * 0.5, s * 1.4, s * 0.5)
+            dummy.updateMatrix()
+            mesh.setMatrixAt(placed, dummy.matrix)
+            placed++
+          }
+          mesh.count = placed
+          scene.add(mesh)
+        }
+      }
+
+      // Bushes — undergrowth hugging the grove edges
+      const bushCount = isMobile ? 80 : 170
+      const bushGeo = new THREE.IcosahedronGeometry(1, 1)
+      const bushMat = new THREE.MeshStandardMaterial({ roughness: 0.85 })
+      const bushMesh = new THREE.InstancedMesh(bushGeo, bushMat, bushCount)
+      {
+        const dummy = new THREE.Object3D()
+        const bushColors = [
+          new THREE.Color(0xa8d8c0),
+          new THREE.Color(0xbfe0ba),
+          new THREE.Color(0x92c9ae),
+        ]
+        const tint = new THREE.Color()
+        let placed = 0
+        let guard = 0
+        while (placed < bushCount && guard < bushCount * 50 && forestCenters.length > 0) {
+          guard++
+          const c = forestCenters[placed % forestCenters.length]
+          // Ring around the grove — forest skirt
+          const rad = c.r * (0.7 + Math.random() * 0.7)
+          const ang = Math.random() * Math.PI * 2
+          const x = c.x + Math.cos(ang) * rad
+          const z = c.z + Math.sin(ang) * rad
+          const { y, n } = terrainAt(x, z)
+          if (n < 0.03 || n > 0.34) continue
+          const s = 0.5 + Math.random() * 0.9
+          dummy.position.set(x, y + s * 0.28, z)
+          dummy.rotation.set(0, Math.random() * Math.PI * 2, 0)
+          dummy.scale.set(s, s * 0.62, s)
+          dummy.updateMatrix()
+          bushMesh.setMatrixAt(placed, dummy.matrix)
+          tint
+            .copy(bushColors[(Math.random() * bushColors.length) | 0])
+            .offsetHSL(0, 0, (Math.random() - 0.5) * 0.04)
+          bushMesh.setColorAt(placed, tint)
+          placed++
+        }
+        bushMesh.count = placed
+        scene.add(bushMesh)
+      }
+
+      // Mineral patches — clusters of shiny low rocks on the slopes
+      const mineralCount = isMobile ? 40 : 90
+      const mineralGeo = new THREE.IcosahedronGeometry(1, 0)
+      const mineralMat = new THREE.MeshStandardMaterial({
+        roughness: 0.18,
+        metalness: 0.75,
+      })
+      const mineralMesh = new THREE.InstancedMesh(mineralGeo, mineralMat, mineralCount)
+      {
+        const dummy = new THREE.Object3D()
+        const mineralColors = [
+          new THREE.Color(0x96bbff),
+          new THREE.Color(0xf4f493),
+        ]
+        // Cluster centers on mid slopes
+        const patches: { x: number; z: number; c: THREE.Color }[] = []
+        let guard = 0
+        while (patches.length < 8 && guard < 800) {
+          guard++
+          const x = (Math.random() - 0.5) * worldW * 0.85
+          const z = (Math.random() - 0.5) * worldD * 0.85
+          const { n } = terrainAt(x, z)
+          if (n < 0.15 || n > 0.58) continue
+          patches.push({
+            x,
+            z,
+            c: mineralColors[(Math.random() * mineralColors.length) | 0],
+          })
+        }
+        const tint = new THREE.Color()
+        let placed = 0
+        guard = 0
+        while (placed < mineralCount && guard < mineralCount * 50 && patches.length > 0) {
+          guard++
+          const patch = patches[placed % patches.length]
+          const x = patch.x + (Math.random() - 0.5) * 7
+          const z = patch.z + (Math.random() - 0.5) * 7
+          const { y, n } = terrainAt(x, z)
+          if (n < 0.1 || n > 0.65) continue
+          const s = 0.3 + Math.random() * 0.85
+          dummy.position.set(x, y + s * 0.12, z)
+          dummy.rotation.set(
+            Math.random() * Math.PI,
+            Math.random() * Math.PI * 2,
+            Math.random() * Math.PI,
+          )
+          dummy.scale.set(s, s * 0.45, s)
+          dummy.updateMatrix()
+          mineralMesh.setMatrixAt(placed, dummy.matrix)
+          tint.copy(patch.c).offsetHSL(0, 0, (Math.random() - 0.5) * 0.1)
+          mineralMesh.setColorAt(placed, tint)
+          placed++
+        }
+        mineralMesh.count = placed
+        scene.add(mineralMesh)
+      }
+
+      // Floating rock islands with tiny trees — slow bob + drift
+      type Island = {
+        group: THREE.Group
+        baseY: number
+        phase: number
+        speed: number
+        amp: number
+        spin: number
+      }
+      const islands: Island[] = []
+      const islandCount = isMobile ? 3 : 5
+      const rockGeo = new THREE.DodecahedronGeometry(1, 0)
+      const rockMat = new THREE.MeshStandardMaterial({
+        color: 0xb9c3dd,
+        roughness: 0.85,
+      })
+      const islandTreeGeo = new THREE.ConeGeometry(0.4, 1.1, 6)
+      islandTreeGeo.translate(0, 0.55, 0)
+      const islandTreeMat = new THREE.MeshStandardMaterial({
+        color: 0x86c2a4,
+        roughness: 0.7,
+      })
+      for (let i = 0; i < islandCount; i++) {
+        const group = new THREE.Group()
+        const rock = new THREE.Mesh(rockGeo, rockMat)
+        const rs = 1.4 + Math.random() * 2.2
+        rock.scale.set(rs, rs * 0.62, rs)
+        group.add(rock)
+        const nTrees = 1 + ((Math.random() * 3) | 0)
+        for (let k = 0; k < nTrees; k++) {
+          const tree = new THREE.Mesh(islandTreeGeo, islandTreeMat)
+          const ts = 0.8 + Math.random() * 1.1
+          tree.scale.setScalar(ts)
+          tree.position.set(
+            (Math.random() - 0.5) * rs * 0.9,
+            rs * 0.5,
+            (Math.random() - 0.5) * rs * 0.9,
+          )
+          group.add(tree)
+        }
+        const baseY = peakH * (0.55 + Math.random() * 0.5)
+        group.position.set(
+          (Math.random() - 0.5) * worldW * 0.6,
+          baseY,
+          (Math.random() - 0.5) * worldD * 0.6,
+        )
+        group.rotation.y = Math.random() * Math.PI * 2
+        scene.add(group)
+        islands.push({
+          group,
+          baseY,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.14 + Math.random() * 0.2,
+          amp: 1.2 + Math.random() * 2.4,
+          spin: (Math.random() - 0.5) * 0.05,
+        })
+      }
+
+      // Fantasy castle — placed on the flattest mid-elevation perch we can find
+      const castleGroup = new THREE.Group()
+      const stoneMat = new THREE.MeshStandardMaterial({
+        color: 0xdde2f0,
+        roughness: 0.8,
+      })
+      const roofMat = new THREE.MeshStandardMaterial({
+        color: 0xf49d9d,
+        roughness: 0.6,
+      })
+      const windowMat = new THREE.MeshStandardMaterial({
+        color: 0xf4f493,
+        emissive: new THREE.Color(0xf4f493).multiplyScalar(0.6),
+        roughness: 0.4,
+      })
+      const castleGeos: THREE.BufferGeometry[] = []
+      const castleAnchor = new THREE.Vector2(0, worldD * 0.18)
+      {
+        let bx = 0
+        let bz = worldD * 0.18
+        let by = terrainAt(bx, bz).y
+        let bestScore = Infinity
+        for (let k = 0; k < 400; k++) {
+          const x = (Math.random() - 0.5) * worldW * 0.55
+          const z = (Math.random() - 0.5) * worldD * 0.55
+          const { y, n } = terrainAt(x, z)
+          if (n < 0.2 || n > 0.48) continue
+          const r = 7
+          const flat =
+            Math.abs(terrainAt(x + r, z).y - y) +
+            Math.abs(terrainAt(x - r, z).y - y) +
+            Math.abs(terrainAt(x, z + r).y - y) +
+            Math.abs(terrainAt(x, z - r).y - y)
+          if (flat < bestScore) {
+            bestScore = flat
+            bx = x
+            bz = z
+            by = y
+          }
+        }
+
+        const addMesh = (
+          geo: THREE.BufferGeometry,
+          mat: THREE.Material,
+          x: number,
+          y: number,
+          z: number,
+          ry = 0,
+        ) => {
+          castleGeos.push(geo)
+          const m = new THREE.Mesh(geo, mat)
+          m.position.set(x, y, z)
+          m.rotation.y = ry
+          castleGroup.add(m)
+          return m
+        }
+
+        // Central keep + pyramid roof
+        addMesh(new THREE.BoxGeometry(5, 7.5, 5), stoneMat, 0, 3.75, 0)
+        const keepRoof = addMesh(new THREE.ConeGeometry(3.9, 3.2, 4), roofMat, 0, 9.1, 0)
+        keepRoof.rotation.y = Math.PI / 4
+        // Corner towers + roofs
+        const towerOffsets = [
+          [-4.5, -4.5],
+          [4.5, -4.5],
+          [-4.5, 4.5],
+          [4.5, 4.5],
+        ]
+        for (const [tx, tz] of towerOffsets) {
+          addMesh(new THREE.CylinderGeometry(1.15, 1.35, 9, 8), stoneMat, tx, 4.5, tz)
+          addMesh(new THREE.ConeGeometry(1.7, 3.2, 8), roofMat, tx, 10.6, tz)
+        }
+        // Curtain walls
+        addMesh(new THREE.BoxGeometry(9, 4.2, 0.8), stoneMat, 0, 2.1, -4.5)
+        addMesh(new THREE.BoxGeometry(9, 4.2, 0.8), stoneMat, 0, 2.1, 4.5)
+        addMesh(new THREE.BoxGeometry(0.8, 4.2, 9), stoneMat, -4.5, 2.1, 0)
+        addMesh(new THREE.BoxGeometry(0.8, 4.2, 9), stoneMat, 4.5, 2.1, 0)
+        // Gate + glowing windows
+        addMesh(new THREE.BoxGeometry(1.8, 2.6, 0.5), roofMat, 0, 1.3, 4.75)
+        addMesh(new THREE.BoxGeometry(0.7, 1.1, 0.2), windowMat, -1.2, 5.4, 2.56)
+        addMesh(new THREE.BoxGeometry(0.7, 1.1, 0.2), windowMat, 1.2, 5.4, 2.56)
+        addMesh(new THREE.BoxGeometry(0.7, 1.1, 0.2), windowMat, 0, 6.6, 2.56)
+        // Banner pole + pennant on the keep
+        addMesh(new THREE.CylinderGeometry(0.07, 0.07, 3, 5), stoneMat, 0, 12.1, 0)
+        const flagGeo = new THREE.ConeGeometry(0.5, 1.4, 3)
+        const flag = addMesh(flagGeo, windowMat, 0.5, 13.2, 0)
+        flag.rotation.z = -Math.PI / 2
+
+        castleGroup.position.set(bx, by - 0.4, bz)
+        castleGroup.rotation.y = Math.random() * Math.PI * 2
+        castleGroup.scale.setScalar(1.25)
+        scene.add(castleGroup)
+        castleAnchor.set(bx, bz)
+      }
+
+      // Villages — clusters of tiny houses in the valleys
+      const houseCount = isMobile ? 26 : 48
+      const houseBodyGeo = new THREE.BoxGeometry(1, 0.85, 1)
+      houseBodyGeo.translate(0, 0.425, 0)
+      const houseRoofGeo = new THREE.ConeGeometry(0.9, 0.75, 4)
+      houseRoofGeo.translate(0, 0.375, 0)
+      houseRoofGeo.rotateY(Math.PI / 4)
+      const houseBodyMat = new THREE.MeshStandardMaterial({ roughness: 0.85 })
+      const houseRoofMat = new THREE.MeshStandardMaterial({ roughness: 0.7 })
+      const houseBodyMesh = new THREE.InstancedMesh(houseBodyGeo, houseBodyMat, houseCount)
+      const houseRoofMesh = new THREE.InstancedMesh(houseRoofGeo, houseRoofMat, houseCount)
+      const villageCenters: { x: number; z: number }[] = []
+      {
+        const dummy = new THREE.Object3D()
+        const bodyColors = [
+          new THREE.Color(0xfdf3ec),
+          new THREE.Color(0xf6e3e3),
+          new THREE.Color(0xe4ecfa),
+        ]
+        const roofColors = [
+          new THREE.Color(0xf49d9d),
+          new THREE.Color(0x96bbff),
+          new THREE.Color(0xf4f493),
+        ]
+        // Pick 4 village centers in the valleys
+        const centers = villageCenters
+        let guard = 0
+        while (centers.length < 4 && guard < 600) {
+          guard++
+          const x = (Math.random() - 0.5) * worldW * 0.8
+          const z = (Math.random() - 0.5) * worldD * 0.8
+          const { n } = terrainAt(x, z)
+          if (n < 0.05 || n > 0.28) continue
+          if (centers.some((c) => Math.hypot(c.x - x, c.z - z) < worldW * 0.15)) continue
+          centers.push({ x, z })
+        }
+        let placed = 0
+        guard = 0
+        const housePlots: { x: number; z: number; r: number }[] = []
+        while (placed < houseCount && guard < houseCount * 60 && centers.length > 0) {
+          guard++
+          const c = centers[placed % centers.length]
+          const x = c.x + (Math.random() - 0.5) * 16
+          const z = c.z + (Math.random() - 0.5) * 16
+          const { y, n } = terrainAt(x, z)
+          if (n < 0.03 || n > 0.34) continue
+          const s = 1.1 + Math.random() * 0.9
+          // Keep a clear plot around each house — no overlaps
+          const plotR = s * 1.05
+          if (housePlots.some((h) => Math.hypot(h.x - x, h.z - z) < h.r + plotR)) {
+            continue
+          }
+          housePlots.push({ x, z, r: plotR })
+          const ry = Math.random() * Math.PI * 2
+          dummy.position.set(x, y - 0.06, z)
+          dummy.rotation.set(0, ry, 0)
+          dummy.scale.setScalar(s)
+          dummy.updateMatrix()
+          houseBodyMesh.setMatrixAt(placed, dummy.matrix)
+          houseBodyMesh.setColorAt(placed, bodyColors[(Math.random() * bodyColors.length) | 0])
+          dummy.position.set(x, y - 0.06 + 0.85 * s, z)
+          dummy.updateMatrix()
+          houseRoofMesh.setMatrixAt(placed, dummy.matrix)
+          houseRoofMesh.setColorAt(placed, roofColors[(Math.random() * roofColors.length) | 0])
+          placed++
+        }
+        houseBodyMesh.count = placed
+        houseRoofMesh.count = placed
+        scene.add(houseBodyMesh)
+        scene.add(houseRoofMesh)
+      }
+
+      // Pathways — winding stepping-stone trails from each village to the castle
+      const pathStoneCap = isMobile ? 220 : 420
+      const pathGeo = new THREE.CylinderGeometry(1, 1, 0.18, 6)
+      const pathMat = new THREE.MeshStandardMaterial({ roughness: 0.9 })
+      const pathMesh = new THREE.InstancedMesh(pathGeo, pathMat, pathStoneCap)
+      {
+        const dummy = new THREE.Object3D()
+        const stoneTints = [
+          new THREE.Color(0xece6d4),
+          new THREE.Color(0xe2d9c6),
+          new THREE.Color(0xf0ead9),
+        ]
+        let placed = 0
+        for (const c of villageCenters) {
+          const sx = c.x
+          const sz = c.z
+          const ex = castleAnchor.x
+          const ez = castleAnchor.y
+          // Curved route — control point pushed sideways for a winding feel
+          const mx = (sx + ex) / 2 - (ez - sz) * (0.25 + Math.random() * 0.2)
+          const mz = (sz + ez) / 2 + (ex - sx) * (0.25 + Math.random() * 0.2)
+          const dist = Math.hypot(ex - sx, ez - sz)
+          const steps = Math.min(90, Math.max(24, Math.ceil(dist / 1.6)))
+          for (let k = 0; k <= steps && placed < pathStoneCap; k++) {
+            const u = k / steps
+            const iu = 1 - u
+            const x =
+              iu * iu * sx + 2 * iu * u * mx + u * u * ex + (Math.random() - 0.5) * 0.7
+            const z =
+              iu * iu * sz + 2 * iu * u * mz + u * u * ez + (Math.random() - 0.5) * 0.7
+            const { y, n } = terrainAt(x, z)
+            // Trails keep to walkable ground
+            if (n > 0.52) continue
+            const s = 0.3 + Math.random() * 0.22
+            dummy.position.set(x, y + 0.05, z)
+            dummy.rotation.set(0, Math.random() * Math.PI, 0)
+            dummy.scale.set(s, 1, s * (0.75 + Math.random() * 0.4))
+            dummy.updateMatrix()
+            pathMesh.setMatrixAt(placed, dummy.matrix)
+            pathMesh.setColorAt(placed, stoneTints[(Math.random() * stoneTints.length) | 0])
+            placed++
+          }
+        }
+        pathMesh.count = placed
+        scene.add(pathMesh)
+      }
+
+      // Lots of shiny single-color bubbles (instanced) — burst on axe click
+      const bubbleCount = isMobile ? 1600 : 3800
+      const bubbleGeo = new THREE.SphereGeometry(1, 8, 8)
+      const bubbleMat = new THREE.MeshStandardMaterial({
+        color: 0xf49d9d,
+        transparent: true,
+        opacity: 0.72,
+        roughness: 0.08,
+        metalness: 0.45,
+        emissive: new THREE.Color(0xf49d9d).multiplyScalar(0.42),
+        depthWrite: false,
+      })
+      const bubbleMesh = new THREE.InstancedMesh(bubbleGeo, bubbleMat, bubbleCount)
+      bubbleMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+      scene.add(bubbleMesh)
+
+      const baseX = new Float32Array(bubbleCount)
+      const baseY = new Float32Array(bubbleCount)
+      const baseZ = new Float32Array(bubbleCount)
+      const phaseA = new Float32Array(bubbleCount)
+      const speedA = new Float32Array(bubbleCount)
+      const ampX = new Float32Array(bubbleCount)
+      const ampZ = new Float32Array(bubbleCount)
+      const scaleA = new Float32Array(bubbleCount)
+      const riseA = new Float32Array(bubbleCount)
+      const spawnA = new Float32Array(bubbleCount)
+      const velX = new Float32Array(bubbleCount)
+      const velY = new Float32Array(bubbleCount)
+      const velZ = new Float32Array(bubbleCount)
+      const bubbleDummy = new THREE.Object3D()
+      const bubbleCeil = peakH * 1.15
+      let burstUntil = 0
+
+      // Bubbles are born on the terrain surface and drift upward
+      const seedBubble = (i: number, now: number, delay: number) => {
+        const x = (Math.random() - 0.5) * worldW * 0.85
+        const z = (Math.random() - 0.5) * worldD * 0.85
+        baseX[i] = x
+        baseZ[i] = z
+        baseY[i] = terrainAt(x, z).y + 0.3
+        phaseA[i] = Math.random() * Math.PI * 2
+        speedA[i] = 0.2 + Math.random() * 0.4
+        ampX[i] = 0.7 + Math.random() * 2.4
+        ampZ[i] = 0.7 + Math.random() * 2.4
+        scaleA[i] = 0.06 + Math.random() * 0.22
+        riseA[i] = 1.0 + Math.random() * 2.0
+        spawnA[i] = now + delay
+        velX[i] = 0
+        velY[i] = 0
+        velZ[i] = 0
+      }
+      for (let i = 0; i < bubbleCount; i++) {
+        seedBubble(i, 0, 0)
+        // Pre-age so the field starts populated at all heights
+        spawnA[i] = -Math.random() * ((bubbleCeil - baseY[i]) / riseA[i])
+      }
+
+      const burstBubbles = (origin: THREE.Vector3, now: number) => {
+        for (let i = 0; i < bubbleCount; i++) {
+          // Sync base to current floating pose so the burst starts from where bubbles are
+          const age = Math.max(0, now - spawnA[i])
+          const a = age * speedA[i] + phaseA[i]
+          const px = baseX[i] + Math.sin(a * 0.7) * ampX[i]
+          const py = baseY[i] + age * riseA[i]
+          const pz = baseZ[i] + Math.cos(a * 0.55) * ampZ[i]
+          baseX[i] = px
+          baseY[i] = py
+          baseZ[i] = pz
+          const dx = px - origin.x + (Math.random() - 0.5) * 2
+          const dy = py - origin.y + (Math.random() - 0.5) * 2
+          const dz = pz - origin.z + (Math.random() - 0.5) * 2
+          const len = Math.hypot(dx, dy, dz) || 1
+          const force = 18 + Math.random() * 42
+          velX[i] = (dx / len) * force + (Math.random() - 0.5) * 8
+          velY[i] = (dy / len) * force * 0.85 + 8 + Math.random() * 16
+          velZ[i] = (dz / len) * force + (Math.random() - 0.5) * 8
+        }
+      }
 
       // Birds
       const birdGeo = makeBirdGeometry()
@@ -477,193 +1102,23 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         })
       }
 
-      // Soft point sprites — colorful + dense without mesh cost
-      // Dense but CPU-safe — full per-frame updates of 300k+ points cause freezes
-      const bubbleCount = isMobile ? 48_000 : 96_000
-      const bubbleCanvas = document.createElement('canvas')
-      bubbleCanvas.width = bubbleCanvas.height = 64
-      const bctx = bubbleCanvas.getContext('2d')!
-      const grad = bctx.createRadialGradient(32, 32, 0, 32, 32, 32)
-      grad.addColorStop(0, 'rgba(255,255,255,0.95)')
-      grad.addColorStop(0.28, 'rgba(255,255,255,0.7)')
-      grad.addColorStop(0.55, 'rgba(255,255,255,0.22)')
-      grad.addColorStop(1, 'rgba(255,255,255,0)')
-      bctx.fillStyle = grad
-      bctx.fillRect(0, 0, 64, 64)
-      const bubbleTex = new THREE.CanvasTexture(bubbleCanvas)
-      bubbleTex.colorSpace = THREE.SRGBColorSpace
-
-      const bubblePositions = new Float32Array(bubbleCount * 3)
-      const bubbleColors = new Float32Array(bubbleCount * 3)
-      const baseX = new Float32Array(bubbleCount)
-      const baseY = new Float32Array(bubbleCount)
-      const baseZ = new Float32Array(bubbleCount)
-      const phaseA = new Float32Array(bubbleCount)
-      const speedA = new Float32Array(bubbleCount)
-      const ampX = new Float32Array(bubbleCount)
-      const ampY = new Float32Array(bubbleCount)
-      const ampZ = new Float32Array(bubbleCount)
-      const offX = new Float32Array(bubbleCount)
-      const offY = new Float32Array(bubbleCount)
-      const offZ = new Float32Array(bubbleCount)
-      const velX = new Float32Array(bubbleCount)
-      const velY = new Float32Array(bubbleCount)
-      const velZ = new Float32Array(bubbleCount)
-      const posX = new Float32Array(bubbleCount)
-      const posY = new Float32Array(bubbleCount)
-      const posZ = new Float32Array(bubbleCount)
-      const reactA = new Float32Array(bubbleCount)
-      const lightPink = new THREE.Color(0xffc2de)
-      const lightSky = new THREE.Color(0xb8e7ff)
-      const tint = new THREE.Color()
-      const groundY = peakH * 0.02
-
-      for (let i = 0; i < bubbleCount; i++) {
-        baseX[i] = (Math.random() - 0.5) * worldW * 1.05
-        // Rise height above ground — bubbles always originate at ground level
-        ampY[i] = peakH * (0.18 + Math.random() * 0.55)
-        baseY[i] = groundY
-        baseZ[i] = (Math.random() - 0.5) * worldD * 1.05
-        phaseA[i] = Math.random() * Math.PI * 2
-        speedA[i] = 0.3 + Math.random() * 0.6
-        ampX[i] = 1.0 + Math.random() * 3.4
-        ampZ[i] = 1.0 + Math.random() * 3.4
-        reactA[i] = 0.55 + Math.random() * 0.85
-        const a0 = phaseA[i]
-        const y0 = groundY + (0.4 + 0.6 * (0.5 + 0.5 * Math.sin(a0))) * ampY[i]
-        posX[i] = baseX[i]
-        posY[i] = y0
-        posZ[i] = baseZ[i]
-        bubblePositions[i * 3] = baseX[i]
-        bubblePositions[i * 3 + 1] = y0
-        bubblePositions[i * 3 + 2] = baseZ[i]
-        tint.copy(lightPink).lerp(lightSky, Math.random() < 0.5 ? 0 : 1)
-        bubbleColors[i * 3] = tint.r
-        bubbleColors[i * 3 + 1] = tint.g
-        bubbleColors[i * 3 + 2] = tint.b
-      }
-
-      const bubbleDriftY = (i: number, a: number) =>
-        groundY + (0.4 + 0.6 * (0.5 + 0.5 * Math.sin(a))) * ampY[i]
-
-      const bubbleScales = new Float32Array(bubbleCount)
-      const regenDelay = new Float32Array(bubbleCount)
-      for (let i = 0; i < bubbleCount; i++) bubbleScales[i] = 1
-
-      const bubbleGeo = new THREE.BufferGeometry()
-      const bubblePosAttr = new THREE.BufferAttribute(bubblePositions, 3)
-      bubblePosAttr.setUsage(THREE.DynamicDrawUsage)
-      const bubbleScaleAttr = new THREE.BufferAttribute(bubbleScales, 1)
-      bubbleScaleAttr.setUsage(THREE.DynamicDrawUsage)
-      bubbleGeo.setAttribute('position', bubblePosAttr)
-      bubbleGeo.setAttribute('color', new THREE.BufferAttribute(bubbleColors, 3))
-      bubbleGeo.setAttribute('aScale', bubbleScaleAttr)
-
-      const bubbleSizeBase = isMobile ? 1.35 : 1.85
-      const bubbleMat = new THREE.PointsMaterial({
-        size: bubbleSizeBase,
-        map: bubbleTex,
-        transparent: true,
-        opacity: 0.9,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        vertexColors: true,
-        sizeAttenuation: true,
-        toneMapped: false,
-      })
-      bubbleMat.onBeforeCompile = (shader) => {
-        shader.vertexShader =
-          'attribute float aScale;\n' +
-          shader.vertexShader.replace(
-            'gl_PointSize = size;',
-            'gl_PointSize = size * max(aScale, 0.0);',
-          )
-      }
-      bubbleMat.customProgramCacheKey = () => 'bubble-ascale'
-
-      const bubblePoints = new THREE.Points(bubbleGeo, bubbleMat)
-      bubblePoints.frustumCulled = false
-      scene.add(bubblePoints)
-
-      const writeBubblePos = (i: number, x: number, y: number, z: number) => {
-        const o = i * 3
-        bubblePositions[o] = x
-        bubblePositions[o + 1] = y
-        bubblePositions[o + 2] = z
-      }
-
-      const pointerNdc = new THREE.Vector2(0, 0)
-      const pointerVel = new THREE.Vector2(0, 0)
-      const mouseWorld = new THREE.Vector3()
-      const camDir = new THREE.Vector3()
-      const bubbleRay = new THREE.Raycaster()
-      const bubblePlane = new THREE.Plane()
-      let pointerLive = false
-      let exploding = false
-      let regenerating = false
-      let explodeStart = 0
-      let regenStart = 0
-      const EXPLODE_DUR = 0.9
-      const REGEN_STAGGER = 7.5
-      const REGEN_GROW = 2.2
-      let lastBubbleT = 0
-
-      const syncMouseWorld = () => {
-        camera.getWorldDirection(camDir)
-        bubblePlane.setFromNormalAndCoplanarPoint(camDir, lookTarget)
-        bubbleRay.setFromCamera(pointerNdc, camera)
-        return bubbleRay.ray.intersectPlane(bubblePlane, mouseWorld)
-      }
-
-      const explodeBubbles = () => {
-        const hit = syncMouseWorld()
-        const ox = hit ? mouseWorld.x : 0
-        const oy = hit ? mouseWorld.y : peakH * 0.4
-        const oz = hit ? mouseWorld.z : 0
-        const t = tNow()
-        for (let i = 0; i < bubbleCount; i++) {
-          const a = t * speedA[i] + phaseA[i]
-          const px = baseX[i] + Math.sin(a * 0.65) * ampX[i] + offX[i]
-          const py = bubbleDriftY(i, a) + offY[i]
-          const pz = baseZ[i] + Math.cos(a * 0.5) * ampZ[i] + offZ[i]
-          posX[i] = px
-          posY[i] = py
-          posZ[i] = pz
-          let dx = px - ox + (Math.random() - 0.5) * 2
-          let dy = py - oy + (Math.random() - 0.5) * 2
-          let dz = pz - oz + (Math.random() - 0.5) * 2
-          const len = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1
-          const speed = 35 + Math.random() * 95
-          velX[i] = (dx / len) * speed
-          velY[i] = (dy / len) * speed + 10 + Math.random() * 25
-          velZ[i] = (dz / len) * speed
-          offX[i] = 0
-          offY[i] = 0
-          offZ[i] = 0
-          bubbleScales[i] = 1
-        }
-        regenerating = false
-        exploding = true
-        explodeStart = t
-        bubbleScaleAttr.needsUpdate = true
-      }
-
-      scene.add(new THREE.AmbientLight(0xf0e8f8, 0.85))
-      const sun = new THREE.DirectionalLight(0xfff0f6, 1.25)
+      scene.add(new THREE.AmbientLight(0xf6f6f4, 1.0))
+      const sun = new THREE.DirectionalLight(0xf4f493, 1.2)
       sun.position.copy(sunDir).multiplyScalar(200)
       scene.add(sun)
-      const fill = new THREE.DirectionalLight(0xc8e0ff, 0.65)
+      const fill = new THREE.DirectionalLight(0x96bbff, 0.88)
       fill.position.set(-100, 80, -80)
       scene.add(fill)
-      const rim = new THREE.DirectionalLight(0xffd0e4, 0.45)
+      const rim = new THREE.DirectionalLight(0xf49d9d, 0.68)
       rim.position.set(60, 50, 120)
       scene.add(rim)
 
-      // Grain post pass
+      // Grain post pass (MSAA on the scene target for cleaner edges)
       const sceneTarget = new THREE.WebGLRenderTarget(1, 1, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
         format: THREE.RGBAFormat,
+        samples: isMobile ? 2 : 4,
       })
       const composeScene = new THREE.Scene()
       const composeCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
@@ -671,13 +1126,14 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         uniforms: {
           uScene: { value: sceneTarget.texture },
           uTime: { value: 0 },
-          uStrength: { value: isMobile ? 0.055 : 0.075 },
+          uStrength: { value: isMobile ? 0.02 : 0.028 },
           uGlitch: { value: 0 },
         },
         vertexShader: grainVertex,
         fragmentShader: grainFragment,
         depthTest: false,
         depthWrite: false,
+        transparent: true,
       })
       composeScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), grainMat))
 
@@ -695,19 +1151,23 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
 
       const strike = (clientX: number, clientY: number) => {
         placeAxe(clientX, clientY)
-        const rect = canvas.getBoundingClientRect()
-        pointerNdc.set(
-          ((clientX - rect.left) / rect.width) * 2 - 1,
-          -(((clientY - rect.top) / rect.height) * 2 - 1),
-        )
         mount.classList.add('fog-hero--striking')
         axeEl?.classList.remove('fog-hero__axe--hit')
         // reflow so animation restarts
         void axeEl?.offsetWidth
         axeEl?.classList.add('fog-hero__axe--hit')
         playCrackSound()
-        explodeBubbles()
         glitchUntil = tNow() + 0.16 + Math.random() * 0.14
+        // Burst from a point near the look target / camera mid-view
+        const origin = lookTarget.clone().add(
+          new THREE.Vector3(
+            (Math.random() - 0.5) * 8,
+            peakH * 0.15,
+            (Math.random() - 0.5) * 8,
+          ),
+        )
+        burstBubbles(origin, tNow())
+        burstUntil = tNow() + 1.15
         window.setTimeout(() => {
           mount.classList.remove('fog-hero--striking')
           axeEl?.classList.remove('fog-hero__axe--hit')
@@ -734,24 +1194,12 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         orbit.targetAzimuth = orbit.azimuth
         orbit.targetPolar = orbit.polar
         orbit.targetRadius = orbit.radius
-        const rect = canvas.getBoundingClientRect()
-        pointerNdc.set(
-          ((e.clientX - rect.left) / rect.width) * 2 - 1,
-          -(((e.clientY - rect.top) / rect.height) * 2 - 1),
-        )
-        pointerLive = true
         strike(e.clientX, e.clientY)
         canvas.setPointerCapture(e.pointerId)
       }
 
       const onMove = (e: PointerEvent) => {
         placeAxe(e.clientX, e.clientY)
-        const rect = canvas.getBoundingClientRect()
-        const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1
-        const ny = -(((e.clientY - rect.top) / rect.height) * 2 - 1)
-        pointerVel.set(nx - pointerNdc.x, ny - pointerNdc.y)
-        pointerNdc.set(nx, ny)
-        pointerLive = true
 
         if (!orbit.dragging) return
         const dx = e.clientX - orbit.lastX
@@ -822,7 +1270,7 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         keys.left = keys.right = keys.up = keys.down = false
       }
 
-      let frameParity = 0
+      let lastFrameT = 0
       const animate = () => {
         raf = 0
         if (!renderer || disposed) return
@@ -844,8 +1292,8 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         }
         grainMat.uniforms.uGlitch.value = glitch
 
-        const dt = Math.min(0.05, Math.max(0, t - lastBubbleT))
-        lastBubbleT = t
+        const dt = Math.min(0.05, Math.max(0, t - lastFrameT))
+        lastFrameT = t
 
         if (!orbit.dragging && keysActive()) {
           if (keys.left) orbit.targetAzimuth += KEY_YAW * dt
@@ -890,128 +1338,73 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
           b.mesh.rotation.z = Math.sin(a * 6) * 0.35
         }
 
-        if (exploding) {
-          const progress = Math.min(1, (t - explodeStart) / EXPLODE_DUR)
-          const shrink = (1 - progress) * (1 - progress)
-          for (let i = 0; i < bubbleCount; i++) {
-            velY[i] -= 40 * dt
-            posX[i] += velX[i] * dt
-            posY[i] += velY[i] * dt
-            posZ[i] += velZ[i] * dt
-            velX[i] *= 0.985
-            velY[i] *= 0.985
-            velZ[i] *= 0.985
-            bubbleScales[i] = shrink * (1.1 + (1 - progress) * 0.4)
-            writeBubblePos(i, posX[i], posY[i], posZ[i])
-          }
-          bubblePosAttr.needsUpdate = true
-          bubbleScaleAttr.needsUpdate = true
-          if (progress >= 1) {
-            exploding = false
-            regenerating = true
-            regenStart = t
-            for (let i = 0; i < bubbleCount; i++) {
-              velX[i] = 0
-              velY[i] = 0
-              velZ[i] = 0
-              offX[i] = 0
-              offY[i] = 0
-              offZ[i] = 0
-              phaseA[i] = Math.random() * Math.PI * 2
-              regenDelay[i] = Math.random() * REGEN_STAGGER
-              bubbleScales[i] = 0
-              writeBubblePos(i, baseX[i], groundY, baseZ[i])
-            }
-            bubblePosAttr.needsUpdate = true
-            bubbleScaleAttr.needsUpdate = true
-          }
-        } else if (regenerating) {
-          let pending = 0
-          for (let i = 0; i < bubbleCount; i++) {
-            const age = t - regenStart - regenDelay[i]
-            if (age <= 0) {
-              bubbleScales[i] = 0
-              pending++
-              writeBubblePos(i, baseX[i], groundY, baseZ[i])
-              continue
-            }
-            const grow = Math.min(1, age / REGEN_GROW)
-            const ease = 1 - (1 - grow) * (1 - grow)
-            bubbleScales[i] = ease
-            if (grow < 1) pending++
-
-            const a = t * speedA[i] + phaseA[i]
-            const driftX = baseX[i] + Math.sin(a * 0.65) * ampX[i]
-            const driftY = bubbleDriftY(i, a)
-            const driftZ = baseZ[i] + Math.cos(a * 0.5) * ampZ[i]
-            // Rise from ground into float height
-            const y = groundY + (driftY - groundY) * ease
-            writeBubblePos(i, driftX, y, driftZ)
-          }
-          bubblePosAttr.needsUpdate = true
-          bubbleScaleAttr.needsUpdate = true
-          if (pending === 0) regenerating = false
-        } else {
-          const hit = syncMouseWorld()
-          const influenceR = span * 0.24
-          const influenceR2 = influenceR * influenceR
-          const mx = mouseWorld.x
-          const my = mouseWorld.y
-          const mz = mouseWorld.z
-          const pvx = pointerVel.x
-          const pvy = pointerVel.y
-          // Idle float: stagger updates (1/4 of bubbles per frame) when the cursor is idle
-          for (let i = 0; i < bubbleCount; i++) {
-            if (!pointerLive && (i & 3) !== frameParity) continue
-            const a = t * speedA[i] + phaseA[i]
-            const driftX = baseX[i] + Math.sin(a * 0.65) * ampX[i]
-            const driftY = bubbleDriftY(i, a)
-            const driftZ = baseZ[i] + Math.cos(a * 0.5) * ampZ[i]
-
-            let ox = offX[i]
-            let oy = offY[i]
-            let oz = offZ[i]
-
-            if (pointerLive && hit) {
-              const dx = driftX - mx
-              const dy = driftY - my
-              const dz = driftZ - mz
-              const d2 = dx * dx + dy * dy + dz * dz
-              if (d2 < influenceR2 && d2 > 1e-4) {
-                const d = Math.sqrt(d2)
-                const falloff = 1 - d / influenceR
-                const force = falloff * falloff * 10 * reactA[i]
-                const inv = force / d
-                const tx = dx * inv + pvx * 18 * reactA[i] * falloff
-                const ty = dy * inv + pvy * 14 * reactA[i] * falloff
-                const tz = dz * inv
-                ox += (tx - ox) * 0.14
-                oy += (ty - oy) * 0.14
-                oz += (tz - oz) * 0.14
-              } else {
-                ox *= 0.9
-                oy *= 0.9
-                oz *= 0.9
-              }
-            } else {
-              ox *= 0.92
-              oy *= 0.92
-              oz *= 0.92
-            }
-
-            offX[i] = ox
-            offY[i] = oy
-            offZ[i] = oz
-            writeBubblePos(i, driftX + ox, driftY + oy, driftZ + oz)
-          }
-          frameParity = (frameParity + 1) & 3
-          bubblePosAttr.needsUpdate = true
+        for (const isl of islands) {
+          const a = t * isl.speed + isl.phase
+          isl.group.position.y = isl.baseY + Math.sin(a) * isl.amp
+          isl.group.rotation.y += isl.spin * dt
         }
-        pointerVel.multiplyScalar(0.85)
+
+        const bursting = t < burstUntil
+        if (!bursting && burstUntil > 0) {
+          // Slow regeneration — bubbles reappear from the terrain over ~8s
+          for (let i = 0; i < bubbleCount; i++) {
+            seedBubble(i, t, 0.4 + Math.random() * 8)
+          }
+          burstUntil = 0
+        }
+        for (let i = 0; i < bubbleCount; i++) {
+          let x: number
+          let y: number
+          let z: number
+          let s = scaleA[i]
+          if (bursting) {
+            const burstAge = 1 - (burstUntil - t) / 1.15
+            velY[i] -= 28 * dt
+            velX[i] *= Math.exp(-1.6 * dt)
+            velY[i] *= Math.exp(-0.9 * dt)
+            velZ[i] *= Math.exp(-1.6 * dt)
+            baseX[i] += velX[i] * dt
+            baseY[i] += velY[i] * dt
+            baseZ[i] += velZ[i] * dt
+            x = baseX[i]
+            y = baseY[i]
+            z = baseZ[i]
+            s *= Math.max(0, 1 - burstAge * 1.15)
+          } else {
+            const age = t - spawnA[i]
+            if (age < 0) {
+              s = 0
+              x = baseX[i]
+              y = baseY[i]
+              z = baseZ[i]
+            } else {
+              const a = age * speedA[i] + phaseA[i]
+              x = baseX[i] + Math.sin(a * 0.7) * ampX[i]
+              y = baseY[i] + age * riseA[i]
+              z = baseZ[i] + Math.cos(a * 0.55) * ampZ[i]
+              // Grow in at the ground, fade out near the ceiling
+              const fadeIn = Math.min(1, age * 1.2)
+              const fadeOut = THREE.MathUtils.clamp((bubbleCeil - y) / 6, 0, 1)
+              s *= fadeIn * fadeOut
+              if (y > bubbleCeil) {
+                seedBubble(i, t, 0.3 + Math.random() * 2.5)
+                s = 0
+              }
+            }
+          }
+          bubbleDummy.position.set(x, y, z)
+          bubbleDummy.scale.setScalar(Math.max(s, 0.0001))
+          bubbleDummy.updateMatrix()
+          bubbleMesh.setMatrixAt(i, bubbleDummy.matrix)
+        }
+        bubbleMesh.instanceMatrix.needsUpdate = true
 
         renderer.setRenderTarget(sceneTarget)
+        renderer.setClearColor(0x000000, 0)
+        renderer.clear()
         renderer.render(scene, camera)
         renderer.setRenderTarget(null)
+        renderer.setClearColor(0x000000, 0)
         renderer.render(composeScene, composeCamera)
         raf = requestAnimationFrame(animate)
       }
@@ -1039,12 +1432,9 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const onEnter = (e: PointerEvent) => {
         if (axeEl) axeEl.style.opacity = '1'
         placeAxe(e.clientX, e.clientY)
-        pointerLive = true
       }
       const onLeave = () => {
         if (axeEl) axeEl.style.opacity = '0'
-        pointerLive = false
-        pointerVel.set(0, 0)
       }
       if (axeEl) axeEl.style.opacity = '0'
 
@@ -1083,7 +1473,39 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         birdMat.dispose()
         bubbleGeo.dispose()
         bubbleMat.dispose()
-        bubbleTex.dispose()
+        bubbleMesh.dispose()
+        trunkGeo.dispose()
+        trunkMat.dispose()
+        foliageGeo.dispose()
+        foliageMat.dispose()
+        trunkMesh.dispose()
+        foliageMesh.dispose()
+        crystalGeo.dispose()
+        for (const m of crystalMats) m.dispose()
+        for (const m of crystalMeshes) m.dispose()
+        bushGeo.dispose()
+        bushMat.dispose()
+        bushMesh.dispose()
+        mineralGeo.dispose()
+        mineralMat.dispose()
+        mineralMesh.dispose()
+        rockGeo.dispose()
+        rockMat.dispose()
+        islandTreeGeo.dispose()
+        islandTreeMat.dispose()
+        for (const g of castleGeos) g.dispose()
+        stoneMat.dispose()
+        roofMat.dispose()
+        windowMat.dispose()
+        houseBodyGeo.dispose()
+        houseRoofGeo.dispose()
+        houseBodyMat.dispose()
+        houseRoofMat.dispose()
+        houseBodyMesh.dispose()
+        houseRoofMesh.dispose()
+        pathGeo.dispose()
+        pathMat.dispose()
+        pathMesh.dispose()
         ground.geometry.dispose()
         ;(ground.material as THREE.Material).dispose()
         river.geometry.dispose()
