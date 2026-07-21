@@ -39,12 +39,13 @@ varying vec3 vNormal;
 varying float vElev;
 
 vec3 palette(float t, float slope) {
-  vec3 cValley = vec3(0.72, 0.82, 0.88);
-  vec3 cMeadow = vec3(0.78, 0.88, 0.84);
-  vec3 cSlope  = vec3(0.82, 0.78, 0.86);
-  vec3 cRock   = vec3(0.74, 0.78, 0.88);
-  vec3 cHigh   = vec3(0.88, 0.90, 0.96);
-  vec3 cSnow   = vec3(0.98, 0.97, 1.0);
+  // Strict site palette tones: blue #96BBFF, yellow #F4F493, neutral #CFCFCF
+  vec3 cValley = vec3(0.71, 0.81, 1.0);
+  vec3 cMeadow = vec3(0.93, 0.93, 0.75);
+  vec3 cSlope  = vec3(0.81, 0.81, 0.81);
+  vec3 cRock   = vec3(0.68, 0.68, 0.68);
+  vec3 cHigh   = vec3(0.90, 0.90, 0.90);
+  vec3 cSnow   = vec3(0.99, 0.99, 1.0);
 
   vec3 col;
   if (t < 0.28) col = mix(cValley, cMeadow, t / 0.28);
@@ -253,13 +254,32 @@ async function loadDem() {
   return { meta, elev: new Float32Array(buffer) }
 }
 
-export function FogRevealHero({ active = true }: { active?: boolean }) {
+export function FogRevealHero({
+  active = true,
+  onBrokenChange,
+  stitchApi,
+}: {
+  active?: boolean
+  onBrokenChange?: (broken: boolean) => void
+  stitchApi?: { current: (() => void) | null }
+}) {
   const mountRef = useRef<HTMLDivElement>(null)
   const axeRef = useRef<HTMLImageElement>(null)
   const activeRef = useRef(active)
   const wakeRef = useRef<(() => void) | null>(null)
   const pauseRef = useRef<(() => void) | null>(null)
+  const stitchRef = useRef<(() => void) | null>(null)
+  const onBrokenRef = useRef(onBrokenChange)
   activeRef.current = active
+  onBrokenRef.current = onBrokenChange
+
+  useEffect(() => {
+    if (!stitchApi) return
+    stitchApi.current = () => stitchRef.current?.()
+    return () => {
+      stitchApi.current = null
+    }
+  }, [stitchApi])
 
   useEffect(() => {
     const mount = mountRef.current
@@ -330,18 +350,18 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const orbit = {
         azimuth: 0.72,
         polar: Math.PI / 2 - Math.PI / 6,
-        radius: span * 0.32,
+        radius: span * 0.42,
         minPolar: 0.45,
         maxPolar: 1.2,
         minRadius: span * 0.14,
-        maxRadius: span * 0.36,
+        maxRadius: span * 0.48,
         dragging: false,
         lastX: 0,
         lastY: 0,
         idleUntil: 0,
         targetAzimuth: 0.72,
         targetPolar: Math.PI / 2 - Math.PI / 6,
-        targetRadius: span * 0.32,
+        targetRadius: span * 0.42,
       }
 
       // WASD / arrows — smooth, slow look
@@ -398,7 +418,9 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         `,
         fragmentShader: skyFragment,
       })
-      scene.add(new THREE.Mesh(skyGeo, skyMat))
+      const skyMesh = new THREE.Mesh(skyGeo, skyMat)
+      skyMesh.userData.noFall = true
+      scene.add(skyMesh)
 
       const terrainGeo = new THREE.PlaneGeometry(worldW, worldD, segs, segs)
       terrainGeo.rotateX(-Math.PI / 2)
@@ -452,7 +474,8 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         vertexShader: terrainVertex,
         fragmentShader: terrainFragment,
       })
-      scene.add(new THREE.Mesh(terrainGeo, terrainMat))
+      const terrainMesh = new THREE.Mesh(terrainGeo, terrainMat)
+      scene.add(terrainMesh)
 
       // Terrain height lookup for placing props
       const terrainAt = (x: number, z: number) => {
@@ -592,42 +615,72 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
           }
           if (path.length < 8) continue
 
-          const w = 0.55 + Math.random() * 0.4
+          // Smooth the raw descent into a fluid curve, re-anchored to the terrain
+          const curve = new THREE.CatmullRomCurve3(
+            path.filter((_, idx) => idx % 2 === 0),
+            false,
+            'centripetal',
+          )
+          const pts = curve.getPoints(path.length * 2)
+          for (const p of pts) p.y = terrainAt(p.x, p.z).y
+
+          const wBase = 0.4 + Math.random() * 0.3
           const positions: number[] = []
           const dir = new THREE.Vector3()
           const perp = new THREE.Vector3()
-          for (let i = 0; i < path.length - 1; i++) {
-            const p0 = path[i]
-            const p1 = path[i + 1]
-            dir.subVectors(p1, p0)
+          // Centered-difference directions keep ribbon edges smooth
+          const edgeAt = (i: number) => {
+            const pPrev = pts[Math.max(0, i - 1)]
+            const pNext = pts[Math.min(pts.length - 1, i + 1)]
+            dir.subVectors(pNext, pPrev)
             dir.y = 0
-            if (dir.lengthSq() < 1e-6) continue
+            if (dir.lengthSq() < 1e-6) dir.set(1, 0, 0)
             dir.normalize()
+            // Streams widen as they gather water downstream
+            const w = wBase * (0.45 + (i / (pts.length - 1)) * 0.9)
             perp.set(-dir.z, 0, dir.x).multiplyScalar(w)
-            const y0 = p0.y + 0.14
-            const y1 = p1.y + 0.14
+            const p = pts[i]
+            return {
+              lx: p.x + perp.x,
+              lz: p.z + perp.z,
+              rx: p.x - perp.x,
+              rz: p.z - perp.z,
+              y: p.y + 0.14,
+            }
+          }
+          let prev = edgeAt(0)
+          for (let i = 1; i < pts.length; i++) {
+            const cur = edgeAt(i)
             positions.push(
-              p0.x + perp.x, y0, p0.z + perp.z,
-              p0.x - perp.x, y0, p0.z - perp.z,
-              p1.x + perp.x, y1, p1.z + perp.z,
-              p0.x - perp.x, y0, p0.z - perp.z,
-              p1.x - perp.x, y1, p1.z - perp.z,
-              p1.x + perp.x, y1, p1.z + perp.z,
+              prev.lx, prev.y, prev.lz,
+              prev.rx, prev.y, prev.rz,
+              cur.lx, cur.y, cur.lz,
+              prev.rx, prev.y, prev.rz,
+              cur.rx, cur.y, cur.rz,
+              cur.lx, cur.y, cur.lz,
             )
             // Waterfall foam sheet over steep drops
-            const drop = p0.y - p1.y
-            if (drop > 2.0) {
-              const foamGeo = new THREE.PlaneGeometry(w * 2.6, drop + 0.7)
+            const drop = pts[i - 1].y - pts[i].y
+            if (drop > 1.8) {
+              dir.subVectors(pts[i], pts[i - 1])
+              dir.y = 0
+              if (dir.lengthSq() > 1e-6) dir.normalize()
+              const foamGeo = new THREE.PlaneGeometry(wBase * 2.4, drop + 0.7)
               streamGeos.push(foamGeo)
               const foam = new THREE.Mesh(foamGeo, foamMat)
               foam.position.set(
-                (p0.x + p1.x) / 2,
-                (p0.y + p1.y) / 2 + 0.25,
-                (p0.z + p1.z) / 2,
+                (pts[i - 1].x + pts[i].x) / 2,
+                (pts[i - 1].y + pts[i].y) / 2 + 0.25,
+                (pts[i - 1].z + pts[i].z) / 2,
               )
-              foam.lookAt(foam.position.x + dir.x, foam.position.y, foam.position.z + dir.z)
+              foam.lookAt(
+                foam.position.x + dir.x,
+                foam.position.y,
+                foam.position.z + dir.z,
+              )
               scene.add(foam)
             }
+            prev = cur
           }
           const geo = new THREE.BufferGeometry()
           geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
@@ -636,56 +689,7 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         }
       }
 
-      // Clouds — soft white cumulus puffs drifting above the peaks
-      type Cloud = { group: THREE.Group; speed: number }
-      const clouds: Cloud[] = []
-      const cloudCount = isMobile ? 4 : 6
-      const cloudGeos: THREE.BufferGeometry[] = [new THREE.SphereGeometry(1, 14, 10)]
-      const cloudMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        emissive: new THREE.Color(0xffffff).multiplyScalar(0.32),
-        roughness: 1,
-        transparent: true,
-        opacity: 0.92,
-        depthWrite: false,
-      })
-      for (let i = 0; i < cloudCount; i++) {
-        const group = new THREE.Group()
-        const len = 5 + Math.random() * 5
-        const puffs = 8 + ((Math.random() * 5) | 0)
-        for (let k = 0; k < puffs; k++) {
-          const u = k / (puffs - 1)
-          const centerBoost = 1 - Math.abs(u - 0.5) * 2
-          const puff = new THREE.Mesh(cloudGeos[0], cloudMat)
-          // Organic scatter — gaussian-ish clumping instead of a straight row
-          const spread = (Math.random() + Math.random() - 1) * 0.5
-          puff.position.set(
-            (u - 0.5) * len + spread * 3.2,
-            centerBoost * (0.5 + Math.random() * 1.0) + (Math.random() - 0.5) * 0.8,
-            (Math.random() + Math.random() - 1) * 2.4,
-          )
-          // Irregular lumps — every axis gets its own squash
-          const s = 1.3 + centerBoost * 1.5 + Math.random() * 0.9
-          puff.scale.set(
-            s * (0.8 + Math.random() * 0.5),
-            s * (0.42 + Math.random() * 0.3),
-            s * (0.6 + Math.random() * 0.5),
-          )
-          puff.rotation.y = Math.random() * Math.PI
-          group.add(puff)
-        }
-        // Hang around the peaks, not high above them
-        group.position.set(
-          (Math.random() - 0.5) * worldW * 1.2,
-          peakH * (0.72 + Math.random() * 0.32),
-          (Math.random() - 0.5) * worldD * 0.8,
-        )
-        group.rotation.y = Math.random() * Math.PI
-        scene.add(group)
-        clouds.push({ group, speed: 0.9 + Math.random() * 1.4 })
-      }
-
-      // Sky fleet — hot air balloons, zeppelins, and dragons
+      // Sky fleet — hot air balloons and zeppelins
       const skyGeos: THREE.BufferGeometry[] = []
       const skyMats: THREE.Material[] = []
       const trackG = <T extends THREE.BufferGeometry>(g: T): T => {
@@ -709,15 +713,19 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         const skirtGeo = trackG(new THREE.ConeGeometry(0.72, 0.9, 8, 1, true))
         const basketGeo = trackG(new THREE.BoxGeometry(0.55, 0.45, 0.55))
         const basketMat = trackM(
-          new THREE.MeshStandardMaterial({ color: 0x9a7b5f, roughness: 0.9 }),
+          new THREE.MeshStandardMaterial({ color: 0x8f8f8f, roughness: 0.9 }),
         )
-        const balloonColors = [0xf49d9d, 0x96bbff, 0xf4f493]
+        // Full-tone vibrant primaries
+        const balloonColors = [0xff5a4e, 0x4d86ff, 0xffe626]
         for (let i = 0; i < 3; i++) {
           const group = new THREE.Group()
           const mat = trackM(
             new THREE.MeshStandardMaterial({
               color: balloonColors[i % balloonColors.length],
               roughness: 0.55,
+              emissive: new THREE.Color(
+                balloonColors[i % balloonColors.length],
+              ).multiplyScalar(0.35),
             }),
           )
           const env = new THREE.Mesh(envGeo, mat)
@@ -750,15 +758,23 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       {
         const hullGeo = trackG(new THREE.SphereGeometry(1, 16, 12))
         const hullMat = trackM(
-          new THREE.MeshStandardMaterial({ color: 0xe4e7f2, roughness: 0.5 }),
+          new THREE.MeshStandardMaterial({
+            color: 0x4d86ff,
+            roughness: 0.45,
+            emissive: new THREE.Color(0x4d86ff).multiplyScalar(0.35),
+          }),
         )
         const finGeo = trackG(new THREE.BoxGeometry(0.9, 0.85, 0.08))
         const finMat = trackM(
-          new THREE.MeshStandardMaterial({ color: 0xf49d9d, roughness: 0.6 }),
+          new THREE.MeshStandardMaterial({
+            color: 0xff5a4e,
+            roughness: 0.55,
+            emissive: new THREE.Color(0xff5a4e).multiplyScalar(0.3),
+          }),
         )
         const gondolaGeo = trackG(new THREE.BoxGeometry(1.2, 0.32, 0.45))
         const gondolaMat = trackM(
-          new THREE.MeshStandardMaterial({ color: 0x6a7a90, roughness: 0.7 }),
+          new THREE.MeshStandardMaterial({ color: 0x6f6f6f, roughness: 0.7 }),
         )
         for (let i = 0; i < 2; i++) {
           const group = new THREE.Group()
@@ -790,72 +806,6 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         }
       }
 
-      type Dragon = {
-        segs: THREE.Mesh[]
-        wingL: THREE.Mesh
-        wingR: THREE.Mesh
-        radius: number
-        speed: number
-        height: number
-        phase: number
-        center: THREE.Vector3
-      }
-      const dragons: Dragon[] = []
-      {
-        const segGeo = trackG(new THREE.SphereGeometry(1, 10, 8))
-        const dragonMat = trackM(
-          new THREE.MeshStandardMaterial({ color: 0x86c2a4, roughness: 0.5 }),
-        )
-        const wingGeo = trackG(new THREE.BufferGeometry())
-        wingGeo.setAttribute(
-          'position',
-          new THREE.BufferAttribute(
-            new Float32Array([0, 0, 0, 2.2, 0.5, -0.4, 1.1, 0.15, 0.55]),
-            3,
-          ),
-        )
-        wingGeo.computeVertexNormals()
-        const wingMat = trackM(
-          new THREE.MeshStandardMaterial({
-            color: 0x74b8a0,
-            roughness: 0.6,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.9,
-          }),
-        )
-        const segCount = 9
-        for (let i = 0; i < 2; i++) {
-          const segs: THREE.Mesh[] = []
-          for (let k = 0; k < segCount; k++) {
-            const seg = new THREE.Mesh(segGeo, dragonMat)
-            const s = 0.85 * (1 - k / segCount) + 0.18
-            seg.scale.setScalar(s)
-            scene.add(seg)
-            segs.push(seg)
-          }
-          const wingL = new THREE.Mesh(wingGeo, wingMat)
-          const wingR = new THREE.Mesh(wingGeo, wingMat)
-          wingR.scale.x = -1
-          scene.add(wingL)
-          scene.add(wingR)
-          dragons.push({
-            segs,
-            wingL,
-            wingR,
-            radius: 22 + Math.random() * 26,
-            speed: 0.18 + Math.random() * 0.14,
-            height: peakH * (0.75 + Math.random() * 0.45),
-            phase: Math.random() * Math.PI * 2,
-            center: new THREE.Vector3(
-              (Math.random() - 0.5) * worldW * 0.4,
-              0,
-              (Math.random() - 0.5) * worldD * 0.4,
-            ),
-          })
-        }
-      }
-
       // Forest patches — a few dense groves instead of scattered trees
       const forestCenters: { x: number; z: number; r: number }[] = []
       {
@@ -878,22 +828,25 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const trunkGeo = new THREE.CylinderGeometry(0.09, 0.14, 1, 5)
       trunkGeo.translate(0, 0.5, 0)
       const trunkMat = new THREE.MeshStandardMaterial({
-        color: 0x7d6a63,
+        color: 0xb8b8b8,
         roughness: 0.9,
       })
       const foliageGeo = new THREE.ConeGeometry(0.55, 1, 7)
       foliageGeo.translate(0, 0.5, 0)
-      const foliageMat = new THREE.MeshStandardMaterial({ roughness: 0.7 })
+      const foliageMat = new THREE.MeshStandardMaterial({
+        roughness: 0.7,
+        emissive: new THREE.Color(0xffffff).multiplyScalar(0.14),
+      })
       const trunkMesh = new THREE.InstancedMesh(trunkGeo, trunkMat, treeCount)
       const foliageMesh = new THREE.InstancedMesh(foliageGeo, foliageMat, treeCount)
       {
         const dummy = new THREE.Object3D()
-        // Coherent green family, one blue-green accent
+        // Palette-strict: tones of primary blue with rare pink accents
         const foliageColors = [
-          new THREE.Color(0x86c2a4),
-          new THREE.Color(0x9ccfb4),
-          new THREE.Color(0x74b8a0),
-          new THREE.Color(0x8fbfc9),
+          new THREE.Color(0xa9c9ff),
+          new THREE.Color(0x8fb9ff),
+          new THREE.Color(0xc4dbff),
+          new THREE.Color(0xffb0b0),
         ]
         const tint = new THREE.Color()
         let placed = 0
@@ -985,14 +938,17 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       // Bushes — undergrowth hugging the grove edges
       const bushCount = isMobile ? 80 : 170
       const bushGeo = new THREE.IcosahedronGeometry(1, 1)
-      const bushMat = new THREE.MeshStandardMaterial({ roughness: 0.85 })
+      const bushMat = new THREE.MeshStandardMaterial({
+        roughness: 0.85,
+        emissive: new THREE.Color(0xffffff).multiplyScalar(0.14),
+      })
       const bushMesh = new THREE.InstancedMesh(bushGeo, bushMat, bushCount)
       {
         const dummy = new THREE.Object3D()
         const bushColors = [
-          new THREE.Color(0xa8d8c0),
-          new THREE.Color(0xbfe0ba),
-          new THREE.Color(0x92c9ae),
+          new THREE.Color(0xd2e2ff),
+          new THREE.Color(0xbdd5ff),
+          new THREE.Color(0xffc9c9),
         ]
         const tint = new THREE.Color()
         let placed = 0
@@ -1023,63 +979,6 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         scene.add(bushMesh)
       }
 
-      // Mineral patches — clusters of shiny low rocks on the slopes
-      const mineralCount = isMobile ? 40 : 90
-      const mineralGeo = new THREE.IcosahedronGeometry(1, 0)
-      const mineralMat = new THREE.MeshStandardMaterial({
-        roughness: 0.18,
-        metalness: 0.75,
-      })
-      const mineralMesh = new THREE.InstancedMesh(mineralGeo, mineralMat, mineralCount)
-      {
-        const dummy = new THREE.Object3D()
-        const mineralColors = [
-          new THREE.Color(0x96bbff),
-          new THREE.Color(0xf4f493),
-        ]
-        // Cluster centers on mid slopes
-        const patches: { x: number; z: number; c: THREE.Color }[] = []
-        let guard = 0
-        while (patches.length < 8 && guard < 800) {
-          guard++
-          const x = (Math.random() - 0.5) * worldW * 0.85
-          const z = (Math.random() - 0.5) * worldD * 0.85
-          const { n } = terrainAt(x, z)
-          if (n < 0.15 || n > 0.58) continue
-          patches.push({
-            x,
-            z,
-            c: mineralColors[(Math.random() * mineralColors.length) | 0],
-          })
-        }
-        const tint = new THREE.Color()
-        let placed = 0
-        guard = 0
-        while (placed < mineralCount && guard < mineralCount * 50 && patches.length > 0) {
-          guard++
-          const patch = patches[placed % patches.length]
-          const x = patch.x + (Math.random() - 0.5) * 7
-          const z = patch.z + (Math.random() - 0.5) * 7
-          const { y, n } = terrainAt(x, z)
-          if (n < 0.1 || n > 0.65) continue
-          const s = 0.3 + Math.random() * 0.85
-          dummy.position.set(x, y + s * 0.12, z)
-          dummy.rotation.set(
-            Math.random() * Math.PI,
-            Math.random() * Math.PI * 2,
-            Math.random() * Math.PI,
-          )
-          dummy.scale.set(s, s * 0.45, s)
-          dummy.updateMatrix()
-          mineralMesh.setMatrixAt(placed, dummy.matrix)
-          tint.copy(patch.c).offsetHSL(0, 0, (Math.random() - 0.5) * 0.1)
-          mineralMesh.setColorAt(placed, tint)
-          placed++
-        }
-        mineralMesh.count = placed
-        scene.add(mineralMesh)
-      }
-
       // Floating rock islands with tiny trees — slow bob + drift
       type Island = {
         group: THREE.Group
@@ -1093,13 +992,13 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const islandCount = isMobile ? 3 : 5
       const rockGeo = new THREE.DodecahedronGeometry(1, 0)
       const rockMat = new THREE.MeshStandardMaterial({
-        color: 0xb9c3dd,
+        color: 0xcfcfcf,
         roughness: 0.85,
       })
       const islandTreeGeo = new THREE.ConeGeometry(0.4, 1.1, 6)
       islandTreeGeo.translate(0, 0.55, 0)
       const islandTreeMat = new THREE.MeshStandardMaterial({
-        color: 0x86c2a4,
+        color: 0x96bbff,
         roughness: 0.7,
       })
       for (let i = 0; i < islandCount; i++) {
@@ -1141,12 +1040,14 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       // Fantasy castle — placed on the flattest mid-elevation perch we can find
       const castleGroup = new THREE.Group()
       const stoneMat = new THREE.MeshStandardMaterial({
-        color: 0xdde2f0,
+        color: 0xf1f1f1,
         roughness: 0.8,
+        emissive: new THREE.Color(0xffffff).multiplyScalar(0.12),
       })
       const roofMat = new THREE.MeshStandardMaterial({
-        color: 0xf49d9d,
+        color: 0xff9494,
         roughness: 0.6,
+        emissive: new THREE.Color(0xff9494).multiplyScalar(0.18),
       })
       const windowMat = new THREE.MeshStandardMaterial({
         color: 0xf4f493,
@@ -1154,7 +1055,6 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         roughness: 0.4,
       })
       const castleGeos: THREE.BufferGeometry[] = []
-      const castleAnchor = new THREE.Vector2(0, worldD * 0.18)
       {
         let bx = 0
         let bz = worldD * 0.18
@@ -1215,8 +1115,29 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         addMesh(new THREE.BoxGeometry(9, 4.2, 0.8), stoneMat, 0, 2.1, 4.5)
         addMesh(new THREE.BoxGeometry(0.8, 4.2, 9), stoneMat, -4.5, 2.1, 0)
         addMesh(new THREE.BoxGeometry(0.8, 4.2, 9), stoneMat, 4.5, 2.1, 0)
-        // Gate + glowing windows
-        addMesh(new THREE.BoxGeometry(1.8, 2.6, 0.5), roofMat, 0, 1.3, 4.75)
+        // Battlements — merlons along every wall top
+        const merlonGeo = new THREE.BoxGeometry(0.44, 0.52, 0.44)
+        for (let m = -3.45; m <= 3.45; m += 1.15) {
+          addMesh(merlonGeo, stoneMat, m, 4.46, -4.5)
+          addMesh(merlonGeo, stoneMat, m, 4.46, 4.5)
+          addMesh(merlonGeo, stoneMat, -4.5, 4.46, m)
+          addMesh(merlonGeo, stoneMat, 4.5, 4.46, m)
+        }
+        // Stone plinth grounding the whole castle
+        addMesh(new THREE.BoxGeometry(11.5, 1.4, 11.5), stoneMat, 0, 0.2, 0)
+        // Tower arrow-slit windows
+        for (const [tx, tz] of towerOffsets) {
+          addMesh(
+            new THREE.BoxGeometry(0.26, 0.9, 0.26),
+            windowMat,
+            tx * 1.02,
+            6.2,
+            tz * 1.02,
+          )
+        }
+        // Gatehouse arch + glowing windows
+        addMesh(new THREE.BoxGeometry(2.6, 3.4, 0.6), stoneMat, 0, 1.7, 4.78)
+        addMesh(new THREE.BoxGeometry(1.6, 2.4, 0.5), roofMat, 0, 1.2, 4.95)
         addMesh(new THREE.BoxGeometry(0.7, 1.1, 0.2), windowMat, -1.2, 5.4, 2.56)
         addMesh(new THREE.BoxGeometry(0.7, 1.1, 0.2), windowMat, 1.2, 5.4, 2.56)
         addMesh(new THREE.BoxGeometry(0.7, 1.1, 0.2), windowMat, 0, 6.6, 2.56)
@@ -1230,7 +1151,6 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         castleGroup.rotation.y = Math.random() * Math.PI * 2
         castleGroup.scale.setScalar(1.25)
         scene.add(castleGroup)
-        castleAnchor.set(bx, bz)
       }
 
       // Villages — clusters of tiny houses in the valleys
@@ -1240,25 +1160,30 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       const houseRoofGeo = new THREE.ConeGeometry(0.9, 0.75, 4)
       houseRoofGeo.translate(0, 0.375, 0)
       houseRoofGeo.rotateY(Math.PI / 4)
-      const houseBodyMat = new THREE.MeshStandardMaterial({ roughness: 0.85 })
-      const houseRoofMat = new THREE.MeshStandardMaterial({ roughness: 0.7 })
+      const houseBodyMat = new THREE.MeshStandardMaterial({
+        roughness: 0.85,
+        emissive: new THREE.Color(0xffffff).multiplyScalar(0.16),
+      })
+      const houseRoofMat = new THREE.MeshStandardMaterial({
+        roughness: 0.7,
+        emissive: new THREE.Color(0xffffff).multiplyScalar(0.14),
+      })
       const houseBodyMesh = new THREE.InstancedMesh(houseBodyGeo, houseBodyMat, houseCount)
       const houseRoofMesh = new THREE.InstancedMesh(houseRoofGeo, houseRoofMat, houseCount)
-      const villageCenters: { x: number; z: number }[] = []
       {
         const dummy = new THREE.Object3D()
         const bodyColors = [
-          new THREE.Color(0xfdf3ec),
-          new THREE.Color(0xf6e3e3),
-          new THREE.Color(0xe4ecfa),
+          new THREE.Color(0xffffff),
+          new THREE.Color(0xffe3e3),
+          new THREE.Color(0xe9f1ff),
         ]
         const roofColors = [
-          new THREE.Color(0xf49d9d),
-          new THREE.Color(0x96bbff),
-          new THREE.Color(0xf4f493),
+          new THREE.Color(0xff8f8f),
+          new THREE.Color(0x86b3ff),
+          new THREE.Color(0xffef6e),
         ]
         // Pick 4 village centers in the valleys
-        const centers = villageCenters
+        const centers: { x: number; z: number }[] = []
         let guard = 0
         while (centers.length < 4 && guard < 600) {
           guard++
@@ -1305,143 +1230,10 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         scene.add(houseRoofMesh)
       }
 
-      // Pathways — winding stepping-stone trails from each village to the castle
-      const pathStoneCap = isMobile ? 220 : 420
-      const pathGeo = new THREE.CylinderGeometry(1, 1, 0.18, 6)
-      const pathMat = new THREE.MeshStandardMaterial({ roughness: 0.9 })
-      const pathMesh = new THREE.InstancedMesh(pathGeo, pathMat, pathStoneCap)
-      {
-        const dummy = new THREE.Object3D()
-        const stoneTints = [
-          new THREE.Color(0xece6d4),
-          new THREE.Color(0xe2d9c6),
-          new THREE.Color(0xf0ead9),
-        ]
-        let placed = 0
-        for (const c of villageCenters) {
-          const sx = c.x
-          const sz = c.z
-          const ex = castleAnchor.x
-          const ez = castleAnchor.y
-          // Curved route — control point pushed sideways for a winding feel
-          const mx = (sx + ex) / 2 - (ez - sz) * (0.25 + Math.random() * 0.2)
-          const mz = (sz + ez) / 2 + (ex - sx) * (0.25 + Math.random() * 0.2)
-          const dist = Math.hypot(ex - sx, ez - sz)
-          const steps = Math.min(90, Math.max(24, Math.ceil(dist / 1.6)))
-          for (let k = 0; k <= steps && placed < pathStoneCap; k++) {
-            const u = k / steps
-            const iu = 1 - u
-            const x =
-              iu * iu * sx + 2 * iu * u * mx + u * u * ex + (Math.random() - 0.5) * 0.7
-            const z =
-              iu * iu * sz + 2 * iu * u * mz + u * u * ez + (Math.random() - 0.5) * 0.7
-            const { y, n } = terrainAt(x, z)
-            // Trails keep to walkable ground
-            if (n > 0.52) continue
-            const s = 0.3 + Math.random() * 0.22
-            dummy.position.set(x, y + 0.05, z)
-            dummy.rotation.set(0, Math.random() * Math.PI, 0)
-            dummy.scale.set(s, 1, s * (0.75 + Math.random() * 0.4))
-            dummy.updateMatrix()
-            pathMesh.setMatrixAt(placed, dummy.matrix)
-            pathMesh.setColorAt(placed, stoneTints[(Math.random() * stoneTints.length) | 0])
-            placed++
-          }
-        }
-        pathMesh.count = placed
-        scene.add(pathMesh)
-      }
-
-      // Lots of shiny single-color bubbles (instanced) — burst on axe click
-      const bubbleCount = isMobile ? 1600 : 3800
-      const bubbleGeo = new THREE.SphereGeometry(1, 8, 8)
-      const bubbleMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.72,
-        roughness: 0.08,
-        metalness: 0.45,
-        emissive: new THREE.Color(0xffffff).multiplyScalar(0.3),
-        depthWrite: false,
-      })
-      const bubbleMesh = new THREE.InstancedMesh(bubbleGeo, bubbleMat, bubbleCount)
-      bubbleMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
-      // Light tints of the primary yellow and blue
-      {
-        const bubbleTints = [new THREE.Color(0xfaf8d0), new THREE.Color(0xcbdcff)]
-        for (let i = 0; i < bubbleCount; i++) {
-          bubbleMesh.setColorAt(i, bubbleTints[(Math.random() * bubbleTints.length) | 0])
-        }
-      }
-      scene.add(bubbleMesh)
-
-      const baseX = new Float32Array(bubbleCount)
-      const baseY = new Float32Array(bubbleCount)
-      const baseZ = new Float32Array(bubbleCount)
-      const phaseA = new Float32Array(bubbleCount)
-      const speedA = new Float32Array(bubbleCount)
-      const ampX = new Float32Array(bubbleCount)
-      const ampZ = new Float32Array(bubbleCount)
-      const scaleA = new Float32Array(bubbleCount)
-      const riseA = new Float32Array(bubbleCount)
-      const spawnA = new Float32Array(bubbleCount)
-      const velX = new Float32Array(bubbleCount)
-      const velY = new Float32Array(bubbleCount)
-      const velZ = new Float32Array(bubbleCount)
-      const bubbleDummy = new THREE.Object3D()
-      const bubbleCeil = peakH * 1.15
-      let burstUntil = 0
-
-      // Bubbles are born on the terrain surface and drift upward
-      const seedBubble = (i: number, now: number, delay: number) => {
-        const x = (Math.random() - 0.5) * worldW * 0.85
-        const z = (Math.random() - 0.5) * worldD * 0.85
-        baseX[i] = x
-        baseZ[i] = z
-        baseY[i] = terrainAt(x, z).y + 0.3
-        phaseA[i] = Math.random() * Math.PI * 2
-        speedA[i] = 0.2 + Math.random() * 0.4
-        ampX[i] = 0.7 + Math.random() * 2.4
-        ampZ[i] = 0.7 + Math.random() * 2.4
-        scaleA[i] = 0.06 + Math.random() * 0.22
-        riseA[i] = 1.0 + Math.random() * 2.0
-        spawnA[i] = now + delay
-        velX[i] = 0
-        velY[i] = 0
-        velZ[i] = 0
-      }
-      for (let i = 0; i < bubbleCount; i++) {
-        seedBubble(i, 0, 0)
-        // Pre-age so the field starts populated at all heights
-        spawnA[i] = -Math.random() * ((bubbleCeil - baseY[i]) / riseA[i])
-      }
-
-      const burstBubbles = (origin: THREE.Vector3, now: number) => {
-        for (let i = 0; i < bubbleCount; i++) {
-          // Sync base to current floating pose so the burst starts from where bubbles are
-          const age = Math.max(0, now - spawnA[i])
-          const a = age * speedA[i] + phaseA[i]
-          const px = baseX[i] + Math.sin(a * 0.7) * ampX[i]
-          const py = baseY[i] + age * riseA[i]
-          const pz = baseZ[i] + Math.cos(a * 0.55) * ampZ[i]
-          baseX[i] = px
-          baseY[i] = py
-          baseZ[i] = pz
-          const dx = px - origin.x + (Math.random() - 0.5) * 2
-          const dy = py - origin.y + (Math.random() - 0.5) * 2
-          const dz = pz - origin.z + (Math.random() - 0.5) * 2
-          const len = Math.hypot(dx, dy, dz) || 1
-          const force = 18 + Math.random() * 42
-          velX[i] = (dx / len) * force + (Math.random() - 0.5) * 8
-          velY[i] = (dy / len) * force * 0.85 + 8 + Math.random() * 16
-          velZ[i] = (dz / len) * force + (Math.random() - 0.5) * 8
-        }
-      }
-
       // Birds
       const birdGeo = makeBirdGeometry()
       const birdMat = new THREE.MeshBasicMaterial({
-        color: 0x6a7a90,
+        color: 0x5c5c5c,
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.7,
@@ -1459,6 +1251,8 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       for (let i = 0; i < birdCount; i++) {
         const mesh = new THREE.Mesh(birdGeo, birdMat)
         mesh.scale.setScalar(1.1 + Math.random() * 1.2)
+        // Birds survive the world break — they just keep circling
+        mesh.userData.noFall = true
         scene.add(mesh)
         birds.push({
           mesh,
@@ -1474,15 +1268,20 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         })
       }
 
-      scene.add(new THREE.AmbientLight(0xf6f6f4, 1.0))
+      const ambient = new THREE.AmbientLight(0xf6f6f4, 1.0)
+      ambient.userData.noFall = true
+      scene.add(ambient)
       const sun = new THREE.DirectionalLight(0xf4f493, 1.2)
       sun.position.copy(sunDir).multiplyScalar(200)
+      sun.userData.noFall = true
       scene.add(sun)
       const fill = new THREE.DirectionalLight(0x96bbff, 0.88)
       fill.position.set(-100, 80, -80)
+      fill.userData.noFall = true
       scene.add(fill)
       const rim = new THREE.DirectionalLight(0xf49d9d, 0.68)
       rim.position.set(60, 50, 120)
+      rim.userData.noFall = true
       scene.add(rim)
 
       // Grain post pass (MSAA on the scene target for cleaner edges)
@@ -1511,8 +1310,202 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
 
       const canvas = renderer.domElement
       const start = performance.now()
-      let glitchUntil = 0
+      let glitchPulse = 0
       const tNow = () => performance.now() / 1000
+
+      // World shatter — 6 axe strikes and the terrain cracks into pieces
+      // that tumble off into the void below, props riding along
+      let hitCount = 0
+      let breakTarget = 0
+      const breakTimers: number[] = []
+
+      type ShardPiece = {
+        site: THREE.Vector2
+        delay: number
+        axis: THREE.Vector3
+        spin: number
+        drift: THREE.Vector2
+        matrix: THREE.Matrix4
+      }
+      type ShardState = {
+        time: number
+        pieces: ShardPiece[]
+        terrainShards: THREE.Mesh[]
+        fallers: { obj: THREE.Object3D; orig: THREE.Matrix4; piece: number }[]
+        instFallers: {
+          mesh: THREE.InstancedMesh
+          orig: Float32Array
+          ids: Uint8Array
+          count: number
+        }[]
+      }
+      let shardState: ShardState | null = null
+      const FALL_CLOCK_MAX = 3.2
+
+      const startBreak = () => {
+        if (shardState) return
+        const pieceCount = 7
+        const pieces: ShardPiece[] = []
+        for (let k = 0; k < pieceCount; k++) {
+          // One piece near the middle, the rest fanned around it
+          const ang = (k / pieceCount) * Math.PI * 2 + Math.random()
+          const rad = k === 0 ? 0 : worldW * (0.16 + Math.random() * 0.24)
+          const site = new THREE.Vector2(Math.cos(ang) * rad, Math.sin(ang) * rad)
+          const out = site.length() > 1 ? site.clone().normalize() : new THREE.Vector2()
+          pieces.push({
+            site,
+            delay: Math.random() * 0.45,
+            axis: new THREE.Vector3(
+              Math.random() - 0.5,
+              (Math.random() - 0.5) * 0.3,
+              Math.random() - 0.5,
+            ).normalize(),
+            spin: (0.45 + Math.random() * 0.65) * (Math.random() < 0.5 ? -1 : 1),
+            drift: new THREE.Vector2(
+              out.x * (7 + Math.random() * 9),
+              out.y * (7 + Math.random() * 9),
+            ),
+            matrix: new THREE.Matrix4(),
+          })
+        }
+        const pieceAt = (x: number, z: number) => {
+          let best = 0
+          let bd = Infinity
+          for (let k = 0; k < pieces.length; k++) {
+            const dx = x - pieces[k].site.x
+            const dz = z - pieces[k].site.y
+            const d = dx * dx + dz * dz
+            if (d < bd) {
+              bd = d
+              best = k
+            }
+          }
+          return best
+        }
+
+        // Everything world-anchored rides a piece (collect before shard meshes exist)
+        const fallers: ShardState['fallers'] = []
+        const instFallers: ShardState['instFallers'] = []
+        for (const child of scene.children) {
+          if (child === terrainMesh || child.userData.noFall) continue
+          if ((child as THREE.InstancedMesh).isInstancedMesh) {
+            const im = child as THREE.InstancedMesh
+            const count = im.count
+            const orig = (im.instanceMatrix.array as Float32Array).slice(0, count * 16)
+            const ids = new Uint8Array(count)
+            for (let i = 0; i < count; i++) {
+              ids[i] = pieceAt(orig[i * 16 + 12], orig[i * 16 + 14])
+            }
+            instFallers.push({ mesh: im, orig, ids, count })
+          } else {
+            child.updateMatrix()
+            fallers.push({
+              obj: child,
+              orig: child.matrix.clone(),
+              piece: pieceAt(child.position.x, child.position.z),
+            })
+            child.matrixAutoUpdate = false
+          }
+        }
+
+        // Split the terrain into Voronoi shards — per-piece index buffers
+        // sharing the original vertex attributes
+        const idx = terrainGeo.index!
+        const posAttr = terrainGeo.attributes.position
+        const buckets: number[][] = pieces.map(() => [])
+        for (let i = 0; i < idx.count; i += 3) {
+          const a = idx.getX(i)
+          const b = idx.getX(i + 1)
+          const c = idx.getX(i + 2)
+          const cx = (posAttr.getX(a) + posAttr.getX(b) + posAttr.getX(c)) / 3
+          const cz = (posAttr.getZ(a) + posAttr.getZ(b) + posAttr.getZ(c)) / 3
+          buckets[pieceAt(cx, cz)].push(a, b, c)
+        }
+        const terrainShards: THREE.Mesh[] = []
+        for (let k = 0; k < pieces.length; k++) {
+          const g = new THREE.BufferGeometry()
+          g.setAttribute('position', posAttr)
+          g.setAttribute('normal', terrainGeo.attributes.normal)
+          g.setAttribute('uv', terrainGeo.attributes.uv)
+          g.setAttribute('elevNorm', terrainGeo.attributes.elevNorm)
+          g.setIndex(buckets[k])
+          const m = new THREE.Mesh(g, terrainMat)
+          m.matrixAutoUpdate = false
+          m.frustumCulled = false
+          m.userData.noFall = true
+          scene.add(m)
+          terrainShards.push(m)
+        }
+        terrainMesh.visible = false
+        shardState = { time: 0, pieces, terrainShards, fallers, instFallers }
+      }
+
+      const shardTmpA = new THREE.Matrix4()
+      const shardTmpB = new THREE.Matrix4()
+      const shardRot = new THREE.Matrix4()
+      const updateShards = () => {
+        if (!shardState) return
+        const st = shardState
+        for (const pc of st.pieces) {
+          const tt = Math.max(0, st.time - pc.delay)
+          // A brief upward heave, then gravity takes over; each piece tumbles
+          // around its own axis while drifting outward from the epicenter
+          const y = 4.5 * tt - 40 * tt * tt
+          pc.matrix.makeTranslation(-pc.site.x, 0, -pc.site.y)
+          shardRot.makeRotationAxis(pc.axis, pc.spin * tt)
+          pc.matrix.premultiply(shardRot)
+          shardTmpA.makeTranslation(
+            pc.site.x + pc.drift.x * tt,
+            y,
+            pc.site.y + pc.drift.y * tt,
+          )
+          pc.matrix.premultiply(shardTmpA)
+        }
+        for (let k = 0; k < st.terrainShards.length; k++) {
+          const m = st.terrainShards[k]
+          m.matrix.copy(st.pieces[k].matrix)
+          m.matrixWorldNeedsUpdate = true
+        }
+        for (const f of st.fallers) {
+          f.obj.matrix.multiplyMatrices(st.pieces[f.piece].matrix, f.orig)
+          f.obj.matrixWorldNeedsUpdate = true
+        }
+        for (const inf of st.instFallers) {
+          const arr = inf.mesh.instanceMatrix.array as Float32Array
+          for (let i = 0; i < inf.count; i++) {
+            shardTmpA.fromArray(inf.orig, i * 16)
+            shardTmpB.multiplyMatrices(st.pieces[inf.ids[i]].matrix, shardTmpA)
+            shardTmpB.toArray(arr, i * 16)
+          }
+          inf.mesh.instanceMatrix.needsUpdate = true
+        }
+      }
+
+      const restoreWorld = () => {
+        if (!shardState) return
+        for (const m of shardState.terrainShards) {
+          scene.remove(m)
+          m.geometry.dispose()
+        }
+        terrainMesh.visible = true
+        for (const f of shardState.fallers) {
+          f.obj.matrix.copy(f.orig)
+          f.obj.matrix.decompose(f.obj.position, f.obj.quaternion, f.obj.scale)
+          f.obj.matrixAutoUpdate = true
+          f.obj.matrixWorldNeedsUpdate = true
+        }
+        for (const inf of shardState.instFallers) {
+          ;(inf.mesh.instanceMatrix.array as Float32Array).set(inf.orig)
+          inf.mesh.instanceMatrix.needsUpdate = true
+        }
+        shardState = null
+      }
+
+      stitchRef.current = () => {
+        breakTarget = 0
+        hitCount = 0
+        playCrackSound()
+      }
 
       const placeAxe = (clientX: number, clientY: number) => {
         if (!axeEl) return
@@ -1529,17 +1522,23 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         void axeEl?.offsetWidth
         axeEl?.classList.add('fog-hero__axe--hit')
         playCrackSound()
-        glitchUntil = tNow() + 0.06 + Math.random() * 0.04
-        // Burst from a point near the look target / camera mid-view
-        const origin = lookTarget.clone().add(
-          new THREE.Vector3(
-            (Math.random() - 0.5) * 8,
-            peakH * 0.15,
-            (Math.random() - 0.5) * 8,
-          ),
-        )
-        burstBubbles(origin, tNow())
-        burstUntil = tNow() + 1.15
+        if (breakTarget === 0) {
+          hitCount++
+          // A six-frame flash, right on impact
+          glitchPulse = 6
+          if (hitCount >= 6) {
+            breakTarget = 1
+            startBreak()
+            // Aftershock cracks as the pieces give way
+            for (const delay of [160, 380, 640, 980]) {
+              breakTimers.push(window.setTimeout(() => playCrackSound(), delay))
+            }
+            // Offer the needle and thread once the dust settles
+            breakTimers.push(
+              window.setTimeout(() => onBrokenRef.current?.(true), 2100),
+            )
+          }
+        }
         window.setTimeout(() => {
           mount.classList.remove('fog-hero--striking')
           axeEl?.classList.remove('fog-hero__axe--hit')
@@ -1656,16 +1655,26 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         grainMat.uniforms.uTime.value = t
 
         // Pink/blue glitch only while a click strike is active
-        let glitch = 0
-        if (t < glitchUntil) {
-          const remain = glitchUntil - t
-          glitch = Math.min(1, remain * 22) * (0.7 + 0.3 * Math.sin(t * 100))
-          if (Math.random() > 0.65) glitch = Math.min(1, glitch + 0.4)
-        }
-        grainMat.uniforms.uGlitch.value = glitch
+        // Strike glitch renders for a fixed number of frames — a blink of static
+        let glitch = glitchPulse > 0 ? 1 : 0
+        if (glitchPulse > 0) glitchPulse--
 
         const dt = Math.min(0.05, Math.max(0, t - lastFrameT))
         lastFrameT = t
+
+        // World shatter — run the fall clock forward, or rewind it to stitch
+        if (shardState) {
+          if (breakTarget === 1) {
+            shardState.time = Math.min(shardState.time + dt, FALL_CLOCK_MAX)
+          } else {
+            shardState.time = Math.max(shardState.time - dt * 1.9, 0)
+          }
+          updateShards()
+          const p = Math.min(1, shardState.time / 1.1)
+          glitch = Math.max(glitch, p * (1 - p) * 1.6)
+          if (breakTarget === 0 && shardState.time === 0) restoreWorld()
+        }
+        grainMat.uniforms.uGlitch.value = glitch
 
         if (!orbit.dragging && keysActive()) {
           if (keys.left) orbit.targetAzimuth += KEY_YAW * dt
@@ -1716,14 +1725,6 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
           isl.group.rotation.y += isl.spin * dt
         }
 
-        for (const cl of clouds) {
-          cl.group.position.x += cl.speed * dt
-          if (cl.group.position.x > worldW * 0.75) {
-            cl.group.position.x = -worldW * 0.75
-            cl.group.position.z = (Math.random() - 0.5) * worldD * 0.8
-          }
-        }
-
         for (const bl of balloons) {
           bl.group.position.x += bl.speed * dt
           bl.group.position.y = bl.baseY + Math.sin(t * 0.4 + bl.phase) * 1.4
@@ -1743,80 +1744,13 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
           }
         }
 
-        for (const dr of dragons) {
-          const a = t * dr.speed + dr.phase
-          for (let k = 0; k < dr.segs.length; k++) {
-            const ak = a - k * 0.055
-            dr.segs[k].position.set(
-              dr.center.x + Math.cos(ak) * dr.radius,
-              dr.height + Math.sin(ak * 2.2) * 2.2 + Math.sin(ak * 5) * 0.7,
-              dr.center.z + Math.sin(ak) * dr.radius,
-            )
-          }
-          // Wings ride the second segment and flap
-          const anchor = dr.segs[1]
-          const heading = -a + Math.PI / 2
-          const flap = Math.sin(t * 6 + dr.phase) * 0.55
-          dr.wingL.position.copy(anchor.position)
-          dr.wingR.position.copy(anchor.position)
-          dr.wingL.rotation.set(0, heading, 0.35 + flap)
-          dr.wingR.rotation.set(0, heading, -(0.35 + flap))
+        // Seismic camera shake while pieces are breaking loose or knitting back
+        if (shardState && shardState.time > 0 && shardState.time < 1.6) {
+          const sh = (1 - shardState.time / 1.6) * 0.9
+          camera.position.x += (Math.random() - 0.5) * sh
+          camera.position.y += (Math.random() - 0.5) * sh
+          camera.position.z += (Math.random() - 0.5) * sh * 0.5
         }
-
-        const bursting = t < burstUntil
-        if (!bursting && burstUntil > 0) {
-          // Slow regeneration — bubbles reappear from the terrain over ~8s
-          for (let i = 0; i < bubbleCount; i++) {
-            seedBubble(i, t, 0.4 + Math.random() * 8)
-          }
-          burstUntil = 0
-        }
-        for (let i = 0; i < bubbleCount; i++) {
-          let x: number
-          let y: number
-          let z: number
-          let s = scaleA[i]
-          if (bursting) {
-            const burstAge = 1 - (burstUntil - t) / 1.15
-            velY[i] -= 28 * dt
-            velX[i] *= Math.exp(-1.6 * dt)
-            velY[i] *= Math.exp(-0.9 * dt)
-            velZ[i] *= Math.exp(-1.6 * dt)
-            baseX[i] += velX[i] * dt
-            baseY[i] += velY[i] * dt
-            baseZ[i] += velZ[i] * dt
-            x = baseX[i]
-            y = baseY[i]
-            z = baseZ[i]
-            s *= Math.max(0, 1 - burstAge * 1.15)
-          } else {
-            const age = t - spawnA[i]
-            if (age < 0) {
-              s = 0
-              x = baseX[i]
-              y = baseY[i]
-              z = baseZ[i]
-            } else {
-              const a = age * speedA[i] + phaseA[i]
-              x = baseX[i] + Math.sin(a * 0.7) * ampX[i]
-              y = baseY[i] + age * riseA[i]
-              z = baseZ[i] + Math.cos(a * 0.55) * ampZ[i]
-              // Grow in at the ground, fade out near the ceiling
-              const fadeIn = Math.min(1, age * 1.2)
-              const fadeOut = THREE.MathUtils.clamp((bubbleCeil - y) / 6, 0, 1)
-              s *= fadeIn * fadeOut
-              if (y > bubbleCeil) {
-                seedBubble(i, t, 0.3 + Math.random() * 2.5)
-                s = 0
-              }
-            }
-          }
-          bubbleDummy.position.set(x, y, z)
-          bubbleDummy.scale.setScalar(Math.max(s, 0.0001))
-          bubbleDummy.updateMatrix()
-          bubbleMesh.setMatrixAt(i, bubbleDummy.matrix)
-        }
-        bubbleMesh.instanceMatrix.needsUpdate = true
 
         renderer.setRenderTarget(sceneTarget)
         renderer.setClearColor(0x000000, 0)
@@ -1870,6 +1804,13 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
       canvas.addEventListener('wheel', onWheel, { passive: false })
 
       tearDown = () => {
+        for (const id of breakTimers) window.clearTimeout(id)
+        breakTimers.length = 0
+        stitchRef.current = null
+        if (shardState) {
+          for (const m of shardState.terrainShards) m.geometry.dispose()
+          shardState = null
+        }
         if (raf) cancelAnimationFrame(raf)
         raf = 0
         document.removeEventListener('visibilitychange', onVisibility)
@@ -1890,9 +1831,6 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         skyMat.dispose()
         birdGeo.dispose()
         birdMat.dispose()
-        bubbleGeo.dispose()
-        bubbleMat.dispose()
-        bubbleMesh.dispose()
         trunkGeo.dispose()
         trunkMat.dispose()
         foliageGeo.dispose()
@@ -1905,9 +1843,6 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         bushGeo.dispose()
         bushMat.dispose()
         bushMesh.dispose()
-        mineralGeo.dispose()
-        mineralMat.dispose()
-        mineralMesh.dispose()
         rockGeo.dispose()
         rockMat.dispose()
         islandTreeGeo.dispose()
@@ -1922,16 +1857,11 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
         houseRoofMat.dispose()
         houseBodyMesh.dispose()
         houseRoofMesh.dispose()
-        pathGeo.dispose()
-        pathMat.dispose()
-        pathMesh.dispose()
         for (const g of pondGeos) g.dispose()
         pondMat.dispose()
         for (const g of streamGeos) g.dispose()
         streamMat.dispose()
         foamMat.dispose()
-        for (const g of cloudGeos) g.dispose()
-        cloudMat.dispose()
         for (const g of skyGeos) g.dispose()
         for (const m of skyMats) m.dispose()
         sceneTarget.dispose()
@@ -1979,12 +1909,13 @@ export function FogRevealHero({ active = true }: { active?: boolean }) {
   }, [active])
 
   return (
-    <div className="fog-hero" ref={mountRef} aria-hidden="true">
+    <div className="fog-hero" ref={mountRef}>
       <img
         className="fog-hero__axe"
         ref={axeRef}
         src="/cursors/ice-axe.svg"
         alt=""
+        aria-hidden="true"
         draggable={false}
       />
     </div>

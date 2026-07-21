@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { projects } from '../data/projects'
 import { HeroGrid } from '../components/home/HeroGrid'
@@ -10,6 +10,9 @@ const FogRevealHero = lazy(() =>
 )
 
 export function Home({ live = true }: { live?: boolean }) {
+  const [worldBroken, setWorldBroken] = useState(false)
+  const stitchApi = useRef<(() => void) | null>(null)
+
   return (
     <div className="home">
       <section className="bio-hero" aria-label="Bio">
@@ -17,16 +20,26 @@ export function Home({ live = true }: { live?: boolean }) {
 
         <div className="bio-hero__stage">
           <Suspense fallback={<div className="fog-hero fog-hero--fallback" />}>
-            <FogRevealHero active={live} />
+            <FogRevealHero
+              active={live}
+              onBrokenChange={setWorldBroken}
+              stitchApi={stitchApi}
+            />
           </Suspense>
         </div>
 
         <div className="bio-hero__content">
-          <p className="bio-hero__eyebrow">Portfolio — 2026</p>
-          <h1 className="bio-hero__name">Po Yen Tseng</h1>
+          <h1 className="bio-hero__name">
+            <span className="bio-hero__name-line">Po Yen</span>
+            <span className="bio-hero__name-line">Tseng</span>
+          </h1>
+
           <p className="bio-hero__tagline">
-            Deconstruct, construct, and everything in between
+            <span className="hl hl--blue">
+              Deconstruct, construct, and everything in between
+            </span>
           </p>
+
           <div className="bio-hero__actions">
             <a className="bio-hero__cta" href="#works">
               Explore works
@@ -34,9 +47,18 @@ export function Home({ live = true }: { live?: boolean }) {
                 ↓
               </span>
             </a>
-            <span className="bio-hero__hint">
-              Drag to explore · click to pop the bubbles
-            </span>
+            {worldBroken && (
+              <button
+                type="button"
+                className="bio-hero__cta bio-hero__cta--stitch"
+                onClick={() => {
+                  stitchApi.current?.()
+                  setWorldBroken(false)
+                }}
+              >
+                Stitch the world back
+              </button>
+            )}
           </div>
         </div>
       </section>
