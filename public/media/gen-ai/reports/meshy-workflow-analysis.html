@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<!-- saved from url=(0064)file:///Users/pytseng/Downloads/meshy-text-to-3d-analysis_1.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meshy.ai — Text to 3D Workflow Analysis</title>
+<link href="./css2" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --surface: #16161f;
+    --border: #252535;
+    --accent: #7fff6e;
+    --accent2: #c3ff4e;
+    --purple: #9d7aff;
+    --muted: #555570;
+    --text: #e8e8f0;
+    --text-dim: #9898b0;
+    --step-color: #7fff6e;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: -100px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(127,255,110,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 40%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      rgba(255,255,255,0.012) 20px,
+      rgba(255,255,255,0.012) 21px
+    );
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(127,255,110,0.12);
+    border: 1px solid rgba(127,255,110,0.3);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 28px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(42px, 5vw, 72px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    max-width: 720px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero p {
+    color: var(--text-dim);
+    font-size: 16px;
+    max-width: 540px;
+    line-height: 1.7;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 40px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .meta-item .label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .meta-item .value {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* OVERVIEW */
+  .overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .overview-card {
+    padding: 32px 36px;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+
+  .overview-card:last-child { border-right: none; }
+
+  .overview-card .num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .overview-card .desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* CONTENT */
+  .content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+    margin-top: 60px;
+  }
+
+  .section-header:first-child { margin-top: 0; }
+
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    letter-spacing: -0.01em;
+  }
+
+  /* STEP CARDS */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0;
+    position: relative;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.5s forwards;
+  }
+
+  .step:nth-child(1) { animation-delay: 0.05s; }
+  .step:nth-child(2) { animation-delay: 0.1s; }
+  .step:nth-child(3) { animation-delay: 0.15s; }
+  .step:nth-child(4) { animation-delay: 0.2s; }
+  .step:nth-child(5) { animation-delay: 0.25s; }
+  .step:nth-child(6) { animation-delay: 0.3s; }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-num-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 28px;
+  }
+
+  .step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-line {
+    width: 2px;
+    flex: 1;
+    background: linear-gradient(to bottom, var(--border), transparent);
+    margin-top: 8px;
+    min-height: 40px;
+  }
+
+  .step:last-child .step-line { display: none; }
+
+  .step-body {
+    padding: 20px 0 40px 24px;
+    border-left: none;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .step-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    flex: 1;
+  }
+
+  .step-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    margin-top: 4px;
+  }
+
+  .type-nav { background: rgba(157,122,255,0.15); color: var(--purple); border: 1px solid rgba(157,122,255,0.25); }
+  .type-input { background: rgba(127,255,110,0.12); color: var(--accent); border: 1px solid rgba(127,255,110,0.25); }
+  .type-config { background: rgba(195,255,78,0.1); color: var(--accent2); border: 1px solid rgba(195,255,78,0.2); }
+  .type-action { background: rgba(255,100,100,0.12); color: #ff8080; border: 1px solid rgba(255,100,100,0.2); }
+  .type-result { background: rgba(100,180,255,0.12); color: #80ccff; border: 1px solid rgba(100,180,255,0.2); }
+
+  .step-desc {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    max-width: 680px;
+  }
+
+  /* UI CARD */
+  .ui-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .ui-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  .ui-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  .ui-content {
+    padding: 20px;
+  }
+
+  /* OPTION GRID */
+  .option-grid {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .option-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .option-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+  .option-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    position: relative;
+  }
+
+  .option-item.active {
+    border-color: var(--accent);
+    background: rgba(127,255,110,0.05);
+  }
+
+  .option-item .option-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .option-item .option-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .active-dot {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* FIELD ROW */
+  .field-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field-row:last-child { border-bottom: none; }
+
+  .field-name {
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .field-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(127,255,110,0.1);
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(127,255,110,0.2);
+  }
+
+  .premium-badge {
+    font-size: 9px;
+    background: rgba(255,180,0,0.15);
+    color: #ffb400;
+    border: 1px solid rgba(255,180,0,0.25);
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* TEXTAREA MOCK */
+  .textarea-mock {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 8px;
+    font-style: italic;
+    position: relative;
+  }
+
+  .char-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .toolbar-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* CTA */
+  .cta-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .cta-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .cta-info .cost {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .coin {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #ffd700;
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5a3e00;
+    font-weight: 800;
+  }
+
+  .generate-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #0a200a;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* RESULT CARD */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .result-preview {
+    height: 220px;
+    background: linear-gradient(135deg, #111118 0%, #1a1a28 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-preview::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(127,255,110,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 70%, rgba(157,122,255,0.06) 0%, transparent 60%);
+  }
+
+  .model-placeholder {
+    width: 120px; height: 120px;
+    position: relative;
+  }
+
+  .model-placeholder svg {
+    width: 100%; height: 100%;
+    opacity: 0.3;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .result-meta {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .result-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .result-stat .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .result-stat .stat-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .result-actions {
+    padding: 12px 20px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .result-btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+
+  .result-btn.primary {
+    background: rgba(127,255,110,0.15);
+    border-color: rgba(127,255,110,0.3);
+    color: var(--accent);
+  }
+
+  /* FINDINGS TABLE */
+  .findings {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .finding-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 80px;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .finding-row:last-child { border-bottom: none; }
+
+  .finding-row.header {
+    background: var(--surface);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .finding-cell {
+    padding: 14px 20px;
+    border-right: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .finding-cell:last-child { border-right: none; }
+
+  .finding-row:not(.header) .finding-cell:first-child {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .finding-row:not(.header) .finding-cell:nth-child(2) {
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .rating {
+    display: flex;
+    gap: 3px;
+    padding-top: 2px;
+  }
+
+  .star {
+    width: 10px; height: 10px;
+    background: var(--accent);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+
+  .star.dim { background: var(--border); }
+
+  /* NOTES */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .note-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .note-card .note-type {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .note-card.insight { border-left: 3px solid var(--accent); }
+  .note-card.warning { border-left: 3px solid #ffb400; }
+  .note-card.tip { border-left: 3px solid var(--purple); }
+  .note-card.info { border-left: 3px solid #80ccff; }
+
+  .note-card .note-type.insight { color: var(--accent); }
+  .note-card .note-type.warning { color: #ffb400; }
+  .note-card .note-type.tip { color: var(--purple); }
+  .note-card .note-type.info { color: #80ccff; }
+
+  .note-card p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 30px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  footer .f-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--text-dim);
+  }
+
+  footer .f-brand em { color: var(--accent); font-style: italic; }
+
+  footer .f-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .info-icon {
+    display: inline-flex;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--muted);
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--muted);
+    cursor: help;
+  }
+
+  /* WORKSPACE OVERVIEW DIAGRAM */
+  .ws-section {
+    padding: 60px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .ws-section-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .ws-section-label .section-tag { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .ws-section-label h2 { font-family: 'DM Serif Display', serif; font-size: 32px; letter-spacing: -0.01em; }
+  .ws-section-label .section-line { flex: 1; height: 1px; background: var(--border); }
+
+  .ws-diagram {
+    position: relative;
+    width: 100%;
+    max-width: 1060px;
+    margin: 0 auto;
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 40px 120px rgba(0,0,0,0.6);
+  }
+
+  /* Title bar */
+  .ws-titlebar {
+    display: flex;
+    align-items: center;
+    background: #111119;
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 42px;
+    gap: 0;
+    position: relative;
+  }
+
+  .ws-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 24px;
+  }
+
+  .ws-logo-icon {
+    width: 22px; height: 22px;
+    background: linear-gradient(135deg, #7fff6e, #c3ff4e);
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 900; color: #0a200a;
+  }
+
+  .ws-logo-text { font-size: 14px; font-weight: 700; letter-spacing: -0.02em; }
+
+  .ws-nav-items {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .ws-nav-item {
+    padding: 8px 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+
+  .ws-nav-item.active {
+    color: var(--accent);
+    background: rgba(127,255,110,0.08);
+  }
+
+  .ws-topright {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  .ws-credits {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 100px;
+    padding: 4px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #ffd700;
+  }
+
+  .ws-upgrade-btn {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .ws-icon-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    color: var(--text-dim);
+    background: transparent;
+    position: relative;
+  }
+
+  .ws-notif-dot {
+    position: absolute;
+    top: 3px; right: 3px;
+    width: 6px; height: 6px;
+    background: #ff4444;
+    border-radius: 50%;
+  }
+
+  .ws-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #9d7aff, #7fff6e);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+    color: #0a0a0f;
+  }
+
+  /* Body */
+  .ws-body {
+    display: grid;
+    grid-template-columns: 58px 290px 1fr 340px;
+    height: 540px;
+  }
+
+  /* Zone A: Icon sidebar */
+  .ws-icon-sidebar {
+    background: #0e0e16;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    gap: 4px;
+  }
+
+  .ws-icon-btn2 {
+    width: 42px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 8px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .ws-icon-btn2.active {
+    color: var(--accent);
+    background: rgba(127,255,110,0.07);
+  }
+
+  .ws-icon-btn2 .icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .ws-icon-btn2 .label {
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+
+  .ws-icon-bottom {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 8px;
+    color: var(--muted);
+    padding-bottom: 8px;
+  }
+
+  /* Zone B: Config panel */
+  .ws-config-panel {
+    background: #111119;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .ws-panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ws-upload-icon {
+    width: 26px; height: 26px;
+    background: rgba(127,255,110,0.15);
+    border: 1px solid rgba(127,255,110,0.3);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  .ws-tab-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .ws-tab {
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 8px;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+
+  .ws-tab.active {
+    border-color: rgba(127,255,110,0.4);
+    background: rgba(127,255,110,0.06);
+    color: var(--accent);
+  }
+
+  .ws-tab .tab-icon { font-size: 16px; }
+
+  .ws-field-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ws-textarea {
+    width: 100%;
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 9px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 4px;
+    min-height: 72px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .ws-char { font-size: 8px; color: var(--muted); text-align: right; margin-bottom: 12px; font-family: 'DM Mono', monospace; }
+
+  .ws-toggle-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+
+  .ws-toggle-btn {
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 9px;
+    text-align: center;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+  }
+
+  .ws-toggle-btn.active {
+    background: rgba(127,255,110,0.15);
+    border-color: rgba(127,255,110,0.4);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .ws-dropdown {
+    width: 100%;
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 9px;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .ws-three-toggle {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .ws-three-btn {
+    padding: 5px 4px;
+    font-size: 8px;
+    text-align: center;
+    color: var(--text-dim);
+    border-right: 1px solid var(--border);
+  }
+
+  .ws-three-btn:last-child { border-right: none; }
+  .ws-three-btn.active { background: rgba(127,255,110,0.12); color: var(--accent); font-weight: 600; }
+
+  .ws-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 10px;
+  }
+
+  .ws-stepper-control {
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .ws-cta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    margin-top: 8px;
+    font-size: 9px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .ws-cta-cost { display: flex; align-items: center; gap: 4px; color: #ffd700; }
+
+  .ws-generate-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #7fff6e, #ff9be8);
+    color: #0a200a;
+    border-radius: 7px;
+    padding: 9px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* Zone C: Canvas */
+  .ws-canvas {
+    background: #0a0a10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ws-canvas-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .ws-canvas-icon {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    width: 52px; height: 52px;
+  }
+
+  .ws-shape {
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  .ws-canvas-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.2;
+  }
+
+  .ws-canvas-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    max-width: 280px;
+    line-height: 1.6;
+  }
+
+  /* Zone D: Assets panel */
+  .ws-assets-panel {
+    background: #0e0e16;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .ws-assets-top {
+    padding: 10px 14px;
+    background: rgba(50,100,255,0.06);
+    border: 1px solid rgba(100,130,255,0.15);
+    border-radius: 8px;
+    margin: 10px;
+    font-size: 9px;
+    color: #a0b0ff;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .ws-assets-upgrade {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 8px;
+    font-weight: 700;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .ws-search-row {
+    display: flex;
+    gap: 6px;
+    padding: 0 10px 10px;
+  }
+
+  .ws-search {
+    flex: 1;
+    background: #111119;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 9px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ws-upload-btn {
+    background: rgba(127,255,110,0.15);
+    border: 1px solid rgba(127,255,110,0.3);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 9px;
+    color: var(--accent);
+    font-weight: 600;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ws-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ws-filter-tab {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    color: var(--text-dim);
+    border: 1px solid transparent;
+  }
+
+  .ws-filter-tab.active {
+    background: rgba(127,255,110,0.1);
+    border-color: rgba(127,255,110,0.2);
+    color: var(--accent);
+  }
+
+  .ws-filter-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border);
+    margin: 0 2px;
+  }
+
+  .ws-filter-icon {
+    margin-left: auto;
+    width: 24px; height: 24px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .ws-assets-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ws-asset-group { }
+  .ws-asset-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .ws-asset-group-link {
+    font-size: 9px;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .ws-asset-thumb {
+    background: #111119;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ws-example-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    background: rgba(127,255,110,0.85);
+    color: #0a200a;
+    font-size: 7px;
+    font-weight: 800;
+    padding: 2px 5px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .ws-asset-img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    filter: brightness(0.9);
+  }
+
+  .ws-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+  }
+
+  .ws-page-btn {
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    color: var(--text-dim);
+  }
+
+  .ws-page-current {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 9px;
+  }
+
+  /* ANNOTATION SYSTEM */
+  .ws-annotations {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Callout labels */
+  .ws-callout {
+    position: absolute;
+    background: rgba(10,10,20,0.92);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: 0 0 0 1px rgba(127,255,110,0.1), 0 4px 20px rgba(0,0,0,0.6);
+    letter-spacing: 0.03em;
+  }
+
+  .ws-callout::before {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ws-callout.purple { border-color: var(--purple); color: var(--purple); box-shadow: 0 0 0 1px rgba(157,122,255,0.1), 0 4px 20px rgba(0,0,0,0.6); }
+  .ws-callout.purple::before { background: var(--purple); }
+  .ws-callout.blue { border-color: #80ccff; color: #80ccff; box-shadow: 0 0 0 1px rgba(128,204,255,0.1), 0 4px 20px rgba(0,0,0,0.6); }
+  .ws-callout.blue::before { background: #80ccff; }
+  .ws-callout.yellow { border-color: #ffd700; color: #ffd700; box-shadow: 0 0 0 1px rgba(255,215,0,0.1), 0 4px 20px rgba(0,0,0,0.6); }
+  .ws-callout.yellow::before { background: #ffd700; }
+
+  /* region highlight overlays */
+  .ws-region {
+    position: absolute;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .ws-region.zone-a { border: 1px dashed rgba(127,255,110,0.3); background: rgba(127,255,110,0.03); }
+  .ws-region.zone-b { border: 1px dashed rgba(157,122,255,0.3); background: rgba(157,122,255,0.03); }
+  .ws-region.zone-c { border: 1px dashed rgba(128,204,255,0.25); background: rgba(128,204,255,0.02); }
+  .ws-region.zone-d { border: 1px dashed rgba(255,215,0,0.25); background: rgba(255,215,0,0.02); }
+  .ws-region.zone-nav { border: 1px dashed rgba(255,128,128,0.3); background: rgba(255,128,128,0.02); }
+
+  /* Legend */
+  .ws-legend {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+    max-width: 1060px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ws-legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .ws-legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .ws-legend-item h4 {
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+
+  .ws-legend-item p {
+    font-size: 10px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .ws-section { padding: 32px 20px; }
+    .ws-diagram { overflow-x: auto; }
+    .ws-body { grid-template-columns: 42px 220px 280px 240px; height: auto; min-height: 440px; }
+    .ws-legend { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .hero { padding: 40px 24px; }
+    .overview { grid-template-columns: repeat(2, 1fr); }
+    .content { padding: 40px 24px; }
+    .step { grid-template-columns: 48px 1fr; }
+    .notes-grid { grid-template-columns: 1fr; }
+    .finding-row { grid-template-columns: 140px 1fr 60px; }
+    footer { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">Live UI Analysis</div>
+  <h1>Meshy.ai<br><em>Text to 3D</em><br>Workflow</h1>
+  <p>A step-by-step UI analysis of the complete Text to 3D model generation workflow — from prompt input to export-ready asset.</p>
+  <div class="meta-row">
+    <div class="meta-item">
+      <span class="label">Platform</span>
+      <span class="value">meshy.ai/workspace</span>
+    </div>
+    <div class="meta-item">
+      <span class="label">Feature</span>
+      <span class="value">Text to 3D (Model Tab)</span>
+    </div>
+    <div class="meta-item">
+      <span class="label">Analysis Date</span>
+      <span class="value">February 27, 2026</span>
+    </div>
+    <div class="meta-item">
+      <span class="label">Total Steps</span>
+      <span class="value">6 Steps</span>
+    </div>
+  </div>
+</section>
+
+<!-- OVERVIEW NUMBERS -->
+<section class="overview">
+  <div class="overview-card">
+    <div class="num">3</div>
+    <div class="desc">Input Modes Available</div>
+  </div>
+  <div class="overview-card">
+    <div class="num">6</div>
+    <div class="desc">Configurable Settings</div>
+  </div>
+  <div class="overview-card">
+    <div class="num">20</div>
+    <div class="desc">Credits per Generation</div>
+  </div>
+  <div class="overview-card">
+    <div class="num">~1min</div>
+    <div class="desc">Generation Time</div>
+  </div>
+</section>
+
+<!-- WORKSPACE OVERVIEW -->
+<section class="ws-section">
+  <div class="ws-section-label">
+    <span class="section-tag">00 —</span>
+    <h2>Workspace UI Overview</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <!-- ANNOTATED DIAGRAM -->
+  <div class="ws-diagram">
+
+    <!-- TOP NAV BAR -->
+    <div class="ws-titlebar">
+      <div class="ws-logo">
+        <div class="ws-logo-icon">M</div>
+        <div class="ws-logo-text">Meshy</div>
+      </div>
+      <div class="ws-nav-items">
+        <div class="ws-nav-item active">⬡ Workspace ▾</div>
+        <div class="ws-nav-item">Community</div>
+        <div class="ws-nav-item">My Assets</div>
+        <div class="ws-nav-item">API</div>
+        <div class="ws-nav-item">Learn ▾</div>
+        <div class="ws-nav-item">Resources ▾</div>
+      </div>
+      <div class="ws-topright">
+        <div class="ws-credits">🪙 100</div>
+        <div class="ws-upgrade-btn">👑 Upgrade</div>
+        <div class="ws-icon-btn">🎁<div class="ws-notif-dot"></div></div>
+        <div class="ws-icon-btn">?</div>
+        <div class="ws-icon-btn">🔔<div class="ws-notif-dot"></div></div>
+        <div class="ws-avatar">U</div>
+      </div>
+    </div>
+
+    <!-- MAIN BODY -->
+    <div class="ws-body" style="position:relative;">
+
+      <!-- ZONE A: ICON SIDEBAR -->
+      <div class="ws-icon-sidebar">
+        <div class="ws-icon-btn2">
+          <div class="icon">🖼️</div>
+          <div class="label">Image</div>
+        </div>
+        <div class="ws-icon-btn2 active">
+          <div class="icon">📦</div>
+          <div class="label">Model</div>
+        </div>
+        <div class="ws-icon-btn2">
+          <div class="icon">⬡</div>
+          <div class="label">Remesh</div>
+        </div>
+        <div class="ws-icon-btn2">
+          <div class="icon">🎨</div>
+          <div class="label">Texture</div>
+        </div>
+        <div class="ws-icon-btn2">
+          <div class="icon">🏃</div>
+          <div class="label">Animate</div>
+        </div>
+        <div class="ws-icon-bottom">
+          <div class="ws-icon-btn2">
+            <div class="icon">🗳️</div>
+            <div class="label">Vote<br>Model</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZONE B: CONFIG PANEL -->
+      <div class="ws-config-panel">
+        <div class="ws-panel-title">
+          New Model
+          <div class="ws-upload-icon">↑</div>
+        </div>
+
+        <!-- Workflow tabs -->
+        <div class="ws-tab-row">
+          <div class="ws-tab">
+            <div class="tab-icon">🖼️</div>
+            <div>Image</div>
+          </div>
+          <div class="ws-tab">
+            <div class="tab-icon">✨</div>
+            <div>Multi</div>
+          </div>
+          <div class="ws-tab active">
+            <div class="tab-icon">📝</div>
+            <div>Text</div>
+          </div>
+        </div>
+
+        <!-- Prompt -->
+        <div class="ws-field-label">
+          Prompt
+          <span style="margin-left:auto; display:flex; gap:4px; font-size:9px; color:var(--muted);">
+            <span>⎘</span><span>⚙</span><span>💾</span>
+          </span>
+        </div>
+        <div class="ws-textarea">Describe the object you want to generate. You can use your native language, e.g., a medieval axe / eine mittelalterliche Axt…</div>
+        <div class="ws-char">0 / 800</div>
+
+        <!-- Model Type -->
+        <div class="ws-field-label">Model Type ⓘ</div>
+        <div class="ws-toggle-row" style="margin-bottom:12px;">
+          <div class="ws-toggle-btn active">Standard</div>
+          <div class="ws-toggle-btn">Low Poly (Beta)</div>
+        </div>
+
+        <!-- AI Model -->
+        <div class="ws-field-label">AI Model ⓘ</div>
+        <div class="ws-dropdown">Meshy 6 <span>↕</span></div>
+
+        <!-- Pose -->
+        <div class="ws-field-label">Pose 👑 ⓘ</div>
+        <div class="ws-three-toggle" style="margin-bottom:12px;">
+          <div class="ws-three-btn active">None</div>
+          <div class="ws-three-btn" style="color:#ffd700;">A-Pose</div>
+          <div class="ws-three-btn" style="color:#ffd700;">T-Pose</div>
+        </div>
+
+        <!-- Generations -->
+        <div class="ws-field-label">Number of Generations</div>
+        <div class="ws-stepper">
+          <span style="font-size:10px; color:var(--text-dim);"> </span>
+          <div class="ws-stepper-control">1 ↕</div>
+        </div>
+
+        <!-- License -->
+        <div class="ws-field-label">License ⓘ</div>
+        <div class="ws-toggle-row" style="margin-bottom:14px;">
+          <div class="ws-toggle-btn active" style="font-size:8px;">CC BY 4.0</div>
+          <div class="ws-toggle-btn" style="color:#ffd700; font-size:8px;">Private 👑</div>
+        </div>
+
+        <!-- CTA -->
+        <div class="ws-cta-row">
+          <span>⏱ 1 min</span>
+          <div class="ws-cta-cost">🪙 20</div>
+        </div>
+        <div class="ws-generate-btn">✦ Generate</div>
+      </div>
+
+      <!-- ZONE C: CANVAS / VIEWPORT -->
+      <div class="ws-canvas">
+        <div class="ws-canvas-empty">
+          <div class="ws-canvas-icon">
+            <div class="ws-shape" style="background:rgba(127,255,110,0.3); border-radius:3px;"></div>
+            <div class="ws-shape" style="background:rgba(127,255,110,0.5); border-radius:50%;"></div>
+            <div class="ws-shape" style="background:rgba(127,255,110,0.4); border-radius:2px;"></div>
+            <div class="ws-shape" style="background:rgba(127,255,110,0.6); transform:rotate(45deg); border-radius:2px;"></div>
+          </div>
+          <div class="ws-canvas-title">What will you create today?</div>
+          <div class="ws-canvas-sub">Generate a new model from image or text, or edit one from your asset library. Your next masterpiece awaits.</div>
+        </div>
+      </div>
+
+      <!-- ZONE D: ASSETS PANEL -->
+      <div class="ws-assets-panel">
+        <!-- Upsell banner -->
+        <div class="ws-assets-top">
+          <div>More assets, faster workflows, and private, commercial-safe exports — just $10 for your first month.</div>
+          <div class="ws-assets-upgrade">👑 Start for $10</div>
+        </div>
+
+        <!-- Search + upload -->
+        <div class="ws-search-row">
+          <div class="ws-search">🔍 <span>Search my generation</span></div>
+          <div class="ws-upload-btn">↑ Upload</div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="ws-filter-row">
+          <div class="ws-filter-tab active">📁</div>
+          <div class="ws-filter-tab">⊞</div>
+          <div class="ws-filter-tab">⠿</div>
+          <div class="ws-filter-tab">◻</div>
+          <div class="ws-filter-tab">▥</div>
+          <div class="ws-filter-tab">🏃</div>
+          <div class="ws-filter-divider"></div>
+          <div class="ws-filter-icon">⇕</div>
+          <div class="ws-filter-icon">☑</div>
+          <div class="ws-filter-icon">⛶</div>
+        </div>
+
+        <!-- Asset groups -->
+        <div class="ws-assets-list">
+          <div class="ws-asset-group">
+            <div class="ws-asset-group-header">
+              <span>Solitude Seat</span>
+              <span class="ws-asset-group-link">All 1 asset ▶</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+              <div class="ws-asset-thumb" style="grid-column:1/2;">
+                <div class="ws-example-badge">EXAMPLE</div>
+                <!-- Bench SVG proxy -->
+                <svg viewBox="0 0 80 60" width="75%" height="75%" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="5" y="30" width="70" height="8" rx="2" fill="#8B6914" opacity="0.9"></rect>
+                  <rect x="8" y="38" width="5" height="14" rx="2" fill="#6B4F10" opacity="0.9"></rect>
+                  <rect x="67" y="38" width="5" height="14" rx="2" fill="#6B4F10" opacity="0.9"></rect>
+                  <rect x="8" y="16" width="64" height="15" rx="3" fill="#8B6914" opacity="0.7"></rect>
+                  <rect x="10" y="20" width="60" height="4" rx="1" fill="#a07820" opacity="0.6"></rect>
+                  <rect x="10" y="26" width="60" height="4" rx="1" fill="#a07820" opacity="0.6"></rect>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="ws-asset-group">
+            <div class="ws-asset-group-header">
+              <span>Solitude Swing</span>
+              <span class="ws-asset-group-link">All 1 asset ▶</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+              <div class="ws-asset-thumb" style="grid-column:1/2;">
+                <div class="ws-example-badge">EXAMPLE</div>
+                <!-- Swing SVG proxy -->
+                <svg viewBox="0 0 80 70" width="75%" height="75%" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="20" y1="5" x2="20" y2="30" stroke="#a08030" stroke-width="1.5"></line>
+                  <line x1="60" y1="5" x2="60" y2="30" stroke="#a08030" stroke-width="1.5"></line>
+                  <rect x="12" y="30" width="56" height="7" rx="2" fill="#d4aa50" opacity="0.9"></rect>
+                  <rect x="14" y="37" width="7" height="3" rx="1" fill="#b89040" opacity="0.8"></rect>
+                  <rect x="22" y="37" width="7" height="3" rx="1" fill="#b89040" opacity="0.8"></rect>
+                  <rect x="30" y="37" width="7" height="3" rx="1" fill="#b89040" opacity="0.8"></rect>
+                  <rect x="38" y="37" width="7" height="3" rx="1" fill="#b89040" opacity="0.8"></rect>
+                  <rect x="46" y="37" width="7" height="3" rx="1" fill="#b89040" opacity="0.8"></rect>
+                  <rect x="54" y="37" width="7" height="3" rx="1" fill="#b89040" opacity="0.8"></rect>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="ws-pagination">
+          <div class="ws-stepper-control" style="padding:3px 8px; font-size:9px;">20 ↕</div>
+          <span style="margin:0 6px; color:var(--border);">|</span>
+          <div class="ws-page-btn">«</div>
+          <div class="ws-page-btn">‹</div>
+          <div class="ws-page-current">1/1</div>
+          <div class="ws-page-btn">›</div>
+          <div class="ws-page-btn">»</div>
+        </div>
+      </div>
+
+      <!-- ANNOTATION OVERLAYS -->
+      <!-- Region highlight boxes -->
+      <div class="ws-region zone-nav" style="left:0; top:0; right:0; height:42px;"></div>
+      <div class="ws-region zone-a" style="left:58px; top:42px; width:14px; bottom:0;"></div>
+      <div class="ws-region zone-b" style="left:72px; top:42px; width:280px; bottom:0;"></div>
+      <div class="ws-region zone-c" style="left:352px; top:42px; right:340px; bottom:0;"></div>
+      <div class="ws-region zone-d" style="right:0; top:42px; width:340px; bottom:0;"></div>
+
+      <!-- CALLOUT LABELS -->
+      <div class="ws-callout" style="top:8px; left:50%; transform:translateX(-50%);">
+        A — Global Navigation Bar
+      </div>
+
+      <div class="ws-callout purple" style="top:88px; left:2px;">
+        B — Tool<br>Sidebar
+      </div>
+
+      <div class="ws-callout purple" style="top:240px; left:66px; transform:none;">
+        C — Generation<br>Config Panel
+      </div>
+
+      <div class="ws-callout blue" style="bottom:30px; left:352px;">
+        D — 3D Viewport / Canvas
+      </div>
+
+      <div class="ws-callout yellow" style="top:88px; right:6px;">
+        E — Assets Gallery Panel
+      </div>
+
+    </div><!-- end ws-body -->
+  </div><!-- end ws-diagram -->
+
+  <!-- LEGEND -->
+  <div class="ws-legend">
+    <div class="ws-legend-item">
+      <div class="ws-legend-dot" style="background:#ff8080;"></div>
+      <div>
+        <h4>A — Navigation Bar</h4>
+        <p>Logo, primary nav links (Workspace, Community, My Assets, API, Learn, Resources), credit balance, upgrade button, notifications &amp; profile avatar.</p>
+      </div>
+    </div>
+    <div class="ws-legend-item">
+      <div class="ws-legend-dot" style="background:#7fff6e;"></div>
+      <div>
+        <h4>B — Tool Sidebar</h4>
+        <p>5 vertical icons for switching between major tools: Image to 3D, Model (Text to 3D), Remesh, Texture, and Animate. Vote Model at bottom.</p>
+      </div>
+    </div>
+    <div class="ws-legend-item">
+      <div class="ws-legend-dot" style="background:#9d7aff;"></div>
+      <div>
+        <h4>C — Config Panel</h4>
+        <p>Context-sensitive panel that changes per tool. For Text to 3D: workflow tabs, prompt input, model type, AI model, pose, generations, license, and generate button.</p>
+      </div>
+    </div>
+    <div class="ws-legend-item">
+      <div class="ws-legend-dot" style="background:#80ccff;"></div>
+      <div>
+        <h4>D — 3D Viewport</h4>
+        <p>Central canvas area. Shows empty state before generation. After generation displays an interactive 3D viewer with orbit controls and model inspection tools.</p>
+      </div>
+    </div>
+    <div class="ws-legend-item">
+      <div class="ws-legend-dot" style="background:#ffd700;"></div>
+      <div>
+        <h4>E — Assets Gallery</h4>
+        <p>Shows past generations grouped by project/prompt name. Includes search, upload, filter tabs by asset type, and pagination controls.</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- MAIN CONTENT -->
+<main class="content">
+
+  <div class="section-header">
+    <span class="section-tag">01 —</span>
+    <h2>Step-by-Step Workflow</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="steps">
+
+    <!-- STEP 1 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">01</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-title">Navigate to the Model Tab</div>
+          <span class="step-type type-nav">Navigation</span>
+        </div>
+        <p class="step-desc">
+          From the Meshy workspace, locate the left sidebar. Click the <strong>Model</strong> icon (cube icon) to open the New Model panel. Once inside, you'll see three workflow tabs at the top of the panel.
+        </p>
+        <div class="ui-card">
+          <div class="ui-card-header">
+            <span class="dot dot-r"></span>
+            <span class="dot dot-y"></span>
+            <span class="dot dot-g"></span>
+            <span class="ui-card-label">Left Sidebar Navigation</span>
+          </div>
+          <div class="ui-content">
+            <div class="option-grid cols-3">
+              <div class="option-item">
+                <div class="option-name">🖼️ Image to 3D</div>
+                <div class="option-desc">Upload a reference image to generate 3D model</div>
+              </div>
+              <div class="option-item">
+                <div class="option-name">✨ Multi-Image</div>
+                <div class="option-desc">Use multiple angles for higher accuracy</div>
+              </div>
+              <div class="option-item active">
+                <div class="active-dot"></div>
+                <div class="option-name">📝 Text to 3D</div>
+                <div class="option-desc">Describe your model in natural language</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">02</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-title">Write Your Text Prompt</div>
+          <span class="step-type type-input">Text Input</span>
+        </div>
+        <p class="step-desc">
+          The <strong>Prompt</strong> field is a large multiline textarea (max 800 characters). Describe the 3D object you want to create. The placeholder guides users to use multilingual descriptions. Three toolbar icons allow copying, resetting, and saving the prompt.
+        </p>
+        <div class="ui-card">
+          <div class="ui-card-header">
+            <span class="dot dot-r"></span>
+            <span class="dot dot-y"></span>
+            <span class="dot dot-g"></span>
+            <span class="ui-card-label">Prompt Field</span>
+          </div>
+          <div class="ui-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span style="font-size:13px; font-weight:600;">Prompt</span>
+              <div class="toolbar">
+                <div class="toolbar-btn">⎘ Copy</div>
+                <div class="toolbar-btn">↺ Reset</div>
+                <div class="toolbar-btn">💾 Save</div>
+              </div>
+            </div>
+            <div class="textarea-mock">
+              Describe the object you want to generate. You can use your native language, e.g., a medieval axe / eine mittelalterliche Axt / une hache…
+            </div>
+            <div class="char-count">0 / 800</div>
+            <div style="margin-top:12px; padding:10px 14px; background:rgba(127,255,110,0.06); border-radius:8px; border:1px dashed rgba(127,255,110,0.2); font-size:12px; color:var(--text-dim); line-height:1.6;">
+              💡 <strong style="color:var(--accent);">Environment tip:</strong> For 3D environments, be specific about style, scale, materials, and atmosphere. Example: <em>"A foggy ancient forest clearing with mossy stone ruins, dramatic lighting, game-ready environment"</em>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">03</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-title">Configure Model Settings</div>
+          <span class="step-type type-config">Configuration</span>
+        </div>
+        <p class="step-desc">
+          Below the prompt, four key settings control how the model is generated. These settings balance quality, speed, polygon count, and AI intelligence used.
+        </p>
+        <div class="ui-card">
+          <div class="ui-card-header">
+            <span class="dot dot-r"></span>
+            <span class="dot dot-y"></span>
+            <span class="dot dot-g"></span>
+            <span class="ui-card-label">Generation Settings</span>
+          </div>
+          <div class="ui-content">
+            <div class="field-row">
+              <div class="field-name">
+                Model Type
+                <span class="info-icon">?</span>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <div class="field-val" style="background:rgba(127,255,110,0.15);">Standard</div>
+                <div class="field-val" style="background:transparent; opacity:0.5;">Low Poly (Beta)</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-name">
+                AI Model
+                <span class="info-icon">?</span>
+              </div>
+              <div class="field-val">Meshy 6 ↕</div>
+            </div>
+            <div class="field-row">
+              <div class="field-name">
+                Pose
+                <span class="premium-badge">⭐ Premium</span>
+                <span class="info-icon">?</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <div class="field-val" style="background:rgba(127,255,110,0.15);">None</div>
+                <div class="field-val" style="background:transparent; opacity:0.5;">A-Pose</div>
+                <div class="field-val" style="background:transparent; opacity:0.5;">T-Pose</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-name">Number of Generations</div>
+              <div class="field-val">1 ↕</div>
+            </div>
+            <div class="field-row">
+              <div class="field-name">License</div>
+              <div style="display:flex; gap:8px;">
+                <div class="field-val" style="background:rgba(127,255,110,0.15);">CC BY 4.0</div>
+                <div class="field-val" style="background:transparent; opacity:0.5;">Private ⭐</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div class="option-grid cols-2">
+            <div class="option-item active">
+              <div class="active-dot"></div>
+              <div class="option-name">Standard Quality</div>
+              <div class="option-desc">Full polygon detail, realistic textures. Best for final production assets and game-ready environments.</div>
+            </div>
+            <div class="option-item">
+              <div class="option-name">Low Poly (Beta)</div>
+              <div class="option-desc">Reduced polygon count for stylized or performance-sensitive 3D environments and mobile games.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">04</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-title">Review Cost &amp; Trigger Generation</div>
+          <span class="step-type type-action">Action</span>
+        </div>
+        <p class="step-desc">
+          The bottom of the panel shows the estimated generation time and credit cost before you commit. Click the glowing <strong>Generate</strong> button to begin the AI generation process. The cost is displayed upfront for transparency.
+        </p>
+        <div class="ui-card">
+          <div class="ui-card-header">
+            <span class="dot dot-r"></span>
+            <span class="dot dot-y"></span>
+            <span class="dot dot-g"></span>
+            <span class="ui-card-label">Generation CTA</span>
+          </div>
+          <div class="ui-content">
+            <div class="cta-block">
+              <div class="cta-info">
+                <div>⏱ Est. <strong style="color:var(--text);">~1 min</strong></div>
+                <div class="cost">
+                  <div class="coin">$</div>
+                  <strong style="color:#ffd700;">20 credits</strong> per generation
+                </div>
+              </div>
+              <button class="generate-btn">
+                ✦ Generate
+              </button>
+            </div>
+            <div style="margin-top:12px; font-size:11px; color:var(--muted); line-height:1.6; font-family:&#39;DM Mono&#39;,monospace;">
+              Account balance shown in top-right corner (100 credits available on free tier). Generation is queued and processed server-side.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">05</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-title">Wait for AI Processing &amp; Review Result</div>
+          <span class="step-type type-result">Result</span>
+        </div>
+        <p class="step-desc">
+          After triggering, the model enters a processing queue (~1 min). Once complete, the generated 3D model appears in the right panel gallery. You can preview it in an interactive 3D viewport, inspect textures, polygon count, and metadata.
+        </p>
+        <div class="result-card">
+          <div class="result-preview">
+            <div class="model-placeholder">
+              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 10L85 30V70L50 90L15 70V30L50 10Z" stroke="#7fff6e" stroke-width="2" fill="none"></path>
+                <path d="M50 10L50 90" stroke="#7fff6e" stroke-width="1" stroke-dasharray="4 4"></path>
+                <path d="M15 30L85 30" stroke="#7fff6e" stroke-width="1" stroke-dasharray="4 4"></path>
+                <path d="M15 70L85 70" stroke="#7fff6e" stroke-width="1" stroke-dasharray="4 4"></path>
+                <circle cx="50" cy="10" r="3" fill="#7fff6e"></circle>
+                <circle cx="50" cy="90" r="3" fill="#7fff6e"></circle>
+                <circle cx="15" cy="30" r="3" fill="#7fff6e"></circle>
+                <circle cx="85" cy="30" r="3" fill="#7fff6e"></circle>
+                <circle cx="15" cy="70" r="3" fill="#7fff6e"></circle>
+                <circle cx="85" cy="70" r="3" fill="#7fff6e"></circle>
+              </svg>
+            </div>
+          </div>
+          <div class="result-meta">
+            <div class="result-stat">
+              <span class="stat-label">Status</span>
+              <span class="stat-val" style="color:var(--accent);">● Complete</span>
+            </div>
+            <div class="result-stat">
+              <span class="stat-label">Format</span>
+              <span class="stat-val">GLB / OBJ / FBX</span>
+            </div>
+            <div class="result-stat">
+              <span class="stat-label">Textures</span>
+              <span class="stat-val">PBR (Albedo, Normal, Roughness)</span>
+            </div>
+            <div class="result-stat">
+              <span class="stat-label">License</span>
+              <span class="stat-val">CC BY 4.0</span>
+            </div>
+          </div>
+          <div class="result-actions">
+            <button class="result-btn primary">↓ Download</button>
+            <button class="result-btn">✏️ Refine</button>
+            <button class="result-btn">🎨 Retexture</button>
+            <button class="result-btn">📐 Remesh</button>
+            <button class="result-btn">🦴 Animate</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step">
+      <div class="step-num-col">
+        <div class="step-num">06</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <div class="step-title">Post-Processing &amp; Export</div>
+          <span class="step-type type-action">Export</span>
+        </div>
+        <p class="step-desc">
+          From the result, you can apply additional AI workflows directly in Meshy: <strong>Retexture</strong> to change materials, <strong>Remesh</strong> to adjust topology, or <strong>Animate</strong> to add skeleton/rigging. Finally download in your desired format for use in Unreal Engine, Unity, Blender, or other 3D tools.
+        </p>
+        <div class="option-grid cols-2" style="margin-top:0;">
+          <div class="option-item">
+            <div class="option-name">🎨 Retexture</div>
+            <div class="option-desc">Change surface materials and colors using a new text prompt. Preserves geometry.</div>
+          </div>
+          <div class="option-item">
+            <div class="option-name">📐 Remesh</div>
+            <div class="option-desc">Rebuild topology for cleaner geometry. Useful for animation-ready characters or environments.</div>
+          </div>
+          <div class="option-item">
+            <div class="option-name">🦴 Animate</div>
+            <div class="option-desc">Add automatic rigging and skeletal animation to characters (requires A-Pose or T-Pose).</div>
+          </div>
+          <div class="option-item active">
+            <div class="active-dot"></div>
+            <div class="option-name">↓ Export (GLB/OBJ/FBX)</div>
+            <div class="option-desc">Download model with PBR textures in industry-standard formats for immediate use in game engines.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FINDINGS -->
+  <div class="section-header" style="margin-top:80px;">
+    <span class="section-tag">02 —</span>
+    <h2>UI Findings &amp; Evaluation</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="findings">
+    <div class="finding-row header">
+      <div class="finding-cell">UI Element</div>
+      <div class="finding-cell">Observation</div>
+      <div class="finding-cell">Rating</div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-cell">Workflow Tabs</div>
+      <div class="finding-cell">Three icon-only tabs with no visible labels — relies on prior knowledge or tooltips. Text to 3D tab uses a "T" + cube icon that is reasonably intuitive once discovered.</div>
+      <div class="finding-cell"><div class="rating"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star dim"></div><div class="star dim"></div></div></div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-cell">Prompt Textarea</div>
+      <div class="finding-cell">Well-designed with a 800-char counter, multilingual placeholder, and three utility actions (Copy, Reset, Save). Intuitive and spacious.</div>
+      <div class="finding-cell"><div class="rating"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star dim"></div></div></div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-cell">Model Type Toggle</div>
+      <div class="finding-cell">Clear toggle between Standard and Low Poly (Beta). The "Beta" label sets appropriate expectations. Default is Standard which is sensible.</div>
+      <div class="finding-cell"><div class="rating"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-cell">AI Model Selector</div>
+      <div class="finding-cell">Dropdown defaults to Meshy 6 (latest). Users can select older versions but interface doesn't explain version differences in context.</div>
+      <div class="finding-cell"><div class="rating"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star dim"></div><div class="star dim"></div></div></div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-cell">Pose Selection</div>
+      <div class="finding-cell">Premium gate clearly marked with ⭐ star icon. Three options: None, A-Pose, T-Pose. Important for character workflow but gated. Helpful for understanding animation prerequisites.</div>
+      <div class="finding-cell"><div class="rating"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star dim"></div></div></div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-cell">Credit Cost Display</div>
+      <div class="finding-cell">Credit cost (20 coins) and estimated time (1 min) shown just above the generate button. Transparent and clear. Users always know the cost before committing.</div>
+      <div class="finding-cell"><div class="rating"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-cell">Generate Button</div>
+      <div class="finding-cell">Prominent gradient button spanning full width. Clear CTA with AI sparkle icon. Highly visible and satisfying to interact with.</div>
+      <div class="finding-cell"><div class="rating"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+    </div>
+    <div class="finding-row">
+      <div class="finding-cell">Gallery / Output Panel</div>
+      <div class="finding-cell">Right panel shows previous generations with example assets. The search bar and filter icons allow managing generated assets. Gallery persists across sessions.</div>
+      <div class="finding-cell"><div class="rating"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star dim"></div></div></div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="section-header" style="margin-top:80px;">
+    <span class="section-tag">03 —</span>
+    <h2>Key Insights for 3D Environment Creation</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="notes-grid">
+    <div class="note-card insight">
+      <div class="note-type insight">💡 Insight</div>
+      <p>The Text to 3D workflow is best suited for <strong>individual objects or props</strong> rather than full sprawling environments. For 3D environments, generate modular pieces (trees, rocks, structures) separately and assemble in a 3D engine.</p>
+    </div>
+    <div class="note-card warning">
+      <div class="note-type warning">⚠️ Limitation</div>
+      <p>The free tier only includes <strong>100 credits</strong> total. Each Text to 3D generation costs <strong>20 credits</strong>, meaning only 5 generations on free tier. Plan prompts carefully and iterate thoughtfully.</p>
+    </div>
+    <div class="note-card tip">
+      <div class="note-type tip">✦ Prompting Tip</div>
+      <p>For environment assets, include material descriptors, scale context, and style references in your prompt. Example: <em>"Weathered medieval stone wall segment, mossy texture, 2m tall, game-ready, low fantasy"</em> yields better geometry.</p>
+    </div>
+    <div class="note-card info">
+      <div class="note-type info">ℹ️ Workflow Note</div>
+      <p>After generation, use the <strong>Retexture</strong> feature (also accessible from the left panel) to change materials without regenerating geometry — a powerful way to create variations of environment assets efficiently.</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-brand">Meshy.<em>ai</em> Analysis</div>
+  <div class="f-note">UI Analysis · Text to 3D Workflow · meshy.ai/workspace · Feb 2026</div>
+</footer>
+
+
+
+</body></html>

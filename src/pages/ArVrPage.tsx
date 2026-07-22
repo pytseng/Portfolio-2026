@@ -1,5 +1,5 @@
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
-import { VideoPlaceholder } from '../components/VideoPlaceholder'
+import { MediaPlaceholder, VideoPlaceholder } from '../components/MediaPlaceholder'
 import type { TocItem } from '../data/formaCaseStudy'
 import { CDN } from '../data/projects'
 
@@ -100,6 +100,16 @@ export function ArVrPage() {
           alt="CVPR poster"
           caption="Download CVPR poster in PDF to get a overview of the project"
         />
+        <MediaPlaceholder id="MEDIA::ar-vr::cvpr-poster-pdf" />
+        <p>
+          <a
+            href="https://www.pytseng.com/s/Annotate_all__A_Perspective_Preserved_Asynchronous__Annotation_System_for_Collaborative_Augmented_Re-hd7g.pdf"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Link to Research Paper
+          </a>
+        </p>
         <h3>Augmented Reality</h3>
         <ul>
           <li>It superimposes virtual content over the real-world environment.</li>

@@ -51,6 +51,20 @@ export const projects: ProjectMeta[] = [
     thumbnail: `${CDN}/1560628466725-X2CISGSPR9AIAK5XBVKS/image-asset.jpeg`,
     blurb: 'Spatial annotation, mobile AR, VR experiments, and more.',
   },
+  {
+    slug: 'junyi',
+    title: 'Junyi Academy',
+    path: '/junyi',
+    thumbnail: `${CDN}/1531196261851-H975ZKAG60XRKX9H432D/Asset+3haha.png`,
+    blurb: 'Password-protected on pytseng.com — placeholder until unlocked.',
+  },
+  {
+    slug: 'ford',
+    title: 'Ford - Audio Experience',
+    path: '/ford',
+    thumbnail: `${CDN}/1531240007005-CNX9B6XJZJA9R8G6GVHU/Asset+1car.png`,
+    blurb: 'Password-protected on pytseng.com — placeholder until unlocked.',
+  },
 ]
 
 export { CDN }

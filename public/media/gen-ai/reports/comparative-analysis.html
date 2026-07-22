@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<!-- saved from url=(0244)file:///Users/pytseng/Library/Application%20Support/Claude/local-agent-mode-sessions/de3632c6-57e6-4c52-8c5e-8aad85a7c76b/2a39804c-9d0c-4916-89c8-9a193e9ece9b/local_f213d70e-f778-4159-a423-26b04f320afd/outputs/ai-ui-report/index.html#comparison -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Generation UI Study — 2D Backplate · HDRI · 3D Scene</title>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a22;
+    --surface2: #22222e;
+    --surface3: #2a2a38;
+    --border: #333348;
+    --accent1: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --text: #e8e8f0;
+    --text-muted: #888899;
+    --pro: #00c896;
+    --con: #ff5a5a;
+    --cat1: #7c6cff;
+    --cat2: #00b894;
+    --cat3: #fd7b6f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -apple-system, sans-serif; font-size: 14px; line-height: 1.6; }
+
+  /* ─── HEADER ─── */
+  header {
+    background: linear-gradient(135deg, #0d0d18 0%, #1a0d2e 50%, #0d1a2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 40px 40px;
+    position: relative; overflow: hidden;
+  }
+  header::before {
+    content: ''; position: absolute; top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(108,99,255,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header::after {
+    content: ''; position: absolute; bottom: -80px; left: 200px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,212,170,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+  header h1 span { background: linear-gradient(135deg, #a78bfa, #6c63ff, #00d4aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  header p { color: var(--text-muted); font-size: 15px; max-width: 600px; }
+  .meta { display: flex; gap: 24px; margin-top: 20px; }
+  .meta-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+  .meta-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ─── NAV PILLS ─── */
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 4px; }
+  nav a {
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px;
+    color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 500;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  nav a:hover { color: var(--text); }
+  nav a.cat1 { border-bottom-color: var(--cat1); color: var(--text); }
+  nav a.cat2 { border-bottom-color: var(--cat2); color: var(--text); }
+  nav a.cat3 { border-bottom-color: var(--cat3); color: var(--text); }
+  .nav-icon { width: 16px; height: 16px; border-radius: 3px; }
+
+  /* ─── MAIN LAYOUT ─── */
+  main { max-width: 1400px; margin: 0 auto; padding: 40px; }
+
+  /* ─── CATEGORY SECTION ─── */
+  .category { margin-bottom: 64px; }
+  .category-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 32px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .category-badge {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .cat1 .category-badge { background: linear-gradient(135deg, #7c6cff22, #7c6cff44); border: 1px solid #7c6cff55; }
+  .cat2 .category-badge { background: linear-gradient(135deg, #00b89422, #00b89444); border: 1px solid #00b89455; }
+  .cat3 .category-badge { background: linear-gradient(135deg, #fd7b6f22, #fd7b6f44); border: 1px solid #fd7b6f55; }
+  .category-title h2 { font-size: 22px; font-weight: 700; }
+  .category-title p { color: var(--text-muted); font-size: 13px; margin-top: 3px; }
+  .cat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 2px 8px; border-radius: 4px; }
+  .cat1 .cat-label { background: #7c6cff22; color: #a090ff; border: 1px solid #7c6cff44; }
+  .cat2 .cat-label { background: #00b89422; color: #00d4aa; border: 1px solid #00b89444; }
+  .cat3 .cat-label { background: #fd7b6f22; color: #ff8f7e; border: 1px solid #fd7b6f44; }
+
+  /* ─── TOOLS GRID ─── */
+  .tools-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  @media (max-width: 1100px) { .tools-grid { grid-template-columns: 1fr; } }
+
+  /* ─── TOOL CARD ─── */
+  .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .tool-header {
+    padding: 18px 20px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .tool-name-area { display: flex; align-items: center; gap: 12px; }
+  .tool-logo { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .tool-name { font-size: 15px; font-weight: 700; }
+  .tool-tagline { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .tool-link { font-size: 11px; color: var(--accent1); text-decoration: none; padding: 4px 10px; border: 1px solid var(--accent1); border-radius: 20px; opacity: 0.7; }
+  .tool-link:hover { opacity: 1; }
+
+  /* ─── SCREENSHOT MOCKUP ─── */
+  .screenshot-area { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .screenshot-area h4 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; }
+  .mockup { border-radius: 8px; overflow: hidden; border: 1px solid var(--border); position: relative; }
+  .mockup-topbar { height: 28px; display: flex; align-items: center; padding: 0 10px; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .topbar-text { font-size: 11px; color: rgba(255,255,255,0.4); margin-left: auto; }
+  .mockup-body { display: flex; }
+
+  /* ── MIDJOURNEY MOCKUP ── */
+  .mj-mockup { background: #0f0f0f; }
+  .mj-topbar { background: #1a1a1a; }
+  .mj-sidebar { width: 60px; background: #151515; border-right: 1px solid #282828; display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 12px; }
+  .mj-sidebar-icon { width: 36px; height: 36px; border-radius: 50%; background: #282828; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .mj-sidebar-icon.active { background: #5865f2; }
+  .mj-main { flex: 1; display: flex; flex-direction: column; }
+  .mj-toolbar { background: #1a1a1a; border-bottom: 1px solid #282828; padding: 6px 10px; display: flex; gap: 8px; align-items: center; }
+  .mj-btn { padding: 3px 10px; border-radius: 4px; font-size: 11px; background: #282828; color: #aaa; border: none; cursor: pointer; }
+  .mj-btn.active { background: #3a3a4a; color: #fff; }
+  .mj-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 6px; flex: 1; }
+  .mj-img { aspect-ratio: 1; border-radius: 4px; }
+  .mj-prompt-bar { background: #1a1a1a; border-top: 1px solid #282828; padding: 8px 10px; display: flex; align-items: center; gap: 8px; }
+  .mj-input { flex: 1; background: #2a2a2a; border: 1px solid #383838; border-radius: 6px; padding: 6px 10px; font-size: 11px; color: #aaa; }
+  .mj-send { width: 28px; height: 28px; border-radius: 6px; background: #5865f2; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+
+  /* ── FIREFLY MOCKUP ── */
+  .ff-mockup { background: #1c1c24; }
+  .ff-topbar { background: #2a1a1a; border-bottom: 1px solid #3a2a2a; }
+  .ff-nav { display: flex; gap: 1px; background: #111; padding: 0 8px; }
+  .ff-nav-item { padding: 6px 10px; font-size: 10px; color: #888; cursor: pointer; }
+  .ff-nav-item.active { color: #f97316; border-bottom: 2px solid #f97316; }
+  .ff-layout { display: flex; height: 280px; }
+  .ff-sidebar { width: 200px; background: #151518; border-right: 1px solid #2a2a38; padding: 12px; overflow: hidden; }
+  .ff-sidebar-section { margin-bottom: 14px; }
+  .ff-sidebar-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .ff-select { background: #1e1e28; border: 1px solid #333; border-radius: 6px; padding: 5px 8px; font-size: 11px; color: #aaa; display: flex; align-items: center; justify-content: space-between; }
+  .ff-toggle-row { display: flex; gap: 6px; }
+  .ff-toggle { padding: 3px 8px; border-radius: 4px; font-size: 10px; background: #1e1e28; border: 1px solid #333; color: #888; }
+  .ff-toggle.active { background: #2a2a45; border-color: #6c63ff; color: #fff; }
+  .ff-ratio-options { display: flex; gap: 4px; flex-wrap: wrap; }
+  .ff-ratio { width: 28px; height: 22px; border-radius: 4px; border: 1px solid #333; background: #1e1e28; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #666; }
+  .ff-ratio.active { border-color: #6c63ff; background: #2a2a45; color: #a090ff; }
+  .ff-canvas { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #111116; gap: 10px; }
+  .ff-prompt-container { background: #1e1e2a; border: 1px solid #2a2a40; border-radius: 10px; padding: 10px 12px; width: 320px; }
+  .ff-prompt-label { font-size: 10px; color: #666; margin-bottom: 4px; }
+  .ff-prompt-text { font-size: 12px; color: #888; }
+  .ff-prompt-bottom { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .ff-model-chip { background: #252535; border: 1px solid #333; border-radius: 12px; padding: 3px 8px; font-size: 10px; color: #aaa; display: flex; align-items: center; gap: 4px; }
+  .ff-generate-btn { margin-left: auto; background: linear-gradient(135deg, #6c63ff, #a06cff); border-radius: 8px; padding: 5px 12px; font-size: 11px; color: #fff; font-weight: 600; }
+
+  /* ── SKYBOX MOCKUP ── */
+  .sb-mockup { background: #1a2535; }
+  .sb-topbar { background: #0d1520; border-bottom: 1px solid #1e3050; }
+  .sb-body { position: relative; min-height: 280px; }
+  .sb-panorama-bg { position: absolute; inset: 0; background: linear-gradient(180deg, #2a4a6a 0%, #8b5e3c 40%, #5a3a2a 60%, #3a2a1a 100%); overflow: hidden; }
+  .sb-panorama-bg::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%; background: linear-gradient(180deg, #0a1525 0%, transparent 100%); }
+  .sb-mountains { position: absolute; bottom: 0; left: 0; right: 0; height: 60%; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 200'><polygon points='0,200 100,80 200,130 350,40 500,100 650,30 800,90 800,200' fill='%23433020'/><polygon points='0,200 50,120 150,90 250,110 400,60 550,95 700,50 800,70 800,200' fill='%233a2820'/></svg>") no-repeat bottom center; background-size: cover; }
+  .sb-generate-panel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(15,20,30,0.9); border: 1px solid rgba(30,80,120,0.5); border-radius: 12px; padding: 20px 24px; width: 320px; backdrop-filter: blur(10px); }
+  .sb-panel-title { font-size: 15px; font-weight: 600; text-align: center; margin-bottom: 4px; }
+  .sb-panel-sub { font-size: 11px; color: #888; text-align: center; margin-bottom: 14px; }
+  .sb-input { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #aaa; width: 100%; margin-bottom: 8px; }
+  .sb-style-select { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #888; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .sb-generate-btn { background: #1a9460; border-radius: 8px; padding: 9px 0; font-size: 13px; font-weight: 700; color: #fff; text-align: center; letter-spacing: 0.5px; cursor: pointer; }
+
+  /* ── SCENARIO MOCKUP ── */
+  .sc-mockup { background: #0c0c12; }
+  .sc-topbar { background: #0c0c12; border-bottom: 1px solid #1e1e2a; }
+  .sc-layout { display: flex; height: 300px; }
+  .sc-sidebar { width: 220px; background: #0f0f18; border-right: 1px solid #1e1e2a; padding: 12px; }
+  .sc-sidebar-title { font-size: 12px; font-weight: 600; margin-bottom: 12px; color: #ccc; }
+  .sc-setting-row { margin-bottom: 10px; }
+  .sc-label { font-size: 10px; color: #666; margin-bottom: 4px; }
+  .sc-input-row { background: #1a1a28; border: 1px solid #2a2a38; border-radius: 6px; padding: 6px 8px; font-size: 11px; color: #888; }
+  .sc-style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 4px; }
+  .sc-style-thumb { aspect-ratio: 1; border-radius: 4px; border: 1px solid #2a2a38; font-size: 9px; color: #666; display: flex; align-items: center; justify-content: center; }
+  .sc-style-thumb.active { border-color: #4f7cff; background: #1a2a48; color: #6a9fff; }
+  .sc-canvas { flex: 1; background: #080810; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+  .sc-preview { width: 200px; height: 100px; border-radius: 8px; border: 1px solid #1e1e2a; background: linear-gradient(135deg, #0a1520, #1a3050, #0a2530); position: relative; overflow: hidden; }
+  .sc-preview::after { content: '360°'; position: absolute; bottom: 6px; right: 6px; font-size: 9px; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 3px; color: #888; }
+  .sc-preview-sky { position: absolute; top: 0; left: 0; right: 0; height: 60%; background: linear-gradient(180deg, #051020, #0a3060); }
+  .sc-preview-ground { position: absolute; bottom: 0; left: 0; right: 0; height: 40%; background: linear-gradient(180deg, #2a4020, #1a2810); }
+  .sc-res-options { display: flex; gap: 6px; }
+  .sc-res-btn { padding: 4px 10px; border-radius: 4px; font-size: 10px; border: 1px solid #2a2a38; background: #1a1a28; color: #888; }
+  .sc-res-btn.active { border-color: #4f7cff; background: #1a2a48; color: #6a9fff; }
+  .sc-gen-btn { background: linear-gradient(135deg, #4f7cff, #7c4fff); border-radius: 8px; padding: 7px 20px; font-size: 12px; font-weight: 600; color: #fff; }
+
+  /* ── MESHY MOCKUP ── */
+  .my-mockup { background: #0e0e14; }
+  .my-topbar { background: #0a0a10; border-bottom: 1px solid #1e1e2a; }
+  .my-nav { display: flex; align-items: center; gap: 12px; padding: 0 10px; height: 28px; }
+  .my-logo { width: 20px; height: 20px; border-radius: 4px; background: linear-gradient(135deg, #ff6b6b, #ffa344); }
+  .my-nav-item { font-size: 11px; color: #888; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+  .my-nav-item.active { background: #1e1e2a; color: #ccc; }
+  .my-layout { display: flex; height: 290px; }
+  .my-left-panel { width: 240px; background: #0c0c14; border-right: 1px solid #1e1e2a; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .my-panel-title { font-size: 13px; font-weight: 600; color: #e0e0e8; display: flex; align-items: center; justify-content: space-between; }
+  .my-new-btn { background: #1e3a6a; border: 1px solid #2a4a8a; border-radius: 5px; padding: 3px 8px; font-size: 10px; color: #6a9fff; }
+  .my-mode-tabs { display: flex; background: #111118; border-radius: 8px; padding: 2px; gap: 2px; }
+  .my-mode-tab { flex: 1; padding: 5px 0; border-radius: 6px; font-size: 10px; text-align: center; color: #888; display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .my-mode-tab.active { background: #1e1e2a; color: #ccc; }
+  .my-prompt-box { background: #111118; border: 1px solid #2a2a38; border-radius: 8px; padding: 8px 10px; }
+  .my-prompt-placeholder { font-size: 11px; color: #555; line-height: 1.5; }
+  .my-settings { display: flex; flex-direction: column; gap: 7px; }
+  .my-setting-row { display: flex; align-items: center; justify-content: space-between; }
+  .my-setting-label { font-size: 11px; color: #888; }
+  .my-setting-value { background: #1a1a28; border: 1px solid #2a2a38; border-radius: 5px; padding: 3px 8px; font-size: 11px; color: #aaa; }
+  .my-gen-btn { background: linear-gradient(135deg, #ff6b6b, #ffa344); border-radius: 8px; padding: 8px 0; font-size: 12px; font-weight: 700; color: #fff; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: auto; }
+  .my-center { flex: 1; background: #080810; display: flex; align-items: center; justify-content: center; }
+  .my-empty { text-align: center; }
+  .my-empty-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.6; }
+  .my-empty-text { font-size: 13px; color: #555; margin-bottom: 4px; }
+  .my-empty-sub { font-size: 11px; color: #444; }
+  .my-right-panel { width: 200px; border-left: 1px solid #1e1e2a; padding: 10px; }
+  .my-gallery-title { font-size: 11px; color: #666; margin-bottom: 8px; }
+  .my-gallery-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .my-gallery-item { background: #151520; border: 1px solid #2a2a38; border-radius: 8px; padding: 8px; }
+  .my-gallery-img { width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, #2a2a3a, #1a3a5a); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .my-gallery-label { font-size: 10px; color: #666; margin-top: 5px; }
+
+  /* ── SPLINE MOCKUP ── */
+  .sp-mockup { background: #0a0a0e; }
+  .sp-topbar { background: #0f0f14; border-bottom: 1px solid #1e1e2a; }
+  .sp-body { padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; min-height: 300px; }
+  .sp-prompt-bar { background: #151520; border: 2px solid #2a2a3a; border-radius: 12px; padding: 10px 14px; width: 340px; display: flex; align-items: center; gap: 10px; }
+  .sp-prompt-icon { font-size: 16px; }
+  .sp-prompt-text { font-size: 12px; color: #666; flex: 1; }
+  .sp-title { font-size: 18px; font-weight: 700; text-align: center; }
+  .sp-subtitle { font-size: 12px; color: #666; text-align: center; }
+  .sp-floating-objects { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; width: 100%; max-width: 400px; }
+  .sp-obj { border-radius: 12px; border: 1px solid #2a2a3a; display: flex; align-items: center; justify-content: center; font-size: 28px; background: linear-gradient(135deg, #1a1a28, #0f0f18); }
+  .sp-get-started { background: linear-gradient(135deg, #7c6cff, #4f90ff); border-radius: 10px; padding: 8px 20px; font-size: 13px; font-weight: 600; color: #fff; }
+
+  /* ─── ANALYSIS SECTION ─── */
+  .tool-analysis { padding: 16px 20px; }
+  .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pros-section, .cons-section { }
+  .pros-title { font-size: 11px; font-weight: 700; color: var(--pro); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+  .cons-title { font-size: 11px; font-weight: 700; color: var(--con); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+  .pros-list, .cons-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .pros-list li { font-size: 12px; color: #ccc; padding-left: 14px; position: relative; line-height: 1.4; }
+  .cons-list li { font-size: 12px; color: #ccc; padding-left: 14px; position: relative; line-height: 1.4; }
+  .pros-list li::before { content: '✓'; position: absolute; left: 0; color: var(--pro); font-size: 10px; top: 1px; }
+  .cons-list li::before { content: '✗'; position: absolute; left: 0; color: var(--con); font-size: 10px; top: 1px; }
+
+  .ui-observations { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .ui-obs-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .ui-obs-text { font-size: 12px; color: #aaa; line-height: 1.5; }
+  .tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-right: 4px; margin-bottom: 3px; }
+  .tag-dark { background: #1e1e2a; color: #888; border: 1px solid #2a2a38; }
+  .tag-blue { background: #1a2a48; color: #6a9fff; border: 1px solid #2a3a58; }
+  .tag-green { background: #1a3028; color: #00b894; border: 1px solid #2a4038; }
+  .tag-purple { background: #2a1a48; color: #a090ff; border: 1px solid #3a2a58; }
+  .tag-orange { background: #3a2010; color: #ffa344; border: 1px solid #4a3020; }
+
+  /* ─── COMPARISON TABLE ─── */
+  .comparison-section { margin-top: 40px; padding: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+  .comparison-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .comparison-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--surface2); }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 10px 14px; color: var(--text); vertical-align: top; line-height: 1.4; }
+  tbody td:first-child { font-weight: 600; color: #ddd; }
+  .cat-chip { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .cat1-chip { background: #7c6cff22; color: #a090ff; }
+  .cat2-chip { background: #00b89422; color: #00d4aa; }
+  .cat3-chip { background: #fd7b6f22; color: #ff8f7e; }
+  .score { display: inline-flex; gap: 2px; }
+  .star { font-size: 11px; }
+  .star.full { color: #fbbf24; }
+  .star.empty { color: #333; }
+  .feature-yes { color: var(--pro); font-size: 12px; }
+  .feature-no { color: var(--con); font-size: 12px; }
+  .feature-partial { color: #f59e0b; font-size: 12px; }
+
+  /* ─── KEY TAKEAWAYS ─── */
+  .takeaways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 32px; }
+  @media (max-width: 900px) { .takeaways { grid-template-columns: 1fr; } }
+  .takeaway-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .takeaway-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .takeaway-icon { font-size: 22px; }
+  .takeaway-title { font-size: 14px; font-weight: 700; }
+  .takeaway-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .takeaway-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .takeaway-list li { font-size: 12px; color: #ccc; padding-left: 12px; position: relative; }
+  .takeaway-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent1); }
+
+  /* ─── FOOTER ─── */
+  footer { background: var(--surface); border-top: 1px solid var(--border); padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; }
+  footer p { font-size: 12px; color: var(--text-muted); }
+
+  /* ─── UTILITY ─── */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .section-gap { margin-bottom: 48px; }
+  .flex-row { display: flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="meta"><span class="meta-item"><span class="meta-dot" style="background:#7c6cff"></span> 2D Backplate</span><span class="meta-item"><span class="meta-dot" style="background:#00b894"></span> HDRI Generation</span><span class="meta-item"><span class="meta-dot" style="background:#fd7b6f"></span> 3D Scene</span><span class="meta-item" style="margin-left:auto">📅 February 2026</span></div>
+  <h1><span>AI Generation UI</span> — Comparative Study</h1>
+  <p>A structured review of leading AI generation platforms across three key content categories for visual production pipelines: 2D backplate image generation, HDRI environment generation, and 3D scene generation.</p>
+</header>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <a href="file:///Users/pytseng/Library/Application%20Support/Claude/local-agent-mode-sessions/de3632c6-57e6-4c52-8c5e-8aad85a7c76b/2a39804c-9d0c-4916-89c8-9a193e9ece9b/local_f213d70e-f778-4159-a423-26b04f320afd/outputs/ai-ui-report/index.html#cat1" class="cat1">🖼 2D Backplate Generation</a>
+  <a href="file:///Users/pytseng/Library/Application%20Support/Claude/local-agent-mode-sessions/de3632c6-57e6-4c52-8c5e-8aad85a7c76b/2a39804c-9d0c-4916-89c8-9a193e9ece9b/local_f213d70e-f778-4159-a423-26b04f320afd/outputs/ai-ui-report/index.html#cat2" class="cat2">🌐 HDRI Generation</a>
+  <a href="file:///Users/pytseng/Library/Application%20Support/Claude/local-agent-mode-sessions/de3632c6-57e6-4c52-8c5e-8aad85a7c76b/2a39804c-9d0c-4916-89c8-9a193e9ece9b/local_f213d70e-f778-4159-a423-26b04f320afd/outputs/ai-ui-report/index.html#cat3" class="cat3">🧊 3D Scene Generation</a>
+  <a href="file:///Users/pytseng/Library/Application%20Support/Claude/local-agent-mode-sessions/de3632c6-57e6-4c52-8c5e-8aad85a7c76b/2a39804c-9d0c-4916-89c8-9a193e9ece9b/local_f213d70e-f778-4159-a423-26b04f320afd/outputs/ai-ui-report/index.html#comparison">📊 Full Comparison</a>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main>
+
+<!-- ══════════════════════════════════════════
+     CATEGORY 1: 2D BACKPLATE GENERATION
+═══════════════════════════════════════════ -->
+<section class="category cat1 section-gap" id="cat1">
+  <div class="category-header">
+    <div class="category-badge">🖼</div>
+    <div class="category-title">
+      <div class="flex-row"><h2>2D Backplate Generation</h2><span class="cat-label">Category 01</span></div>
+      <p>AI-powered text-to-image tools for generating high-quality photographic or artistic 2D backgrounds, environments, and compositing plates used in film, games, and design.</p>
+    </div>
+  </div>
+
+  <div class="tools-grid">
+
+    <!-- ── MIDJOURNEY ── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-name-area">
+          <div class="tool-logo" style="background:linear-gradient(135deg,#1a1a2e,#2a2a4e);border:1px solid #3a3a5e">⬡</div>
+          <div>
+            <div class="tool-name">Midjourney</div>
+            <div class="tool-tagline">Discord-native &amp; web app · Industry gold standard</div>
+          </div>
+        </div>
+        <a href="https://www.midjourney.com/" target="_blank" class="tool-link">midjourney.com ↗</a>
+      </div>
+
+      <!-- UI MOCKUP: Midjourney Web App -->
+      <div class="screenshot-area">
+        <h4>🖥 UI — Web App (app.midjourney.com)</h4>
+        <div class="mockup mj-mockup" style="height:310px">
+          <div class="mockup-topbar mj-topbar">
+            <div class="dot" style="background:#ff5f57"></div>
+            <div class="dot" style="background:#febc2e"></div>
+            <div class="dot" style="background:#28c840"></div>
+            <span class="topbar-text">app.midjourney.com</span>
+          </div>
+          <div class="mockup-body" style="height:282px">
+            <div class="mj-sidebar">
+              <div class="mj-sidebar-icon active">⬡</div>
+              <div class="mj-sidebar-icon">🔍</div>
+              <div class="mj-sidebar-icon">📁</div>
+              <div class="mj-sidebar-icon">⚙</div>
+            </div>
+            <div class="mj-main">
+              <div class="mj-toolbar">
+                <span class="mj-btn active">Imagine</span>
+                <span class="mj-btn">Explore</span>
+                <span class="mj-btn">My Images</span>
+                <span class="mj-btn">Editor</span>
+                <span class="mj-btn" style="margin-left:auto">--ar 16:9 --v 6.1</span>
+              </div>
+              <div class="mj-gallery">
+                <div class="mj-img" style="background:linear-gradient(135deg,#2a3a5a,#3a5a4a)"></div>
+                <div class="mj-img" style="background:linear-gradient(135deg,#4a2a3a,#5a3a2a)"></div>
+                <div class="mj-img" style="background:linear-gradient(135deg,#1a2a4a,#2a4a3a)"></div>
+                <div class="mj-img" style="background:linear-gradient(135deg,#3a3a2a,#4a4a3a)"></div>
+                <div class="mj-img" style="background:linear-gradient(135deg,#2a4a5a,#1a2a4a)"></div>
+                <div class="mj-img" style="background:linear-gradient(135deg,#5a2a2a,#3a2a4a)"></div>
+                <div class="mj-img" style="background:linear-gradient(135deg,#2a5a2a,#3a4a2a)"></div>
+                <div class="mj-img" style="background:linear-gradient(135deg,#4a3a5a,#2a3a5a)"></div>
+              </div>
+              <div class="mj-prompt-bar">
+                <div class="mj-input">Describe what you want to create…</div>
+                <div class="mj-send">↑</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="margin-top:12px">🖥 UI — Generation Parameters Panel</h4>
+        <div style="background:#111116;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:11px;color:#888;display:flex;flex-wrap:wrap;gap:8px">
+          <span style="background:#1a1a28;border:1px solid #2a2a38;border-radius:6px;padding:4px 10px">--ar 16:9</span>
+          <span style="background:#1a1a28;border:1px solid #2a2a38;border-radius:6px;padding:4px 10px">--v 6.1</span>
+          <span style="background:#1a1a28;border:1px solid #2a2a38;border-radius:6px;padding:4px 10px">--style raw</span>
+          <span style="background:#1a1a28;border:1px solid #2a2a38;border-radius:6px;padding:4px 10px">--q 2</span>
+          <span style="background:#1a1a28;border:1px solid #2a2a38;border-radius:6px;padding:4px 10px">--chaos 30</span>
+          <span style="background:#1a1a28;border:1px solid #2a2a38;border-radius:6px;padding:4px 10px">--stylize 100</span>
+          <span style="background:#2a1a48;border:1px solid #4a2a68;border-radius:6px;padding:4px 10px;color:#a090ff">--sref [URL]</span>
+          <span style="background:#2a1a48;border:1px solid #4a2a68;border-radius:6px;padding:4px 10px;color:#a090ff">--cref [URL]</span>
+          <span style="background:#1a3020;border:1px solid #2a4030;border-radius:6px;padding:4px 10px;color:#00b894">--iw 2.0</span>
+        </div>
+      </div>
+
+      <div class="tool-analysis">
+        <div class="analysis-grid">
+          <div class="pros-section">
+            <div class="pros-title">✓ Strengths</div>
+            <ul class="pros-list">
+              <li>Highest visual quality for photorealistic and artistic images in the industry</li>
+              <li>Exceptional aesthetic coherence and style consistency</li>
+              <li>Style reference (--sref) and character reference (--cref) flags for continuity</li>
+              <li>Large community with shared prompts and style libraries</li>
+              <li>Web editor for inpainting, outpainting, and composition</li>
+              <li>Very fast generation with --turbo mode</li>
+              <li>Describe feature to reverse-engineer prompts from images</li>
+            </ul>
+          </div>
+          <div class="cons-section">
+            <div class="cons-title">✗ Weaknesses</div>
+            <ul class="cons-list">
+              <li>No free tier — subscription required ($10/month minimum)</li>
+              <li>Limited control over specific details (text, hands, precise object placement)</li>
+              <li>No local/offline processing — cloud-only</li>
+              <li>Parameter system is complex for new users</li>
+              <li>Cannot directly fine-tune or train custom models</li>
+              <li>Outputs may require upscaling for very high-res backplates</li>
+              <li>Images generated are not natively HDRI-capable</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ui-observations">
+          <div class="ui-obs-title">📐 UI Design Observations</div>
+          <div class="ui-obs-text">Clean dark UI with Discord-style sidebar navigation. The main canvas area shows a masonry gallery of recent generations. Prompt bar fixed at bottom with inline parameter entry. Simple and accessible but power users must memorize parameter flags. The web app added a visual editor and persona/style management in 2024–2025.</div>
+          <div style="margin-top:8px">
+            <span class="tag tag-dark">Discord-inspired</span>
+            <span class="tag tag-blue">Chat-style input</span>
+            <span class="tag tag-purple">Parameter flags</span>
+            <span class="tag tag-green">Gallery-first UX</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ADOBE FIREFLY ── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-name-area">
+          <div class="tool-logo" style="background:linear-gradient(135deg,#1a0808,#3a1010);border:1px solid #5a2020">🔥</div>
+          <div>
+            <div class="tool-name">Adobe Firefly</div>
+            <div class="tool-tagline">Creative Cloud integrated · Commercial safe · Enterprise</div>
+          </div>
+        </div>
+        <a href="https://firefly.adobe.com/" target="_blank" class="tool-link">firefly.adobe.com ↗</a>
+      </div>
+
+      <!-- UI MOCKUP: Firefly -->
+      <div class="screenshot-area">
+        <h4>🖥 UI — Text to Image Generation Panel</h4>
+        <div class="mockup ff-mockup" style="height:320px">
+          <div class="mockup-topbar ff-topbar" style="height:36px;padding:0;display:block">
+            <div class="ff-nav">
+              <div class="ff-nav-item">Gallery</div>
+              <div class="ff-nav-item active">Generate</div>
+              <span style="margin-left:auto;font-size:10px;color:#666;padding:4px 8px">Firefly Image 3 (Gemini 2.5)</span>
+            </div>
+          </div>
+          <div class="ff-layout">
+            <div class="ff-sidebar">
+              <div class="ff-sidebar-section">
+                <div class="ff-sidebar-label">Model</div>
+                <div class="ff-select" style="font-size:10px">
+                  <span>Firefly Image 3</span><span style="color:#666">▾</span>
+                </div>
+                <div style="background:#2a1a1a;border:1px dashed #3a2a2a;border-radius:6px;padding:5px 8px;font-size:10px;color:#888;margin-top:4px">
+                  ✨ Try Firefly Image 5 (preview)
+                </div>
+              </div>
+              <div class="ff-sidebar-section">
+                <div class="ff-sidebar-label">Aspect Ratio</div>
+                <div class="ff-ratio-options">
+                  <div class="ff-ratio active" style="width:22px">1:1</div>
+                  <div class="ff-ratio" style="width:34px">16:9</div>
+                  <div class="ff-ratio" style="width:18px;height:26px">9:16</div>
+                  <div class="ff-ratio" style="width:30px">4:3</div>
+                </div>
+              </div>
+              <div class="ff-sidebar-section">
+                <div class="ff-sidebar-label">Content Type</div>
+                <div class="ff-toggle-row">
+                  <div class="ff-toggle active">Art</div>
+                  <div class="ff-toggle">Photo</div>
+                  <div class="ff-toggle">Auto</div>
+                </div>
+              </div>
+              <div class="ff-sidebar-section">
+                <div class="ff-sidebar-label">Composition</div>
+                <div class="ff-select" style="font-size:10px;color:#888">Reference image ▾</div>
+              </div>
+              <div class="ff-sidebar-section">
+                <div class="ff-sidebar-label">Color &amp; Tone</div>
+                <div class="ff-select" style="font-size:10px;color:#888">Vivid ▾</div>
+              </div>
+              <div class="ff-sidebar-section">
+                <div class="ff-sidebar-label">Lighting</div>
+                <div class="ff-select" style="font-size:10px;color:#888">Golden hour ▾</div>
+              </div>
+            </div>
+            <div class="ff-canvas">
+              <div class="ff-prompt-container">
+                <div class="ff-prompt-label">Prompt</div>
+                <div class="ff-prompt-text">Describe what you want to generate</div>
+                <div class="ff-prompt-bottom">
+                  <div class="ff-model-chip"><span style="font-size:14px">G</span> Gemini 2.5 ▾</div>
+                  <div style="font-size:10px;color:#666">4:3 ▾</div>
+                  <div style="font-size:10px;color:#666">More ⌄</div>
+                  <div class="ff-generate-btn">✦ Generate</div>
+                </div>
+              </div>
+              <div style="font-size:11px;color:#555">↓ Gallery of previous generations</div>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="margin-top:12px">🖥 UI — Gallery View &amp; Filter System</h4>
+        <div style="background:#1c1c24;border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:11px;color:#888">Filter:</span>
+          <span class="tag tag-purple">Photo</span>
+          <span class="tag tag-blue">Art</span>
+          <span class="tag tag-dark">Outdoors</span>
+          <span class="tag tag-dark">Portrait</span>
+          <span class="tag tag-dark">Architecture</span>
+          <span style="font-size:11px;color:#666;margin-left:auto">Community / My Stuff</span>
+        </div>
+      </div>
+
+      <div class="tool-analysis">
+        <div class="analysis-grid">
+          <div class="pros-section">
+            <div class="pros-title">✓ Strengths</div>
+            <ul class="pros-list">
+              <li>Commercially safe — trained on licensed Adobe Stock images</li>
+              <li>Deep Creative Cloud integration (Photoshop, Illustrator, Express)</li>
+              <li>Rich structured controls: lighting, color tone, aspect ratio, content type</li>
+              <li>Generative Fill and Expand tools inside Photoshop</li>
+              <li>Reference image for composition and style guidance</li>
+              <li>Custom model training available (Firefly Custom Models)</li>
+              <li>Multi-model access — Firefly Image 3/5, Gemini integration</li>
+            </ul>
+          </div>
+          <div class="cons-section">
+            <div class="cons-title">✗ Weaknesses</div>
+            <ul class="cons-list">
+              <li>Visual quality slightly below Midjourney v6 for photorealistic outputs</li>
+              <li>Requires Adobe subscription for full access</li>
+              <li>Community/gallery less vibrant than Midjourney</li>
+              <li>UI can feel cluttered with too many nested panels</li>
+              <li>Slower iteration speed vs. purely prompt-based tools</li>
+              <li>Not ideal for high-volume batch generation workflows</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ui-observations">
+          <div class="ui-obs-title">📐 UI Design Observations</div>
+          <div class="ui-obs-text">Three-column layout: structured left sidebar with model/aspect ratio/style controls, center prompt + canvas area, and right gallery. Adobe's creative DNA shows in polished iconography and dropdown menus. The sidebar uses collapsible sections for General Settings, Content Type, and Composition. Prompt bar floats at the bottom of the canvas with a Google Gemini model chip and "More" expanding to additional style options. Overall a power-user-friendly UI with excellent discoverability for creative professionals.</div>
+          <div style="margin-top:8px">
+            <span class="tag tag-orange">Adobe CC integrated</span>
+            <span class="tag tag-blue">Structured controls</span>
+            <span class="tag tag-green">Reference image</span>
+            <span class="tag tag-purple">Custom models</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end tools-grid cat1 -->
+</section>
+
+<!-- ══════════════════════════════════════════
+     CATEGORY 2: HDRI GENERATION
+═══════════════════════════════════════════ -->
+<section class="category cat2 section-gap" id="cat2">
+  <div class="category-header">
+    <div class="category-badge">🌐</div>
+    <div class="category-title">
+      <div class="flex-row"><h2>HDRI Environment Generation</h2><span class="cat-label">Category 02</span></div>
+      <p>AI tools for generating 360° equirectangular HDRI maps for image-based lighting (IBL), scene backgrounds, and VR/game environments in Blender, Unreal Engine, and other 3D applications.</p>
+    </div>
+  </div>
+
+  <div class="tools-grid">
+
+    <!-- ── BLOCKADE LABS SKYBOX AI ── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-name-area">
+          <div class="tool-logo" style="background:linear-gradient(135deg,#0a1020,#1a2040);border:1px solid #1a9460">🌌</div>
+          <div>
+            <div class="tool-name">Blockade Labs — Skybox AI</div>
+            <div class="tool-tagline">skybox.blockadelabs.com · Dedicated 360° HDRI generation</div>
+          </div>
+        </div>
+        <a href="https://skybox.blockadelabs.com/" target="_blank" class="tool-link">skybox.blockadelabs.com ↗</a>
+      </div>
+
+      <div class="screenshot-area">
+        <h4>🖥 UI — Main Generation Interface (Observed)</h4>
+        <div class="mockup sb-mockup" style="height:300px;position:relative">
+          <div class="mockup-topbar sb-topbar">
+            <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+            <span style="font-size:11px;color:#3a8a6a;margin-left:8px;font-weight:600">Skybox AI</span>
+            <span style="font-size:10px;color:#666;margin-left:auto">LOGIN · SIGN UP</span>
+          </div>
+          <div class="sb-body">
+            <div class="sb-panorama-bg">
+              <div class="sb-mountains"></div>
+            </div>
+            <div class="sb-generate-panel">
+              <div class="sb-panel-title">Start Creating with Skybox AI</div>
+              <div class="sb-panel-sub">All you need is an idea to get started</div>
+              <div class="sb-input" style="font-size:12px;color:#666">Describe your world using text…</div>
+              <div class="sb-style-select">
+                <span>Select a style</span><span style="color:#666">▾</span>
+              </div>
+              <div class="sb-generate-btn">GENERATE</div>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="margin-top:12px">🖥 UI — Style Selector &amp; Export Options</h4>
+        <div style="background:#0d1520;border:1px solid #1e3050;border-radius:8px;padding:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="tag tag-green">Realistic</span>
+          <span class="tag tag-dark">Anime</span>
+          <span class="tag tag-dark">Sci-fi</span>
+          <span class="tag tag-dark">Fantasy</span>
+          <span class="tag tag-dark">Oil painting</span>
+          <span class="tag tag-dark">Digital art</span>
+          <div style="width:100%;margin-top:4px;font-size:10px;color:#555">Export: HDR · EXR · PNG · Cubemap (6-face) · Unity · Unreal Engine plugin</div>
+        </div>
+      </div>
+
+      <div class="tool-analysis">
+        <div class="analysis-grid">
+          <div class="pros-section">
+            <div class="pros-title">✓ Strengths</div>
+            <ul class="pros-list">
+              <li>Cleanest, most minimal UI for 360° HDRI generation — single prompt + style picker</li>
+              <li>True equirectangular panorama with seamless pole blending</li>
+              <li>Dedicated game engine plugins (Unity, Unreal Engine, Blender)</li>
+              <li>API + SDK available for pipeline integration</li>
+              <li>MCP (Model Context Protocol) support announced 2025</li>
+              <li>Live 360° preview with pan/look-around in browser</li>
+              <li>Free tier available with watermarked exports</li>
+            </ul>
+          </div>
+          <div class="cons-section">
+            <div class="cons-title">✗ Weaknesses</div>
+            <ul class="cons-list">
+              <li>Limited prompt control — no advanced parameter tuning</li>
+              <li>Style options feel limited (8–12 presets only)</li>
+              <li>No image-to-HDRI or reference-image workflow</li>
+              <li>Output isn't true HDRI (no HDR luminance data) — lacks correct EV range</li>
+              <li>No inpainting/editing after generation</li>
+              <li>Resolution capped at 4096×2048 on free plans</li>
+              <li>Single-panel UI limits workflow complexity</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ui-observations">
+          <div class="ui-obs-title">📐 UI Design Observations</div>
+          <div class="ui-obs-text">Minimalist dark UI where the generated 360° panorama fills the entire browser background. A centered floating card serves as the only interface — text input + style dropdown + generate button. Very approachable for non-technical users. After generation, a full-screen 360° viewer appears with export and remix options. The simplicity is both its greatest strength and limitation.</div>
+          <div style="margin-top:8px">
+            <span class="tag tag-green">Panoramic background UI</span>
+            <span class="tag tag-dark">Minimal controls</span>
+            <span class="tag tag-blue">Engine plugins</span>
+            <span class="tag tag-green">SDK/API ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCENARIO AI SKYBOXES ── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-name-area">
+          <div class="tool-logo" style="background:linear-gradient(135deg,#0a0a18,#1a2038);border:1px solid #4f7cff">◈</div>
+          <div>
+            <div class="tool-name">Scenario — Skyboxes</div>
+            <div class="tool-tagline">scenario.com · Game-focused HDRI with advanced controls</div>
+          </div>
+        </div>
+        <a href="https://www.scenario.com/features/generate-skyboxes" target="_blank" class="tool-link">scenario.com ↗</a>
+      </div>
+
+      <div class="screenshot-area">
+        <h4>🖥 UI — Skybox Generation Panel (Observed)</h4>
+        <div class="mockup sc-mockup" style="height:320px">
+          <div class="mockup-topbar sc-topbar" style="height:28px;display:flex;align-items:center;padding:0 10px;gap:10px">
+            <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+            <span style="font-size:10px;color:#666">scenario.com/features/generate-skyboxes</span>
+          </div>
+          <div class="sc-layout">
+            <div class="sc-sidebar">
+              <div class="sc-sidebar-title">Skybox Generator</div>
+              <div class="sc-setting-row">
+                <div class="sc-label">Prompt</div>
+                <div class="sc-input-row">Sunset over misty mountains, golden…</div>
+              </div>
+              <div class="sc-setting-row">
+                <div class="sc-label">Negative Prompt</div>
+                <div class="sc-input-row" style="color:#555">Add elements to avoid…</div>
+              </div>
+              <div class="sc-setting-row">
+                <div class="sc-label">Style</div>
+                <div class="sc-style-grid">
+                  <div class="sc-style-thumb active">Realistic</div>
+                  <div class="sc-style-thumb">Painterly</div>
+                  <div class="sc-style-thumb">Sci-Fi</div>
+                  <div class="sc-style-thumb">Fantasy</div>
+                  <div class="sc-style-thumb">Low-poly</div>
+                  <div class="sc-style-thumb">Anime</div>
+                </div>
+              </div>
+              <div class="sc-setting-row" style="margin-top:8px">
+                <div class="sc-label">Reference Image</div>
+                <div class="sc-input-row" style="color:#555;font-size:10px">+ Add sketch or photo</div>
+              </div>
+            </div>
+            <div class="sc-canvas">
+              <div class="sc-preview">
+                <div class="sc-preview-sky"></div>
+                <div class="sc-preview-ground"></div>
+              </div>
+              <div style="font-size:10px;color:#555">360° equirectangular preview</div>
+              <div class="sc-res-options">
+                <div class="sc-res-btn">2K</div>
+                <div class="sc-res-btn active">4K</div>
+                <div class="sc-res-btn">8K ★</div>
+              </div>
+              <div class="sc-gen-btn">✦ Generate Skybox</div>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="margin-top:12px">🖥 UI — Key Differentiators</h4>
+        <div style="background:#0c0c12;border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="tag tag-blue">Preview → Upscale 2×/4×/8×</span>
+          <span class="tag tag-purple">Depth + Structure control</span>
+          <span class="tag tag-green">Image-to-Skybox</span>
+          <span class="tag tag-dark">HDRI + Cubemap export</span>
+          <span class="tag tag-orange">Negative prompts</span>
+        </div>
+      </div>
+
+      <div class="tool-analysis">
+        <div class="analysis-grid">
+          <div class="pros-section">
+            <div class="pros-title">✓ Strengths</div>
+            <ul class="pros-list">
+              <li>Preview → Refine → Upscale workflow (2×, 4×, 8×) for efficient iteration</li>
+              <li>Negative prompt support for fine-grained control</li>
+              <li>Reference image input (sketch or photo) for guided generation</li>
+              <li>Image-to-Image (Depth + Structure control modes)</li>
+              <li>Up to 8K resolution output — suitable for AAA game pipelines</li>
+              <li>HDRI and cubemap export formats for game engines</li>
+              <li>Broader suite: also generates game assets, characters, tiles</li>
+            </ul>
+          </div>
+          <div class="cons-section">
+            <div class="cons-title">✗ Weaknesses</div>
+            <ul class="cons-list">
+              <li>Requires account creation — no anonymous generation</li>
+              <li>More complex UI — higher learning curve than Skybox AI</li>
+              <li>Primarily game-focused; may not fit film/VFX workflows</li>
+              <li>Free tier is very limited (credits deplete quickly)</li>
+              <li>API access requires higher-tier subscription</li>
+              <li>Still lacks true physical HDR luminance data</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ui-observations">
+          <div class="ui-obs-title">📐 UI Design Observations</div>
+          <div class="ui-obs-text">Two-panel dark interface: left sidebar with structured form controls (prompt, negative prompt, style grid, reference image upload), right canvas with live preview and resolution selector. The style grid uses small thumbnail-style buttons. Resolution upscale options are clearly tiered. The overall UI follows a professional tool aesthetic with more density than Skybox AI — appropriate for game developers who need control. Marketing page uses a dark, editorial design language consistent with game-dev branding.</div>
+          <div style="margin-top:8px">
+            <span class="tag tag-blue">Two-panel layout</span>
+            <span class="tag tag-purple">Negative prompts</span>
+            <span class="tag tag-green">Reference image</span>
+            <span class="tag tag-orange">Tiered resolution</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end tools-grid cat2 -->
+</section>
+
+<!-- ══════════════════════════════════════════
+     CATEGORY 3: 3D SCENE GENERATION
+═══════════════════════════════════════════ -->
+<section class="category cat3 section-gap" id="cat3">
+  <div class="category-header">
+    <div class="category-badge">🧊</div>
+    <div class="category-title">
+      <div class="flex-row"><h2>3D Scene Generation</h2><span class="cat-label">Category 03</span></div>
+      <p>AI-powered text-to-3D and image-to-3D tools for generating 3D objects, environments, and scenes. Outputs include meshes, textures, and scene files compatible with Blender, Unreal Engine, and Unity.</p>
+    </div>
+  </div>
+
+  <div class="tools-grid">
+
+    <!-- ── MESHY AI ── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-name-area">
+          <div class="tool-logo" style="background:linear-gradient(135deg,#2a1010,#4a2020);border:1px solid #ff6b6b">⬟</div>
+          <div>
+            <div class="tool-name">Meshy AI</div>
+            <div class="tool-tagline">meshy.ai · #1 AI 3D Model Generator · Full workspace</div>
+          </div>
+        </div>
+        <a href="https://www.meshy.ai/" target="_blank" class="tool-link">meshy.ai ↗</a>
+      </div>
+
+      <div class="screenshot-area">
+        <h4>🖥 UI — Workspace (Observed in browser)</h4>
+        <div class="mockup my-mockup" style="height:320px">
+          <div class="mockup-topbar my-topbar" style="height:36px;display:block;padding:0">
+            <div class="my-nav">
+              <div class="my-logo"></div>
+              <span style="font-size:11px;font-weight:600;color:#e0e0e8">Meshy</span>
+              <div class="my-nav-item active">Workspace ▾</div>
+              <div class="my-nav-item">Community</div>
+              <div class="my-nav-item">My Assets</div>
+              <div class="my-nav-item">API</div>
+              <div class="my-nav-item">Learn ▾</div>
+              <span style="margin-left:auto;font-size:11px;font-weight:700;color:#ffa344">100 ⬟</span>
+              <span style="font-size:11px;color:#888">⬆ Upgrade</span>
+            </div>
+          </div>
+          <div class="my-layout">
+            <div class="my-left-panel">
+              <div class="my-panel-title">New Model <div class="my-new-btn">↑</div></div>
+              <div class="my-mode-tabs">
+                <div class="my-mode-tab active">🖼 Image</div>
+                <div class="my-mode-tab">📦 Multi</div>
+                <div class="my-mode-tab">◈ Scene</div>
+              </div>
+              <div class="my-prompt-box">
+                <div class="my-prompt-placeholder">Describe the object you want to generate. You can use your native language, e.g., a medieval axe</div>
+              </div>
+              <div class="my-settings">
+                <div class="my-setting-row">
+                  <div class="my-setting-label">Model Type</div>
+                  <div style="display:flex;gap:4px">
+                    <div class="my-setting-value" style="background:#2a2a3a;border-color:#4a4a5a;color:#eee">Standard</div>
+                    <div class="my-setting-value">Low Poly (Beta)</div>
+                  </div>
+                </div>
+                <div class="my-setting-row">
+                  <div class="my-setting-label">AI Model</div>
+                  <div class="my-setting-value">Meshy 6 ▾</div>
+                </div>
+                <div class="my-setting-row">
+                  <div class="my-setting-label">Pose</div>
+                  <div style="display:flex;gap:4px">
+                    <div class="my-setting-value">None</div>
+                    <div class="my-setting-value" style="background:#2a3a5a;border-color:#3a4a6a;color:#6a9fff">A-Pose</div>
+                    <div class="my-setting-value">T-Pose</div>
+                  </div>
+                </div>
+                <div class="my-setting-row">
+                  <div class="my-setting-label">Generations</div>
+                  <div class="my-setting-value">1 ▾</div>
+                </div>
+              </div>
+              <div class="my-gen-btn">✦ Generate · <span style="font-size:10px;opacity:0.8">20 ⬟ · 1 min</span></div>
+            </div>
+            <div class="my-center">
+              <div class="my-empty">
+                <div class="my-empty-icon">◈</div>
+                <div class="my-empty-text">What will you create today?</div>
+                <div class="my-empty-sub">Generate a new model from image or text,<br>or edit one from your library</div>
+              </div>
+            </div>
+            <div class="my-right-panel">
+              <div class="my-gallery-title">Search my generation</div>
+              <div class="my-gallery-grid">
+                <div class="my-gallery-item">
+                  <div class="my-gallery-img">🪑</div>
+                  <div class="my-gallery-label">Solitude Seat</div>
+                </div>
+                <div class="my-gallery-item">
+                  <div class="my-gallery-img">🔱</div>
+                  <div class="my-gallery-label">Solitude Swing</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h4 style="margin-top:12px">🖥 UI — Output &amp; Export Panel</h4>
+        <div style="background:#0e0e14;border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="tag tag-dark">🔄 Remesh</span>
+          <span class="tag tag-dark">🎨 Retexture</span>
+          <span class="tag tag-dark">💀 Rig/Animate</span>
+          <span class="tag tag-orange">Export: FBX · GLB · OBJ · STL · USDZ · BLEND</span>
+        </div>
+      </div>
+
+      <div class="tool-analysis">
+        <div class="analysis-grid">
+          <div class="pros-section">
+            <div class="pros-title">✓ Strengths</div>
+            <ul class="pros-list">
+              <li>Most complete 3D asset workflow: Text→3D, Image→3D, Remesh, Retexture, Rig, Animate</li>
+              <li>Clean three-panel layout (settings · viewport · gallery)</li>
+              <li>Meshy 6 model shows significant quality improvement in 2025</li>
+              <li>Low Poly mode for game-ready assets</li>
+              <li>A-Pose / T-Pose for character rigging workflows</li>
+              <li>Broadest export format support (6 formats)</li>
+              <li>Credit-based pricing with free tier (20 credits/day)</li>
+              <li>Community gallery for inspiration and remixing</li>
+            </ul>
+          </div>
+          <div class="cons-section">
+            <div class="cons-title">✗ Weaknesses</div>
+            <ul class="cons-list">
+              <li>Focus is single objects — full scene generation is basic</li>
+              <li>Topology quality not suitable for film-level subdivision</li>
+              <li>Texture resolution limited to 1K–2K on free plan</li>
+              <li>Complex organic shapes still need manual cleanup</li>
+              <li>No real-time 3D viewport inside the generator</li>
+              <li>Credit system can feel restrictive for rapid iteration</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ui-observations">
+          <div class="ui-obs-title">📐 UI Design Observations</div>
+          <div class="ui-obs-text">Dark three-column workspace: left sidebar with all generation controls (mode tabs, prompt box, model settings), center viewport canvas area, right panel showing generation history/gallery. Top navigation bar with credit balance visible. The UI uses color-coded tokens (orange for credits, blue for features) and icon-driven side navigation (Image, Model, Remesh, Texture, Animate). The generation panel is compact but feature-dense. A clear token cost indicator (20 ⬟ · 1 min) appears on the Generate button, managing user expectations.</div>
+          <div style="margin-top:8px">
+            <span class="tag tag-orange">Credit-visible UX</span>
+            <span class="tag tag-blue">Three-column layout</span>
+            <span class="tag tag-purple">Full pipeline tools</span>
+            <span class="tag tag-green">Multi-format export</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SPLINE AI ── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-name-area">
+          <div class="tool-logo" style="background:linear-gradient(135deg,#1a0a2e,#2a1a4e);border:1px solid #7c6cff">✦</div>
+          <div>
+            <div class="tool-name">Spline AI 3D Generation</div>
+            <div class="tool-tagline">spline.design · Interactive 3D for web &amp; native apps</div>
+          </div>
+        </div>
+        <a href="https://spline.design/ai-generate" target="_blank" class="tool-link">spline.design ↗</a>
+      </div>
+
+      <div class="screenshot-area">
+        <h4>🖥 UI — AI 3D Generation Page (Observed)</h4>
+        <div class="mockup sp-mockup" style="height:320px">
+          <div class="mockup-topbar" style="background:#0f0f14;border-bottom:1px solid #1e1e2a">
+            <div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div>
+            <span style="font-size:10px;color:#666;margin-left:8px">spline.design/ai-generate</span>
+            <span style="margin-left:auto;font-size:11px;color:#888">Log In · Get Started</span>
+          </div>
+          <div class="sp-body">
+            <div class="sp-prompt-bar">
+              <span class="sp-prompt-icon">✦</span>
+              <span class="sp-prompt-text">A b — Type a prompt to generate a 3D object</span>
+            </div>
+            <div class="sp-title">AI 3D Generation <span style="font-size:11px;background:#2a2a3a;border:1px solid #3a3a4a;border-radius:4px;padding:2px 6px;vertical-align:middle">V1</span></div>
+            <div class="sp-subtitle">The power of AI for the 3rd dimension.<br>Generate 3D objects from text prompts and images.</div>
+            <div class="sp-floating-objects">
+              <div class="sp-obj" style="width:64px;height:64px">🐱</div>
+              <div class="sp-obj" style="width:64px;height:64px">🧍</div>
+              <div class="sp-obj" style="width:64px;height:64px">🐙</div>
+              <div class="sp-obj" style="width:56px;height:56px">🌵</div>
+              <div class="sp-obj" style="width:64px;height:64px">🤖</div>
+              <div class="sp-obj" style="width:56px;height:56px">🍩</div>
+            </div>
+            <div class="sp-get-started">Get started →</div>
+          </div>
+        </div>
+
+        <h4 style="margin-top:12px">🖥 UI — In-App Spline Editor (3D Canvas)</h4>
+        <div style="background:#0a0a0e;border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span class="tag tag-purple">Real-time 3D canvas</span>
+          <span class="tag tag-blue">Physics simulation</span>
+          <span class="tag tag-dark">Web export (iframe)</span>
+          <span class="tag tag-green">Swift / Kotlin snippets</span>
+          <span class="tag tag-dark">Lighting controls</span>
+          <span class="tag tag-orange">Transform tools</span>
+        </div>
+      </div>
+
+      <div class="tool-analysis">
+        <div class="analysis-grid">
+          <div class="pros-section">
+            <div class="pros-title">✓ Strengths</div>
+            <ul class="pros-list">
+              <li>Unique: generated 3D objects are immediately interactive in a real-time 3D canvas</li>
+              <li>One-click web/app publishing — embed 3D on any website</li>
+              <li>Multi-platform export: Web, iOS (Swift), Android (Kotlin), React Native</li>
+              <li>Combined generation + full 3D editor in one tool</li>
+              <li>Physics, animation, and event system built in</li>
+              <li>Real-time collaboration (like Figma but for 3D)</li>
+              <li>Strong community and template library</li>
+            </ul>
+          </div>
+          <div class="cons-section">
+            <div class="cons-title">✗ Weaknesses</div>
+            <ul class="cons-list">
+              <li>AI generation (V1) still limited — fewer styles than Meshy</li>
+              <li>Not optimized for film/VFX pipeline (game-engine geometry)</li>
+              <li>Export formats limited for 3D DCC tools (no FBX/OBJ yet from AI gen)</li>
+              <li>AI 3D generation quality behind Meshy 6</li>
+              <li>Primarily designed for web 3D, not traditional CG pipelines</li>
+              <li>Requires Pro subscription for team/commercial features</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ui-observations">
+          <div class="ui-obs-title">📐 UI Design Observations</div>
+          <div class="ui-obs-text">The AI generation landing page is clean and aspirational: a minimal dark page with a centered text prompt bar at the top, floating 3D character objects arranged decoratively around the page, a "Get Started" CTA, and a video demo section. The design communicates "magical" generation. Inside the actual Spline editor, the UI resembles Figma — left panel for layers/objects, center 3D canvas, right panel for properties (materials, physics, events). Very accessible for designers already familiar with 2D design tools.</div>
+          <div style="margin-top:8px">
+            <span class="tag tag-purple">Figma-inspired 3D editor</span>
+            <span class="tag tag-blue">Real-time canvas</span>
+            <span class="tag tag-green">Web-first 3D</span>
+            <span class="tag tag-dark">Designer-friendly</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end tools-grid cat3 -->
+</section>
+
+<!-- ══════════════════════════════════════════
+     FULL COMPARISON TABLE
+═══════════════════════════════════════════ -->
+<section class="comparison-section" id="comparison">
+  <div class="comparison-title">📊 Full Comparison Matrix</div>
+  <div class="comparison-sub">Side-by-side evaluation of all six tools across key dimensions for production use</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tool</th>
+        <th>Category</th>
+        <th>UI Complexity</th>
+        <th>Output Quality</th>
+        <th>Control Level</th>
+        <th>Free Tier</th>
+        <th>Pipeline Ready</th>
+        <th>Best For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🖼 Midjourney v6.1</td>
+        <td><span class="cat-chip cat1-chip">2D Backplate</span></td>
+        <td>⭐⭐⭐ Medium</td>
+        <td><span class="score"><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span></span></td>
+        <td>⭐⭐ Moderate<br><span style="font-size:10px;color:#888">Flag-based</span></td>
+        <td><span class="feature-no">✗ No</span></td>
+        <td><span class="feature-yes">✓ Yes</span></td>
+        <td>Concept art, moodboarding, high-quality background plates</td>
+      </tr>
+      <tr>
+        <td>🔥 Adobe Firefly</td>
+        <td><span class="cat-chip cat1-chip">2D Backplate</span></td>
+        <td>⭐⭐⭐⭐ High</td>
+        <td><span class="score"><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star empty">★</span></span></td>
+        <td>⭐⭐⭐⭐ High<br><span style="font-size:10px;color:#888">Structured UI</span></td>
+        <td><span class="feature-partial">~ Limited</span></td>
+        <td><span class="feature-yes">✓ Yes (CC)</span></td>
+        <td>Production workflows, commercial-safe content, CC users</td>
+      </tr>
+      <tr>
+        <td>🌌 Skybox AI</td>
+        <td><span class="cat-chip cat2-chip">HDRI Gen</span></td>
+        <td>⭐ Minimal</td>
+        <td><span class="score"><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star empty">★</span></span></td>
+        <td>⭐ Low<br><span style="font-size:10px;color:#888">Style presets</span></td>
+        <td><span class="feature-partial">~ Yes (watermark)</span></td>
+        <td><span class="feature-yes">✓ Yes (plugins)</span></td>
+        <td>Quick HDRI backgrounds, game environments, rapid prototyping</td>
+      </tr>
+      <tr>
+        <td>◈ Scenario Skyboxes</td>
+        <td><span class="cat-chip cat2-chip">HDRI Gen</span></td>
+        <td>⭐⭐⭐ Medium</td>
+        <td><span class="score"><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star empty">★</span></span></td>
+        <td>⭐⭐⭐ High<br><span style="font-size:10px;color:#888">Neg. prompt, ref img</span></td>
+        <td><span class="feature-partial">~ Very limited</span></td>
+        <td><span class="feature-yes">✓ Yes (HDRI/cubemap)</span></td>
+        <td>Game dev, VR worlds, 8K HDRI for AAA pipelines</td>
+      </tr>
+      <tr>
+        <td>⬟ Meshy AI</td>
+        <td><span class="cat-chip cat3-chip">3D Scene</span></td>
+        <td>⭐⭐⭐ Medium</td>
+        <td><span class="score"><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span></span></td>
+        <td>⭐⭐⭐ High<br><span style="font-size:10px;color:#888">Full workflow tools</span></td>
+        <td><span class="feature-partial">~ Yes (20 credits)</span></td>
+        <td><span class="feature-yes">✓ Yes (6 formats)</span></td>
+        <td>Game assets, rapid 3D prototyping, prop generation</td>
+      </tr>
+      <tr>
+        <td>✦ Spline AI</td>
+        <td><span class="cat-chip cat3-chip">3D Scene</span></td>
+        <td>⭐⭐⭐⭐ High</td>
+        <td><span class="score"><span class="star full">★</span><span class="star full">★</span><span class="star full">★</span><span class="star empty">★</span><span class="star empty">★</span></span></td>
+        <td>⭐⭐ Moderate<br><span style="font-size:10px;color:#888">Full editor</span></td>
+        <td><span class="feature-yes">✓ Yes</span></td>
+        <td><span class="feature-partial">~ Web/App only</span></td>
+        <td>Interactive 3D for web/app, motion graphics, UI prototyping</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ KEY TAKEAWAYS ═══ -->
+<div class="takeaways" style="margin-top:32px">
+  <div class="takeaway-card">
+    <div class="takeaway-header">
+      <div class="takeaway-icon">🖼</div>
+      <div><div class="takeaway-title">2D Backplate Takeaways</div><div class="takeaway-sub">For film/game/design pipelines</div></div>
+    </div>
+    <ul class="takeaway-list">
+      <li><strong>Midjourney</strong> wins on raw output quality and aesthetic — use for concept and hero backgrounds</li>
+      <li><strong>Adobe Firefly</strong> wins for structured control, commercial licensing, and CC integration</li>
+      <li>Neither offers true depth maps or photogrammetry data — post-process in Photoshop or Nuke</li>
+      <li>Midjourney's --sref flag enables style-consistent background series — great for episodic content</li>
+      <li>Firefly's Photoshop Generative Fill excels for backplate extension and cleanup</li>
+    </ul>
+  </div>
+  <div class="takeaway-card">
+    <div class="takeaway-header">
+      <div class="takeaway-icon">🌐</div>
+      <div><div class="takeaway-title">HDRI Generation Takeaways</div><div class="takeaway-sub">For lighting &amp; environment maps</div></div>
+    </div>
+    <ul class="takeaway-list">
+      <li><strong>Skybox AI</strong> wins on simplicity and pipeline integration (Unity/Unreal/Blender plugins)</li>
+      <li><strong>Scenario</strong> wins on control, resolution (8K), and game-dev suitability</li>
+      <li>Critical gap: Neither produces physically accurate HDR data (real luminance range) — outputs are LDR panoramas tonemapped as HDRI</li>
+      <li>For film-quality HDRI: combine with Poly Haven base maps + AI-guided stylization</li>
+      <li>Scenario's reference image input is unique — sketch-to-environment workflow is powerful</li>
+    </ul>
+  </div>
+  <div class="takeaway-card">
+    <div class="takeaway-header">
+      <div class="takeaway-icon">🧊</div>
+      <div><div class="takeaway-title">3D Scene Generation Takeaways</div><div class="takeaway-sub">For interactive and visual content</div></div>
+    </div>
+    <ul class="takeaway-list">
+      <li><strong>Meshy</strong> wins for production 3D assets — best topology quality and most export formats</li>
+      <li><strong>Spline</strong> wins for interactive, real-time 3D web experiences</li>
+      <li>Both tools focus on objects, not complete environments — full scene generation is still maturing</li>
+      <li>Meshy 6 represents a generational leap in quality for game-ready assets (2025)</li>
+      <li>Spline's Figma-like UX makes 3D accessible to UI/UX designers — large emerging use case</li>
+    </ul>
+  </div>
+</div>
+
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <p>AI Generation UI Study · February 2026 · Covering 6 tools across 3 categories</p>
+  <p style="color:#555">Sources: Direct UI observation + web research · Tools: Midjourney, Adobe Firefly, Blockade Labs SkyBox AI, Scenario, Meshy AI, Spline AI</p>
+</footer>
+
+
+
+</body></html>

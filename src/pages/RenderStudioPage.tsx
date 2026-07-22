@@ -1,14 +1,13 @@
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
-import { VideoPlaceholder } from '../components/VideoPlaceholder'
+import { CaseStudyVideo } from '../components/CaseStudyVideo'
 import type { TocItem } from '../data/formaCaseStudy'
 import { CDN } from '../data/projects'
 
 const toc: TocItem[] = [
-  { id: 'contributions', label: 'Contributions' },
   { id: 'overview', label: 'Product Overview' },
   { id: 'problem', label: 'The Problem' },
   { id: 'solution', label: 'The Solution' },
-  { id: 'zero-to-one', label: 'Bringing Product from 0 to 1' },
+  { id: 'zero-to-one', label: '0 to 1' },
   { id: 'workflow', label: 'Basic Workflow' },
   { id: 'culture', label: 'Design Culture Impact' },
   { id: 'outcome', label: 'Outcome' },
@@ -20,20 +19,47 @@ const img = {
   strategic: `${CDN}/75532229-4d14-479d-90d1-0533616d81d2/Frame+901.png`,
   research: `${CDN}/53429d54-9842-4bc7-9032-c3bd7a2b0218/Frame+900.png`,
   culture: `${CDN}/95f6e728-03a8-4b45-a95d-acf3569b5223/Frame+899.png`,
-  flow1: `${CDN}/1771076246840-UGL6L4A2KPZ5LLSAMZA6/Frame+892BasicFlow.png`,
-  flow2: `${CDN}/1771076247840-UAZAHLLOPVMQQY9V8T3H/Frame+893BasicFlow.png`,
-  flow3: `${CDN}/1771076251125-W2VNIC7G3XGM7WSVY1HN/Frame+894BasicFlow.png`,
-  flow4: `${CDN}/1771076252252-2AJ8QIISI723XTPD1VOX/Frame+895BasicFlow.png`,
-  flow5: `${CDN}/1771076256883-00DNZHULH6YUWFQ727IW/Frame+896BasicFlow.png`,
-  flow6: `${CDN}/1771076257888-0PBENSVJ70HX78I7FHQE/Frame+897BasicFlow.png`,
-  flow7: `${CDN}/1771076260491-NDW1P602JXJPDKTTXHQR/Frame+898BasicFlow.png`,
-  outputs: `${CDN}/f4aed763-b5dc-4332-91ec-ffce4b6195ba/Screenshot+2026-02-15+at+3.37.50%E2%80%AFPM.png`,
+  flow: [
+    `${CDN}/1771076246840-UGL6L4A2KPZ5LLSAMZA6/Frame+892BasicFlow.png`,
+    `${CDN}/1771076247840-UAZAHLLOPVMQQY9V8T3H/Frame+893BasicFlow.png`,
+    `${CDN}/1771076251125-W2VNIC7G3XGM7WSVY1HN/Frame+894BasicFlow.png`,
+    `${CDN}/1771076252252-2AJ8QIISI723XTPD1VOX/Frame+895BasicFlow.png`,
+    `${CDN}/1771076256883-00DNZHULH6YUWFQ727IW/Frame+896BasicFlow.png`,
+    `${CDN}/1771076257888-0PBENSVJ70HX78I7FHQE/Frame+897BasicFlow.png`,
+    `${CDN}/1771076260491-NDW1P602JXJPDKTTXHQR/Frame+898BasicFlow.png`,
+  ],
+  outputsStill: `${CDN}/f4aed763-b5dc-4332-91ec-ffce4b6195ba/Screenshot+2026-02-15+at+3.37.50%E2%80%AFPM.png`,
   dashboard: `${CDN}/5f60a119-580f-4e8b-8686-13b0c8be6602/DataAnalyticsDashboard.png`,
   batch: `${CDN}/1f255611-750b-4553-867a-17861fcd24a5/batch+rendering.gif`,
   balance: `${CDN}/4e70f3c4-ae6e-478e-b75d-bd3eb817bd8b/Gemini_Generated_Image_mlwtx0mlwtx0mlwt.png`,
   post: `${CDN}/89b991dd-6ba8-485b-94ae-e9d67a783fee/postprocessing.png`,
   customers: `${CDN}/2c9a8fd0-403d-43e6-8ce6-77beea2ab4a4/Customer.png`,
+  openPm: '/media/render-studio/open-pm.png',
+  openMine: '/media/render-studio/open-mine.png',
 }
+
+const videos = {
+  /** CapCut “Render Studio brief.mov” ↔ Squarespace 42f8a7e4… (~70.7s) */
+  walkthrough: {
+    src: '/media/render-studio/product-walkthrough.mp4',
+    poster: '/media/render-studio/product-walkthrough-poster.jpg',
+  },
+  /** CapCut RenderStudioOutput.mov ↔ Squarespace 0b3fa169… (~11.3s) */
+  outputs: {
+    src: '/media/render-studio/output-types.mp4',
+    poster: '/media/render-studio/output-types-poster.jpg',
+  },
+}
+
+const flowAlts = [
+  '1. Import Product',
+  '2. Configure Product',
+  '3. Configuration',
+  '4. Adjust Shot Settings',
+  '5. Create Shot',
+  '6. Create More Shots',
+  '7. Reuse Shots',
+]
 
 export function RenderStudioPage() {
   return (
@@ -42,230 +68,273 @@ export function RenderStudioPage() {
       title="Render Studio"
       toc={toc}
       heroImage={img.hero}
-      lede="A Unity editor expansion and web tool that turns configurable product models into professional marketing imagery."
+      lede="Let data speak — a Unity editor expansion and web tool that turns configurable product models into professional marketing imagery."
     >
-      <section id="contributions" className="section">
-        <p className="section__label">Contributions</p>
+      <section id="overview" className="section">
+        <p className="section__label">Product Overview</p>
+        <Figure
+          src={img.ui}
+          alt="Main view of Render Studio"
+          caption="Main View of Render Studio"
+        />
+        <p>
+          Render Studio is a Unity editor expansion (and later a standalone
+          web-based tool) that empowers marketing teams to generate large volumes
+          of professional imagery and interactables from configurable product
+          models — streamlining content creation, ensuring consistency, and
+          dramatically reducing production time and cost.
+        </p>
+        <p>
+          Forma Editor bridged factory models to sales configurators. Render
+          Studio answered the next gap: marketing and sales still needed more
+          output types — images, videos, turntables — all true to the same
+          source-of-truth 3D model.
+        </p>
+        <h3>Contributions</h3>
         <ol className="rich-list">
           <li>
             <strong>Product Strategy & Definition:</strong> As the founding
             designer, I initiated and led workshops with leadership from
-            Engineering, Sales, and Product to define the roadmap. I was
-            responsible for shaping the product requirements and the core vision
-            from zero.
+            Engineering, Sales, and Product to define the roadmap. I shaped the
+            product requirements and core vision from zero.
           </li>
           <li>
-            <strong>0–1 Design Ownership:</strong> Owned the end-to-end design
-            for Forma Render, taking it from a concept to a market-ready product.
-            I acted as the primary design authority, ensuring the high-level
-            business goals were translated into a seamless user experience.
+            <strong>0–1 Design Ownership:</strong> Owned end-to-end design for
+            Forma Render, from concept to a market-ready product. Sole designer
+            with full ownership of translating business goals into a usable
+            experience for non-technical marketing teams.
           </li>
           <li>
-            <strong>Establishing Data-Driven Culture:</strong> Established a
-            culture of evidence-based design. with my experience in data
-            engineering, I worked closely with developers to define quantitative
-            data collection plan and ensure design iterations was backed by real
-            user data. Also ran data workshops for designers, strengthen overall
-            design culture.
+            <strong>Establishing Data-Driven Culture:</strong> With a background
+            in data engineering, I worked with developers to define quantitative
+            collection plans so design iterations were backed by real usage — and
+            ran data workshops that strengthened literacy across the design org.
           </li>
           <li>
             <strong>Design Leadership & Management:</strong> After the 0–1
-            launch, I transitioned into a leadership role where I hired and
-            managed a team of designers. I provided the mentorship and creative
-            direction needed to scale the product beyond its initial release.
+            launch, I hired and managed designers, providing mentorship and
+            creative direction to scale the product beyond the first release.
           </li>
         </ol>
       </section>
 
-      <section id="overview" className="section">
-        <p className="section__label">Product Overview</p>
-        <p>
-          Render Studio, a Unity editor expansion (and later-on a standalone
-          web-based tool) that empowers marketing teams to easily generate large
-          volumes of professional imagery and interactables using configurable
-          product models — streamlining content creation, ensuring consistency,
-          and dramatically reducing production time and cost.
-        </p>
-        <Figure
-          src={img.ui}
-          alt="Main View of Render Studio"
-          caption="Main View of Render Studio (Add a few output type at the bottom right)"
-        />
-      </section>
-
       <section id="problem" className="section">
-        <p className="section__label">The Problem: The Marketing Production Drain</p>
+        <p className="section__label">The Problem</p>
+        <p className="section__kicker">
+          The Marketing Production Drain
+        </p>
+        <p>
+          Ready 3D data existed — but sales and marketing teams had no tool to
+          create content from that single source of truth. Assets often drifted
+          from sales rules, and HQ distribution meant long waits.
+        </p>
         <p>
           Sarah manages marketing for a global bike brand, and each bike has
-          thousands of product configurations for each region. Every year, she is
-          stuck in a cycle of high costs and missed deadlines as she tries to
-          produce a massive library of marketing assets—360° turntables, images
-          in dozens of resolutions across platforms from mobile to VR.
+          thousands of product configurations per region. Every year she is stuck
+          in a cycle of high costs and missed deadlines producing a massive
+          library of marketing assets — 360° turntables, images across dozens of
+          resolutions, from mobile to VR.
         </p>
-        <ul>
+        <ul className="rich-list">
           <li>
             <strong>The Technical Barrier:</strong> High-end rendering and
-            traditional photography production normally require specialized
-            technical skills. Because Sarah&apos;s team lacks these in-house
-            experts, they have to rely on expensive external agencies for every
-            single visual asset, driving up costs and stripping away creative
-            control.
+            traditional photography normally require specialized skills.
+            Without in-house experts, Sarah’s team relies on expensive agencies
+            for every visual — driving up cost and stripping creative control.
           </li>
           <li>
             <strong>The Review Cycle Bottleneck:</strong> Verifying
-            &quot;product-correct&quot; configurations for each region builds
-            (e.g., UK vs Germany brake orientation or available trims) are prone
-            to human error.
+            “product-correct” configurations for each regional build (e.g. UK vs
+            Germany brake orientation or available trims) is prone to human
+            error.
           </li>
           <li>
             <strong>The Fragile Asset Lifecycle:</strong> Traditional renders are
-            &quot;static&quot; files. If a derailleur or cable routing changes
-            mid-season, every existing photo becomes instantly obsolete. Sarah
-            has to pay the agency to restart the entire creative process from
-            scratch because the old assets cannot be easily updated.
+            static files. If a derailleur or cable routing changes mid-season,
+            every existing photo becomes obsolete — and the agency process
+            restarts from scratch.
           </li>
         </ul>
       </section>
 
       <section id="solution" className="section">
-        <p className="section__label">The Solution: Render Studio</p>
+        <p className="section__label">The Solution</p>
+        <p className="section__kicker">Render Studio</p>
         <p>
-          Sarah uses Forma Render to turn a single &quot;Digital Twin&quot; of
-          the bike into an automated content factory, delivering perfect,
-          platform-ready assets at a fraction of the time and cost.
+          Sarah uses Forma Render to turn a single digital twin of the bike into
+          an automated content factory — delivering platform-ready assets at a
+          fraction of the time and cost.
         </p>
-        <ul>
+        <ul className="rich-list">
           <li>
-            <strong>No-Code Empowerment:</strong> The &quot;no-code&quot;
-            interface allows Sarah to act as a virtual photographer. She can
-            stage products against local backdrops and adjust creation herself,
-            bringing production in-house.
+            <strong>No-Code Empowerment:</strong> A no-code interface lets Sarah
+            act as a virtual photographer — staging products against local
+            backdrops and adjusting creation herself, bringing production
+            in-house.
           </li>
           <li>
             <strong>Automated Accuracy:</strong> The system pulls directly from
             factory data. If the spec is in the system, the render is 100%
-            product correct.
+            product-correct.
           </li>
           <li>
             <strong>Reusable Logic (Recall States):</strong> When a new frame
-            design launches, simply swap the 3D model. All your lighting, angles,
-            and settings stay, updating entire catalog in minutes.
+            design launches, swap the 3D model. Lighting, angles, and settings
+            stay — updating an entire catalog in minutes.
           </li>
         </ul>
-        <VideoPlaceholder id="VIDEO::render-studio::solution-demo-1" />
-        <VideoPlaceholder id="VIDEO::render-studio::solution-demo-2" />
-        <VideoPlaceholder id="VIDEO::render-studio::solution-demo-3" />
+        <CaseStudyVideo
+          src={videos.walkthrough.src}
+          poster={videos.walkthrough.poster}
+          label="Render Studio product walkthrough"
+          caption="Video walkthrough of Render Studio"
+        />
       </section>
 
       <section id="zero-to-one" className="section">
         <p className="section__label">Bringing Product from 0 to 1</p>
         <p>
-          As a founding designer, I acted as a strategic catalyst across the
-          entire product lifecycle, moving beyond the pixels to align product
-          vision with market-fit through collaborative leadership and
-          cross-functional workshops. The following highlights provide a
-          high-level summary of this systemic influence across the product
-          lifecycle.
-        </p>
-        <Figure src={img.strategic} alt="Strategic Influence" caption="Strategic Influence" />
-        <p>
-          Through Product Kickoff and workshops at each stage that involve
-          Product, Eng, Design, Sales leadership, successfully drive product
-          vision alignment and share user knowledge, finding product-market fit,
-          highly impacting the overall product strategy of Render Studio.
+          As founding designer I acted as a strategic catalyst across the product
+          lifecycle — moving beyond pixels to align vision with market fit
+          through collaborative leadership and cross-functional workshops. The
+          arc ran from framing and alignment, through ideation and prototyping,
+          into iteration backed by real usage data.
         </p>
         <Figure
-          src={img.research}
-          alt="Product Research and Iterations"
-          caption="Product Research and Iterations"
+          src={img.strategic}
+          alt="Strategic influence across the product lifecycle"
+          caption="Strategic Influence — Product Kickoff and workshops with Product, Eng, Design, and Sales leadership aligned vision and uncovered product-market fit."
         />
-        <p>
-          Design and execute user research plans, direct collaboration with
-          target users, turning valuable product-wedges into scalable design.
-        </p>
-        <Figure src={img.culture} alt="Design Culture Impact" caption="Design Culture Impact" />
-        <p>
-          Arrange and instruct data design workshop to the bigger design org and
-          data team. Helped created and the maturing of new Unity design systems.
-        </p>
+        <Figure
+          src={img.research}
+          alt="Product research and iterations"
+          caption="Product Research and Iterations — Design and execute research plans, collaborate directly with target users, and turn product wedges into scalable design."
+        />
+        <Figure
+          src={img.culture}
+          alt="Design culture impact"
+          caption="Design Culture Impact — Data design workshops for the broader design org and data team; helped create and mature Unity design systems."
+        />
       </section>
 
       <section id="workflow" className="section">
-        <p className="section__label">Basic Workflow: Create Shots with Configurable Models</p>
-        <p>
-          Content creation tools in 3D is never as linear as the common
-          web/mobile experience, this is a simplified version to showcase the
-          most basic steps performed in Render Studio to capture shots for output
+        <p className="section__label">Basic Workflow</p>
+        <p className="section__kicker">
+          Create shots with configurable models
         </p>
-        <div className="image-row">
-          <Figure src={img.flow1} alt="Basic flow step" />
-          <Figure src={img.flow2} alt="Basic flow step" />
-          <Figure src={img.flow3} alt="Basic flow step" />
-          <Figure src={img.flow4} alt="Basic flow step" />
-          <Figure src={img.flow5} alt="Basic flow step" />
-          <Figure src={img.flow6} alt="Basic flow step" />
-          <Figure src={img.flow7} alt="Basic flow step" />
+        <p>
+          Content creation in 3D is rarely as linear as common web or mobile
+          flows. This is a simplified path through the most basic steps in Render
+          Studio to capture shots for export — swipe or scroll sideways to move
+          through the sequence.
+        </p>
+        <div className="filmstrip" role="list" aria-label="Basic workflow steps">
+          {img.flow.map((src, i) => (
+            <figure className="figure filmstrip__item" key={src} role="listitem">
+              <img src={src} alt={flowAlts[i]} loading="lazy" />
+            </figure>
+          ))}
         </div>
-        <h3>Basic Output types</h3>
+
+        <h3>Basic output types</h3>
         <p>
-          Shots can be exported into various format from 64K images to product
-          turntables that are used in eCommerce or AOV layers for more
-          professional post-processing, and 360 images for VR experiences.
+          Shots export into formats from 64K images to product turntables for
+          eCommerce, AOV layers for professional post-processing, and 360 images
+          for VR experiences.
         </p>
-        <Figure src={img.outputs} alt="Basic output types" />
-        <Figure src={img.post} alt="Post-processing outputs" />
+        <CaseStudyVideo
+          src={videos.outputs.src}
+          poster={videos.outputs.poster}
+          label="Render Studio output types demo"
+          caption="Output types from a single shot setup"
+        />
+        <Figure src={img.post} alt="Post-processing and AOV outputs" />
       </section>
 
       <section id="culture" className="section">
         <p className="section__label">Design Culture Impact</p>
+        <p className="section__kicker">Decide with data</p>
         <p>
-          Leveraging my background in data engineering, I integrated analytics
-          into Render Studio to transform how we evaluate design decisions. By
-          defining and implementing research plan with the product team, I
-          directly influenced the development of core features such as Batch
-          Rendering and Simplified Camera Controls while providing the
-          data-backed evidence for broader business strategies. To scale this
-          impact, I spearheaded organization-wide workshops, building shared data
-          literacy across the design organization.
+          Leveraging a data-engineering background, I integrated analytics into
+          Render Studio so we could evaluate design decisions with evidence —
+          what to track, how to log it, and how to visualize it for both product
+          and design. Defining the research plan with the product team directly
+          influenced features such as Batch Rendering and simplified camera
+          controls, and provided data-backed proof for broader strategy. To scale
+          the impact, I ran organization-wide workshops that built shared data
+          literacy across design.
         </p>
         <Figure
-          src={img.dashboard}
-          alt="Internal data dashboard"
-          caption="Internal data dashboard designed for Render Studio data collections, research finding help reduced helped reduced 33% of the processing settings that are way less used then the others. improving the overall usability of Render Studio."
+          src={img.outputsStill}
+          alt="Example Render Studio output stills"
         />
+        <Figure
+          src={img.dashboard}
+          alt="Internal data dashboard for Render Studio"
+          caption="Internal data dashboard for Render Studio collections. Research found advanced settings were rarely used — helping cut ~33% of low-value processing controls and improve overall usability."
+        />
+
+        <h3>More controls vs. less friction</h3>
+        <p>
+          A core product tension: ship a fully equipped inspector that signals
+          maturity to technical users, or polish a smaller set of essential
+          settings for non-technical marketers. Usage data settled it — less than
+          11% of assets used even one advanced setting — which let us consolidate
+          direction, unload engineering, and keep the UI learnable.
+        </p>
+        <div className="compare-row">
+          <Figure
+            src={img.openPm}
+            alt="Post-processing panel with dense advanced controls"
+            caption="PM direction — 59 controls across 9 sections. Fully equipped, advanced settings."
+          />
+          <Figure
+            src={img.openMine}
+            alt="Simplified post-processing panel with essential controls"
+            caption="Design direction — 36 controls across 7 sections. Essential settings only."
+          />
+        </div>
+
         <h3>Batch Rendering</h3>
         <p>
-          We derive the need of batch rendering from our data analytics leads and
-          followup by interviews. We found marketing manager needs to create
-          imagieries of hundreds of product type using the same three camera
-          angels and in 4 different scenes resulting in thousands of images. This
-          is a ground breaking feature with no pre-existing design pattern that I
-          enjoy working on.
+          Batch rendering came from analytics leads, then follow-up interviews.
+          Marketing managers needed imagery for hundreds of product types across
+          the same few camera angles and several scenes — thousands of images
+          from one setup. It was a breakthrough feature with no ready-made
+          pattern to copy.
         </p>
-        <Figure src={img.batch} alt="Batch rendering" />
-        <h3>Balanced Complexity by User Testing</h3>
+        <Figure src={img.batch} alt="Batch rendering in Render Studio" />
+
+        <h3>Balanced complexity by user testing</h3>
         <p>
-          Besides using data, I also invited industry experts to co-work on new
-          feature sets, and host usability internal/external testing. We are able
-          to maintain the balance of complexity and usability of the Environment
-          settings and Camera settings, grouping the features that meet users
-          expectation and ensure the clarity of the UI.
+          Beyond telemetry, I invited industry experts to co-work on feature sets
+          and hosted internal and external usability tests. That kept Environment
+          and Camera settings balanced — grouping what users expect without
+          burying clarity under unused power.
         </p>
-        <Figure src={img.balance} alt="Balanced complexity" />
+        <Figure
+          src={img.balance}
+          alt="Balancing complexity and usability in Render Studio settings"
+        />
       </section>
 
       <section id="outcome" className="section section--last">
         <p className="section__label">Outcome</p>
+        <p className="section__kicker">Built for automotive. Scaled to more.</p>
         <p>
-          Render Studio was originally created for automotive and heavy machinery
-          brands that each product contains large amount of configurations.
-          However, through continuous user research (led by me, with curated
-          study protocols) and actively participation in customer engagement
-          meetings, we expanded our product reach to manufacturers with large
-          SKUs (high volume of unique products) such as furniture, clothing,
-          retails. Here are some of our early adopters.
+          Render Studio began for automotive and heavy-machinery brands whose
+          products carry huge configuration spaces. Through continuous research
+          (study protocols I led) and active customer engagement, we expanded to
+          manufacturers with large SKUs — furniture, clothing, retail, and beyond
+          into toy, defense, luxury, aerospace, footwear, eyewear, and
+          construction.
         </p>
-        <Figure src={img.customers} alt="Early adopters" />
+        <Figure src={img.customers} alt="Early adopter customers" />
+        <CaseStudyVideo
+          src={videos.walkthrough.src}
+          poster={videos.walkthrough.poster}
+          label="Render Studio closing walkthrough"
+        />
       </section>
     </CaseStudyLayout>
   )

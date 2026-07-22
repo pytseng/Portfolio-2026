@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
-import { VideoPlaceholder } from '../components/VideoPlaceholder'
 import { CDN } from '../data/projects'
 import type { TocItem } from '../data/formaCaseStudy'
 
@@ -97,7 +96,24 @@ export function ReadmePage() {
       <section id="cheers" className="section section--last">
         <p className="section__label">Cheers!</p>
         <p>Inspired by Randy Bobandy, the legend</p>
-        <VideoPlaceholder id="VIDEO::readme::randy-bobandy" />
+        <figure>
+          <div className="media-frame media-frame--video media-frame--video-cover">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster="/media/readme/randy-bobandy-poster.png"
+              aria-label="Inspired by Randy Bobandy, the legend"
+            >
+              <source src="/media/readme/randy-bobandy.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <figcaption className="caption">
+            Inspired by Randy Bobandy, the legend
+          </figcaption>
+        </figure>
       </section>
     </CaseStudyLayout>
   )

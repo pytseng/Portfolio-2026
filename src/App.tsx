@@ -2,10 +2,12 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import './App.css'
 import { ScrollToTop } from './components/ScrollToTop'
 import { ArVrPage } from './pages/ArVrPage'
+import { FordPage } from './pages/FordPage'
 import { FormaCloudPage } from './pages/FormaCloudPage'
 import { FormaEditorPage } from './pages/FormaEditorPage'
 import { GenAIPage } from './pages/GenAIPage'
 import { Home } from './pages/Home'
+import { JunyiPage } from './pages/JunyiPage'
 import { ReadmePage } from './pages/ReadmePage'
 import { RenderStudioPage } from './pages/RenderStudioPage'
 
@@ -31,6 +33,8 @@ function AppShell() {
         <Route path="/render-studio" element={<RenderStudioPage />} />
         <Route path="/forma-cloud" element={<FormaCloudPage />} />
         <Route path="/ar-vr" element={<ArVrPage />} />
+        <Route path="/junyi" element={<JunyiPage />} />
+        <Route path="/ford" element={<FordPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

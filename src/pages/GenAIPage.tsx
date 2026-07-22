@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
-import { VideoPlaceholder } from '../components/VideoPlaceholder'
+import { CaseStudyVideo } from '../components/CaseStudyVideo'
+import { MediaPlaceholder } from '../components/MediaPlaceholder'
 import type { TocItem } from '../data/formaCaseStudy'
 import { CDN } from '../data/projects'
 
@@ -19,6 +20,44 @@ const img = {
   prototype: `${CDN}/e8f35592-46fb-4eb8-b874-3cde17f3a4a3/Prototype+workflow+horizontal.png`,
   combined01: `${CDN}/e5f6117d-7d69-4dcd-aa48-2b39b8471b67/combined01.png`,
   combined02: `${CDN}/55c08784-e716-4cff-9d43-899643963690/combined02.png`,
+}
+
+const videos = {
+  /** CapCut “Render Studio brief.mov” ↔ Squarespace 42f8a7e4… (~70.7s) */
+  walkthrough: {
+    src: '/media/gen-ai/walkthrough.mp4',
+    poster: '/media/gen-ai/walkthrough-poster.jpg',
+  },
+  /** CapCut gen ai study part 1 ↔ Squarespace c9557773… (~26.5s) */
+  comparativeAudit: {
+    src: '/media/gen-ai/comparative-audit.mp4',
+    poster: '/media/gen-ai/comparative-audit-poster.jpg',
+  },
+  /** CapCut gen ai study part 2 ↔ Squarespace a9c7a5b4… (~20.5s) */
+  meshWorkflow: {
+    src: '/media/gen-ai/mesh-workflow.mp4',
+    poster: '/media/gen-ai/mesh-workflow-poster.jpg',
+  },
+  /** CapCut gen ai study part 3 ↔ Squarespace 37859fb1… (~32.2s) */
+  manualUi: {
+    src: '/media/gen-ai/manual-ui.mp4',
+    poster: '/media/gen-ai/manual-ui-poster.jpg',
+  },
+  /** CapCut “claudcowork render studio.mov” ↔ Squarespace 63f56e7b… (~66.9s) */
+  claudePrototype: {
+    src: '/media/gen-ai/claude-prototype.mp4',
+    poster: '/media/gen-ai/claude-prototype-poster.jpg',
+  },
+  /** CapCut 0403.mov ↔ Squarespace 29499140… (~10.7s) */
+  designDecision: {
+    src: '/media/gen-ai/design-decision.mp4',
+    poster: '/media/gen-ai/design-decision-poster.jpg',
+  },
+}
+
+const reports = {
+  comparative: '/media/gen-ai/reports/comparative-analysis.html',
+  meshy: '/media/gen-ai/reports/meshy-workflow-analysis.html',
 }
 
 export function GenAIPage() {
@@ -48,7 +87,12 @@ export function GenAIPage() {
           composition data that could be instantly reused and shared. It is not a
           tool to make general images.
         </p>
-        <VideoPlaceholder id="VIDEO::gen-ai::walkthrough" />
+        <CaseStudyVideo
+          src={videos.walkthrough.src}
+          poster={videos.walkthrough.poster}
+          label="Video walkthrough of Render Studio"
+          caption="Video walkthough of Render Studio"
+        />
       </section>
 
       <section id="challenge" className="section">
@@ -61,28 +105,46 @@ export function GenAIPage() {
 
       <section id="process" className="section">
         <p className="section__label">Process</p>
+        <Figure src={img.workflow} alt="Comparative analysis workflow" />
+
         <h3>Comparative Analysis</h3>
         <p>
           I used Claude Cowork to rapidly audit representative 2D, 3D, and HDRI
           background tools, shifting my time from manual data collection to
           high-level analysis.
         </p>
-        <p>See the comparative analysis report</p>
-        <p>Create a high-level audit report of 8 products using Claude Cowork</p>
-        <VideoPlaceholder id="VIDEO::gen-ai::comparative-audit" />
-        <Figure src={img.workflow} alt="Comparative analysis workflow" />
+        <p>
+          See the{' '}
+          <a href={reports.comparative} target="_blank" rel="noreferrer">
+            comparative analysis report
+          </a>
+        </p>
+        <CaseStudyVideo
+          src={videos.comparativeAudit.src}
+          poster={videos.comparativeAudit.poster}
+          label="Create a high-level audit report of 8 products using Claude Cowork"
+          caption="Create a high-level audit report of 8 products using Claude Cowork"
+        />
 
         <h3>Target UI study</h3>
         <p>
           From the result of the Audit, I am able to deep dives into products and
           use Claude Cowork to create step by step interaction breakdown reports.
         </p>
-        <p>See a report for meshy.ai or civit.ai</p>
         <p>
-          Using Claude Cowork to create a step-to-step workflow breakdown report
-          of Mesh.ai
+          See a report for{' '}
+          <a href={reports.meshy} target="_blank" rel="noreferrer">
+            meshy.ai
+          </a>{' '}
+          or civit.ai
         </p>
-        <VideoPlaceholder id="VIDEO::gen-ai::mesh-workflow-report" />
+        <MediaPlaceholder id="MEDIA::gen-ai::civit-report" />
+        <CaseStudyVideo
+          src={videos.meshWorkflow.src}
+          poster={videos.meshWorkflow.poster}
+          label="Claude Cowork step-by-step workflow breakdown of Mesh.ai"
+          caption="Using Claude Cowork to create a step-to-step workflow breakdown report of Mesh.ai"
+        />
 
         <h3>Manual UI Research</h3>
         <p>
@@ -93,7 +155,12 @@ export function GenAIPage() {
           levers created unnecessary friction for our specific Render Studio use
           case.
         </p>
-        <VideoPlaceholder id="VIDEO::gen-ai::manual-ui-study" />
+        <CaseStudyVideo
+          src={videos.manualUi.src}
+          poster={videos.manualUi.poster}
+          label="Manual study on high-interest interactions"
+          caption="Manual study on high-interest interactions"
+        />
 
         <h3>Defining Background Generation Flow</h3>
         <p>
@@ -126,8 +193,12 @@ export function GenAIPage() {
           quick and cheap disposable prototypes instead of being code ready.
           Claude Cowork result is great from the design perspective in such case.
         </p>
-        <VideoPlaceholder id="VIDEO::gen-ai::claude-prototype" />
-        <Figure src={img.combined01} alt="Interactive prototype" />
+        <CaseStudyVideo
+          src={videos.claudePrototype.src}
+          poster={videos.claudePrototype.poster}
+          label="Interactive prototype created from Claude Cowork"
+          caption="interactive prototype created from Claude Cowork"
+        />
 
         <h3>Design Decision</h3>
         <p>
@@ -141,7 +212,11 @@ export function GenAIPage() {
           the AI feature the spotlight and went for the clean design which AI
           integrated seamlessly to existing workflow.
         </p>
-        <VideoPlaceholder id="VIDEO::gen-ai::design-decision" />
+        <CaseStudyVideo
+          src={videos.designDecision.src}
+          poster={videos.designDecision.poster}
+          label="Design Decision section video"
+        />
       </section>
 
       <section id="thoughts" className="section">
@@ -189,6 +264,7 @@ export function GenAIPage() {
             than ever.
           </li>
         </ul>
+        <Figure src={img.combined01} alt="Finalized AI background generation design" />
         <Figure
           src={img.combined02}
           alt="The finalized design of AI background generating in Render Studio"

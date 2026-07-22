@@ -1,6 +1,19 @@
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
-import { VideoPlaceholder } from '../components/VideoPlaceholder'
+import { CaseStudyVideo } from '../components/CaseStudyVideo'
 import { assets, tocItems } from '../data/formaCaseStudy'
+
+const formaVideos = {
+  /** CapCut 0523.mov — matches pytseng.com Squarespace asset 75a79994… (150s) */
+  overview: {
+    src: '/media/forma-editor/hero-overview.mp4',
+    poster: '/media/forma-editor/hero-overview-poster.jpg',
+  },
+  /** Local “Unity Forma - Run-Through_20201103.mp4” for the MVP caption slot */
+  mvp: {
+    src: '/media/forma-editor/mvp-run-through.mp4',
+    poster: '/media/forma-editor/mvp-run-through-poster.jpg',
+  },
+}
 
 export function FormaEditorPage() {
   return (
@@ -13,15 +26,11 @@ export function FormaEditorPage() {
     >
       <section id="overview" className="section">
         <p className="section__label">Product Overview</p>
-        <div className="media-frame">
-          <iframe
-            title="Unity Forma Editor demo"
-            src={assets.youtubeEmbed}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-        <VideoPlaceholder id="VIDEO::forma-editor::hero-overview" />
+        <CaseStudyVideo
+          src={formaVideos.overview.src}
+          poster={formaVideos.overview.poster}
+          label="Forma Editor product overview"
+        />
         <p>
           Forma is a software suite that helps 3d specialist in the automotive
           and manufacturing industries to turn complex 3D product data into{' '}
@@ -265,7 +274,12 @@ export function FormaEditorPage() {
             months to create configurators. Now, Forma does all the heavy
             lifting, making a configurator is only a matter of hours.
           </p>
-          <VideoPlaceholder id="VIDEO::forma-editor::mvp-run-through" />
+          <CaseStudyVideo
+            src={formaVideos.mvp.src}
+            poster={formaVideos.mvp.poster}
+            label="MVP run through"
+            caption="MVP run through"
+          />
         </article>
         <article className="feature-block">
           <h3>Create product variations in seconds</h3>
@@ -352,6 +366,14 @@ export function FormaEditorPage() {
           Unity Forma alongside various industry leaders including Airbus,
           Stellantis, Arksen and many more.
         </p>
+        <div className="media-frame">
+          <iframe
+            title="Unity Forma Editor demo"
+            src={assets.youtubeEmbed}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
         <Figure src={assets.result} alt="Shipping results and early adopters" />
       </section>
 
