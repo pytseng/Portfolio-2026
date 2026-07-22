@@ -1,4 +1,5 @@
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
+import { VideoPlaceholder } from '../components/VideoPlaceholder'
 import type { TocItem } from '../data/formaCaseStudy'
 import { CDN } from '../data/projects'
 
@@ -197,6 +198,7 @@ export function ArVrPage() {
           position.
         </p>
         <Figure src={img.annotator} alt="Annotator mode" />
+        <VideoPlaceholder id="VIDEO::ar-vr::annotator-mode" />
         <div className="media-frame">
           <iframe
             title="Annotate All demo"
@@ -212,11 +214,14 @@ export function ArVrPage() {
           being replay. And the rest of the light spheres are existing
           annotation marks
         </p>
+        <VideoPlaceholder id="VIDEO::ar-vr::latest-channel-mode" />
         <h3>Channel Selection Mode</h3>
         <p>
           Viewers are able to select specific annotations to review playback with
           raycasting.
         </p>
+        <VideoPlaceholder id="VIDEO::ar-vr::channel-selection-mode-1" />
+        <VideoPlaceholder id="VIDEO::ar-vr::channel-selection-mode-2" />
       </section>
 
       <section id="conclusion" className="section">
@@ -265,6 +270,7 @@ export function ArVrPage() {
           <Figure src={img.keyboard1} alt="VR keyboard" />
           <Figure src={img.keyboard2} alt="VR keyboard" />
         </div>
+        <VideoPlaceholder id="VIDEO::ar-vr::vr-keyboard" />
       </section>
 
       <section id="space-invader" className="section">
@@ -280,6 +286,8 @@ export function ArVrPage() {
           This is just the testing of the worldmap for multiplayer mode.
         </p>
         <Figure src={img.invader} alt="Mobile AR Space Invader" />
+        <VideoPlaceholder id="VIDEO::ar-vr::space-invader-1" />
+        <VideoPlaceholder id="VIDEO::ar-vr::space-invader-2" />
       </section>
 
       <section id="makerspace" className="section">
@@ -293,6 +301,7 @@ export function ArVrPage() {
           <Figure src={img.maker1} alt="VR Maker Space" />
           <Figure src={img.maker2} alt="VR Maker Space" />
         </div>
+        <VideoPlaceholder id="VIDEO::ar-vr::vr-maker-space" />
       </section>
 
       <section id="simulator" className="section">
@@ -315,6 +324,7 @@ export function ArVrPage() {
           <Figure src={img.sim1} alt="360 Car Simulator" />
           <Figure src={img.sim2} alt="360 Car Simulator" />
         </div>
+        <VideoPlaceholder id="VIDEO::ar-vr::car-simulator" />
       </section>
 
       <section id="artsy" className="section section--last">
@@ -385,7 +395,7 @@ export function ArVrPage() {
           constructs AR world map so we could manipulate virtual content and
           still maintain its relationship with real-world.
         </p>
-        <p>Video missing, will replace if I ever find the original recording</p>
+        <VideoPlaceholder id="VIDEO::ar-vr::wifi-missing-recording" />
         <blockquote>“So wrap it up with a story!”</blockquote>
         <h3>Wifi Alchemist</h3>
         <p>
@@ -394,7 +404,7 @@ export function ArVrPage() {
           Only a few steps away, you are able to summon the key to connectivity.
         </p>
         <Figure src={img.alchemist} alt="Wifi Alchemist" caption="Wifi Alchemist" />
-        <p className="caption">Prototype ran on Unity gameplay</p>
+        <VideoPlaceholder id="VIDEO::ar-vr::wifi-unity-prototype" />
         <p>
           To ask our users interact with the surrounding space to construct AR
           world map and collect wifi signal is hard. We package the interactions

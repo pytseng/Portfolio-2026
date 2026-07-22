@@ -1,4 +1,5 @@
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
+import { VideoPlaceholder } from '../components/VideoPlaceholder'
 import { assets, tocItems } from '../data/formaCaseStudy'
 
 export function FormaEditorPage() {
@@ -20,6 +21,7 @@ export function FormaEditorPage() {
             allowFullScreen
           />
         </div>
+        <VideoPlaceholder id="VIDEO::forma-editor::hero-overview" />
         <p>
           Forma is a software suite that helps 3d specialist in the automotive
           and manufacturing industries to turn complex 3D product data into{' '}
@@ -263,7 +265,7 @@ export function FormaEditorPage() {
             months to create configurators. Now, Forma does all the heavy
             lifting, making a configurator is only a matter of hours.
           </p>
-          <p className="caption">MVP run through</p>
+          <VideoPlaceholder id="VIDEO::forma-editor::mvp-run-through" />
         </article>
         <article className="feature-block">
           <h3>Create product variations in seconds</h3>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
+import { VideoPlaceholder } from '../components/VideoPlaceholder'
 import type { TocItem } from '../data/formaCaseStudy'
 import { CDN } from '../data/projects'
 
@@ -47,7 +48,7 @@ export function GenAIPage() {
           composition data that could be instantly reused and shared. It is not a
           tool to make general images.
         </p>
-        <p className="caption">Video walkthough of Render Studio</p>
+        <VideoPlaceholder id="VIDEO::gen-ai::walkthrough" />
       </section>
 
       <section id="challenge" className="section">
@@ -68,6 +69,7 @@ export function GenAIPage() {
         </p>
         <p>See the comparative analysis report</p>
         <p>Create a high-level audit report of 8 products using Claude Cowork</p>
+        <VideoPlaceholder id="VIDEO::gen-ai::comparative-audit" />
         <Figure src={img.workflow} alt="Comparative analysis workflow" />
 
         <h3>Target UI study</h3>
@@ -80,6 +82,7 @@ export function GenAIPage() {
           Using Claude Cowork to create a step-to-step workflow breakdown report
           of Mesh.ai
         </p>
+        <VideoPlaceholder id="VIDEO::gen-ai::mesh-workflow-report" />
 
         <h3>Manual UI Research</h3>
         <p>
@@ -90,7 +93,7 @@ export function GenAIPage() {
           levers created unnecessary friction for our specific Render Studio use
           case.
         </p>
-        <p>Manual study on high-interest interactions</p>
+        <VideoPlaceholder id="VIDEO::gen-ai::manual-ui-study" />
 
         <h3>Defining Background Generation Flow</h3>
         <p>
@@ -123,7 +126,7 @@ export function GenAIPage() {
           quick and cheap disposable prototypes instead of being code ready.
           Claude Cowork result is great from the design perspective in such case.
         </p>
-        <p className="caption">interactive prototype created from Claude Cowork</p>
+        <VideoPlaceholder id="VIDEO::gen-ai::claude-prototype" />
         <Figure src={img.combined01} alt="Interactive prototype" />
 
         <h3>Design Decision</h3>
@@ -138,6 +141,7 @@ export function GenAIPage() {
           the AI feature the spotlight and went for the clean design which AI
           integrated seamlessly to existing workflow.
         </p>
+        <VideoPlaceholder id="VIDEO::gen-ai::design-decision" />
       </section>
 
       <section id="thoughts" className="section">

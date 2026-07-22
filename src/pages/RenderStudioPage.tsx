@@ -1,4 +1,5 @@
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
+import { VideoPlaceholder } from '../components/VideoPlaceholder'
 import type { TocItem } from '../data/formaCaseStudy'
 import { CDN } from '../data/projects'
 
@@ -151,6 +152,9 @@ export function RenderStudioPage() {
             and settings stay, updating entire catalog in minutes.
           </li>
         </ul>
+        <VideoPlaceholder id="VIDEO::render-studio::solution-demo-1" />
+        <VideoPlaceholder id="VIDEO::render-studio::solution-demo-2" />
+        <VideoPlaceholder id="VIDEO::render-studio::solution-demo-3" />
       </section>
 
       <section id="zero-to-one" className="section">

@@ -1,4 +1,5 @@
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
+import { VideoPlaceholder } from '../components/VideoPlaceholder'
 import type { TocItem } from '../data/formaCaseStudy'
 import { CDN } from '../data/projects'
 
@@ -124,9 +125,10 @@ export function FormaCloudPage() {
         </ul>
         <Figure
           src={img.e2e}
-          alt="Forma Cloud end-to-end walkthrough"
-          caption="Forma Cloud end-to-end walkthrough, demonstrating how a bike company link, publish, manage new bike models for eCommerce."
+          alt="Forma Cloud end-to-end overview chart"
+          caption="Forma Cloud end-to-end overview"
         />
+        <VideoPlaceholder id="VIDEO::forma-cloud::e2e-walkthrough" />
       </section>
 
       <section id="influence" className="section">
