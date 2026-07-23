@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
 import { CaseStudyVideo } from '../components/CaseStudyVideo'
 import type { TocItem } from '../data/formaCaseStudy'
@@ -44,18 +45,6 @@ const img = {
     `${CDN}/1771076257888-0PBENSVJ70HX78I7FHQE/Frame+897BasicFlow.png`,
     `${CDN}/1771076260491-NDW1P602JXJPDKTTXHQR/Frame+898BasicFlow.png`,
   ],
-  industries: [
-    { src: '/media/render-studio/industry-automotive.png', alt: 'Automotive' },
-    { src: '/media/render-studio/industry-toy.png', alt: 'Toy' },
-    { src: '/media/render-studio/industry-furniture.png', alt: 'Furniture' },
-    { src: '/media/render-studio/industry-defense.png', alt: 'Defense' },
-    { src: '/media/render-studio/industry-luxury.png', alt: 'Luxury' },
-    { src: '/media/render-studio/industry-aerospace.png', alt: 'Aerospace' },
-    { src: '/media/render-studio/industry-design.png', alt: 'Design' },
-    { src: '/media/render-studio/industry-footwear.png', alt: 'Footwear' },
-    { src: '/media/render-studio/industry-eyewear.png', alt: 'Eyewear' },
-    { src: '/media/render-studio/industry-construction.png', alt: 'Construction' },
-  ],
   pmVsMe: '/media/render-studio/pm-vs-me.png',
   dataTrackingPlan: '/media/render-studio/data-tracking-plan.png',
   dataDashboard: '/media/render-studio/data-dashboard.png',
@@ -73,6 +62,96 @@ const videos = {
     poster: '/media/render-studio/output-types-poster.jpg',
   },
 }
+
+/* Lucide icon paths (ISC) — stroke icons matching the site's line weight */
+const industryIcons: Record<string, ReactNode> = {
+  automotive: (
+    <>
+      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+      <circle cx="7" cy="17" r="2" />
+      <path d="M9 17h6" />
+      <circle cx="17" cy="17" r="2" />
+    </>
+  ),
+  toy: (
+    <>
+      <rect width="18" height="12" x="3" y="8" rx="1" />
+      <path d="M10 8V5c0-.6-.4-1-1-1H6a1 1 0 0 0-1 1v3" />
+      <path d="M19 8V5c0-.6-.4-1-1-1h-3a1 1 0 0 0-1 1v3" />
+    </>
+  ),
+  furniture: (
+    <>
+      <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
+      <path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" />
+      <path d="M5 18v2" />
+      <path d="M19 18v2" />
+    </>
+  ),
+  defense: (
+    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+  ),
+  luxury: (
+    <>
+      <path d="M6 3h12l4 6-10 13L2 9Z" />
+      <path d="M11 3 8 9l4 13 4-13-3-6" />
+      <path d="M2 9h20" />
+    </>
+  ),
+  aerospace: (
+    <>
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+      <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+      <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+    </>
+  ),
+  design: (
+    <>
+      <path d="M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z" />
+      <path d="m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18" />
+      <path d="m2.3 2.3 7.286 7.286" />
+      <circle cx="11" cy="11" r="2" />
+    </>
+  ),
+  footwear: (
+    <>
+      <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" />
+      <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" />
+      <path d="M16 17h4" />
+      <path d="M4 13h4" />
+    </>
+  ),
+  eyewear: (
+    <>
+      <circle cx="6" cy="15" r="4" />
+      <circle cx="18" cy="15" r="4" />
+      <path d="M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2" />
+      <path d="M2.5 13 5 7c.7-1.3 1.4-2 3-2" />
+      <path d="M21.5 13 19 7c-.7-1.3-1.5-2-3-2" />
+    </>
+  ),
+  construction: (
+    <>
+      <path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9" />
+      <path d="m18 15 4-4" />
+      <path d="M21.5 11.5 19.586 9.586A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5" />
+    </>
+  ),
+}
+
+const industries = [
+  { id: 'automotive', label: 'Automotive', origin: true },
+  { id: 'toy', label: 'Toy' },
+  { id: 'furniture', label: 'Furniture' },
+  { id: 'defense', label: 'Defense' },
+  { id: 'luxury', label: 'Luxury' },
+  { id: 'aerospace', label: 'Aerospace' },
+  { id: 'design', label: 'Design' },
+  { id: 'footwear', label: 'Footwear' },
+  { id: 'eyewear', label: 'Eyewear' },
+  { id: 'construction', label: 'Construction' },
+]
 
 const flowAlts = [
   '1. Import Product',
@@ -239,10 +318,12 @@ export function RenderStudioPage() {
         <Figure
           src={img.dataTrackingPlan}
           alt="Data tracking plan — define goals through dashboard and workshops"
+          className="figure--fit"
         />
         <Figure
           src={img.dataDashboard}
           alt="Internal Render Studio data analytics dashboard"
+          className="figure--crop"
         />
         <p>
           With the full advanced controls shipped in testing, only 8% of created
@@ -266,6 +347,7 @@ export function RenderStudioPage() {
         <Figure
           src={img.batch}
           alt="Batch rendering in Render Studio — generating many product images from shared camera angles and scenes"
+          className="figure--compact"
         />
       </section>
 
@@ -277,11 +359,32 @@ export function RenderStudioPage() {
           spaces — then grew through research and customer work into furniture,
           apparel, retail, and more.
         </p>
-        <div className="media-cluster media-cluster--industries">
-          {img.industries.map((item) => (
-            <Figure key={item.src} src={item.src} alt={item.alt} />
+        <ul className="industry-grid" aria-label="Industries served">
+          {industries.map((item) => (
+            <li
+              key={item.id}
+              className={[
+                'industry-chip',
+                item.origin ? 'industry-chip--origin' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                {industryIcons[item.id]}
+              </svg>
+              <span>{item.label}</span>
+            </li>
           ))}
-        </div>
+        </ul>
         <CaseStudyVideo
           src={videos.walkthrough.src}
           poster={videos.walkthrough.poster}
