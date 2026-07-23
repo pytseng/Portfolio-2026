@@ -54,14 +54,6 @@ export const mediaPlaceholders: MediaPlaceholderMeta[] = [
   // Resolved reports:
   // - comparative: /media/gen-ai/reports/comparative-analysis.html
   // - meshy: /media/gen-ai/reports/meshy-workflow-analysis.html
-  {
-    id: 'MEDIA::gen-ai::civit-report',
-    kind: 'file',
-    route: '/gen-ai',
-    sourcePath: '/image-gen-ai',
-    label: 'Civit.ai UI study report (HTML)',
-    note: 'Was S3 civit-study.html; local copy not found. Re-host and link here.',
-  },
 
   // —— Render Studio ——
   // Resolved (hosted under /media/render-studio/):
@@ -72,121 +64,30 @@ export const mediaPlaceholders: MediaPlaceholderMeta[] = [
   // Compare panels open-pm / open-mine hosted from Career 2025/Render Studio.
 
   // —— Forma Cloud ——
-  {
-    id: 'VIDEO::forma-cloud::e2e-walkthrough',
-    kind: 'video',
-    route: '/forma-cloud',
-    sourcePath: '/forma-cloud',
-    label:
-      'Forma Cloud end-to-end walkthrough (bike company link / publish / manage)',
-    sourceId: 'd10d2f4b-f338-4b98-b46c-fe28639ed5a7',
-  },
+  // Resolved: /media/forma-cloud/e2e-walkthrough.mp4
+  // CapCut 1007.mov ↔ Squarespace d10d2f4b… (~190.5s)
 
   // —— AR/VR Design ——
-  {
-    id: 'MEDIA::ar-vr::cvpr-poster-pdf',
-    kind: 'file',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'CVPR poster PDF download',
-    note: 'Page caption asks for PDF; only a JPEG poster is currently embedded.',
-  },
-  {
-    id: 'VIDEO::ar-vr::annotator-mode',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'Annotator Mode',
-    sourceId: 'fc67e835-140f-4bc7-beb7-427624fad77f',
-  },
-  {
-    id: 'VIDEO::ar-vr::latest-channel-mode',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'Latest Channel Mode',
-    sourceId: '93fd602d-3d0f-40c7-9e2a-945f83dee07f',
-  },
-  {
-    id: 'VIDEO::ar-vr::channel-selection-mode-1',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'Channel Selection Mode — clip 1',
-    sourceId: '27f0227b-2ee3-4090-ba27-a07de38e7443',
-  },
-  {
-    id: 'VIDEO::ar-vr::channel-selection-mode-2',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'Channel Selection Mode — clip 2',
-    sourceId: '30179885-17c8-475f-bc58-40cdabd187e6',
-  },
-  {
-    id: 'VIDEO::ar-vr::vr-keyboard',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'VR Keyboard Design',
-    sourceId: 'a3ec6c22-50bc-4a50-ad08-4a83f553ab3c',
-  },
-  {
-    id: 'VIDEO::ar-vr::space-invader-1',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'Mobile AR Space Invader — clip 1',
-    sourceId: 'cfea78b2-1c29-4284-853f-136a2897081b',
-  },
-  {
-    id: 'VIDEO::ar-vr::space-invader-2',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'Mobile AR Space Invader — clip 2',
-    sourceId: '5845d1f1-9477-448f-919e-b41548910698',
-  },
-  {
-    id: 'VIDEO::ar-vr::vr-maker-space',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'VR Maker Space',
-    sourceId: '06320c8f-432f-4157-a845-09126924b32d',
-  },
-  {
-    id: 'VIDEO::ar-vr::car-simulator',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: '360 Car Simulator',
-    sourceId: '4d7233c1-4b09-4e87-a4cc-95e758512b23',
-  },
-  {
-    id: 'VIDEO::ar-vr::wifi-missing-recording',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'Wifi Signal Visualizer — original recording (missing on source site)',
-  },
-  {
-    id: 'VIDEO::ar-vr::wifi-unity-prototype',
-    kind: 'video',
-    route: '/ar-vr',
-    sourcePath: '/annotate-all',
-    label: 'Wifi Alchemist — prototype ran on Unity gameplay',
-    sourceId: '1e1ff733-f3ee-4602-983d-7cb61615bc9e',
-  },
+  // Resolved under /media/ar-vr/:
+  // - cvpr-poster.pdf
+  // - annotator-mode (mf1.mov ↔ fc67e835…)
+  // - latest-channel (mf2.mov ↔ 93fd602d…)
+  // - channel-selection-1 (mf3.mov ↔ 27f0227b…)
+  // - channel-selection-2 (mf123.mov ↔ 30179885…)
+  // - vr-keyboard (2021-06-24… ↔ a3ec6c22…)
+  // - space-invader-1 (spaceinvaders.MP4 ↔ cfea78b2…)
+  // - vr-maker-space (movie1.mp4 ↔ 06320c8f…)
+  // - car-simulator (CapCut car simulator.mov ↔ 4d7233c1…)
+  // Removed: Artsy / Wifi Signal Visualizer; Space Invader clip 2 (no local ~33s match).
 
-  // —— Junyi / Ford (password-protected on pytseng.com) ——
+  // —— Junyi / Ford (gated in-app; password: underconstruction) ——
   {
     id: 'MEDIA::junyi::full-page',
     kind: 'page',
     route: '/junyi',
     sourcePath: '/junyi',
     label: 'Junyi Academy — full case study',
-    note: 'pytseng.com/junyi is password-protected. Unlock or export content, then replace this page.',
+    note: 'Route gated via PasswordGate. Replace when full content is ready.',
   },
   {
     id: 'MEDIA::ford::full-page',
@@ -194,7 +95,7 @@ export const mediaPlaceholders: MediaPlaceholderMeta[] = [
     route: '/ford',
     sourcePath: '/ford-1',
     label: 'Ford — Audio Experience — full case study',
-    note: 'pytseng.com/ford-1 is password-protected. Unlock or export content, then replace this page.',
+    note: 'Route gated via PasswordGate. Replace when full content is ready.',
   },
 ]
 

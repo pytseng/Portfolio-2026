@@ -3,12 +3,10 @@ import { CaseStudyVideo } from '../components/CaseStudyVideo'
 import { assets, tocItems } from '../data/formaCaseStudy'
 
 const formaVideos = {
-  /** CapCut 0523.mov — matches pytseng.com Squarespace asset 75a79994… (150s) */
   overview: {
     src: '/media/forma-editor/hero-overview.mp4',
     poster: '/media/forma-editor/hero-overview-poster.jpg',
   },
-  /** Local “Unity Forma - Run-Through_20201103.mp4” for the MVP caption slot */
   mvp: {
     src: '/media/forma-editor/mvp-run-through.mp4',
     poster: '/media/forma-editor/mvp-run-through-poster.jpg',
@@ -21,8 +19,8 @@ export function FormaEditorPage() {
       brand="Forma Editor"
       title="Unity Forma Editor"
       toc={tocItems}
-      heroImage={assets.heroPoster}
-      lede="A UX design case study on turning complex 3D product data into interactive configurators for automotive and manufacturing."
+      heroImage="/media/forma-editor/hero.jpg"
+      lede="Turning complex 3D product data into interactive configurators for automotive and manufacturing."
     >
       <section id="overview" className="section">
         <p className="section__label">Product Overview</p>
@@ -32,109 +30,103 @@ export function FormaEditorPage() {
           label="Forma Editor product overview"
         />
         <p>
-          Forma is a software suite that helps 3d specialist in the automotive
-          and manufacturing industries to turn complex 3D product data into{' '}
-          <strong>interactive product configurators</strong> and more. Users make
-          product variations, create interactive cameras, visualize designs, and
-          export results in a non-coding required interface. Forma launched in
-          December 2020, trusted by industry leaders such as Volkswagen and
-          Airbus.
+          Forma helps 3D specialists in automotive and manufacturing turn
+          product data into <strong>interactive configurators</strong>. Teams
+          build variants, cameras, and scenes in a no-code editor, then export
+          for sales and marketing. It launched in December 2020 with early trust
+          from Volkswagen and Airbus.
         </p>
         <h3>Contributions</h3>
-        <ol className="rich-list">
-          <li>
-            <strong>0-1 Product Design:</strong> Sole designer, scaling Forma
-            Editor from a concept into a multi-platform 3D authoring suite.
-          </li>
-          <li>
-            <strong>Strategic Discovery & Product-Market Fit:</strong> Conducted
-            foundational user studies that led to breakthrough findings, directly
-            resulting in the acquisition of the early adopters.
-          </li>
-          <li>
-            <strong>Operational Leadership:</strong> Served as the design key
-            person of the entire manufacturing vertical, established the
-            vertical&apos;s data-driven design culture, implementing frameworks
-            for testing and iterative development.
-          </li>
-        </ol>
+        <p>
+          As sole designer I took Forma Editor from concept to a multi-platform
+          authoring suite. Discovery work unlocked early adopters. Across the
+          manufacturing vertical I also set up how we tested and iterated with
+          data.
+        </p>
       </section>
 
       <section id="discovery" className="section">
         <p className="section__label">Initial Discovery</p>
-        <ol className="rich-list">
-          <li>
-            <strong>Holiday Calls:</strong> I was hired right before the holiday
-            season, instead of expecting more context from the team, I used my
-            own connections and set up interviews with industry experts from Nio
-            and Honda Motor in East Asia.
-          </li>
-          <li>
-            <strong>Onsite Studies:</strong> Fought for resource to conduct
-            international onsite-studies and brought back user reports and
-            partnerships.
-          </li>
-          <li>
-            <strong>SME Interviews:</strong> Ran 50+ rounds of interviews and
-            established a format that devs, sales or anyone on the team are
-            invited so the team grew together and make better autonomous calls.
-          </li>
-        </ol>
+        <p>
+          I joined right before the holidays. Instead of waiting for more
+          context, I interviewed industry contacts at Nio and Honda. I pushed for
+          international onsite studies that brought back reports and partners.
+          Across 50+ SME sessions I opened the format to eng and sales so the
+          whole team could make sharper calls.
+        </p>
       </section>
 
       <section id="journey" className="section">
         <p className="section__label">Journey Mapping</p>
         <p className="section__kicker">
-          How OEMs use 3D models to create configurators
+          How OEMs move from 3D models to configurators
         </p>
         <Figure src={assets.journeyMap} alt="Journey map" />
-        <div className="step">
-          <h3>1.Concept to Shape</h3>
-          <p>
-            To start a new model line, in-house designers create hundreds of
-            sketches, clay, and finally lands a class A surface model that will
-            be the master model for engineering.
-          </p>
-          <Figure src={assets.conceptToShape} alt="Concept to shape" />
+
+        <div className="copy-media copy-media--top">
+          <div className="copy-media__copy">
+            <h3>1. Concept to shape</h3>
+            <p>
+              A new model line starts with sketches and clay, then a class A
+              surface that becomes the master for engineering.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure src={assets.conceptToShape} alt="Concept to shape" />
+          </div>
         </div>
-        <div className="step">
-          <h3>2. CMF Development</h3>
-          <p>
-            During the Color, Material, and Feel development phase, more parts
-            and data for interior and exterior design would be added to the car
-            model.
-          </p>
-          <Figure src={assets.cmf} alt="CMF development" />
+
+        <div className="copy-media copy-media--top">
+          <div className="copy-media__copy">
+            <h3>2. CMF development</h3>
+            <p>
+              Color, material, and finish work adds interior and exterior data to
+              the same car model.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure src={assets.cmf} alt="CMF development" />
+          </div>
         </div>
-        <div className="step">
-          <h3>3. Optimized 3D Model</h3>
-          <p>
-            A Manufacture-ready CAD model will be created and outsourced to
-            downstream factories. In the meantime, a digital material library for
-            this model would be created along side the optimized 3D model that
-            has lighter poly counts for sales and marketing platforms.
-          </p>
-          <Figure src={assets.optimized} alt="Optimized 3D model" />
+
+        <div className="copy-media copy-media--top">
+          <div className="copy-media__copy">
+            <h3>3. Optimized 3D model</h3>
+            <p>
+              Manufacture-ready CAD goes downstream. In parallel, a lighter model
+              and material library get ready for sales and marketing.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure src={assets.optimized} alt="Optimized 3D model" />
+          </div>
         </div>
-        <div className="step">
-          <h3>4. Sales-ready Assets</h3>
-          <p>
-            Associate teams would shoot HDRI in traditional photography or create
-            3D stages to host the product.
-          </p>
-          <Figure src={assets.salesAssets} alt="Sales-ready assets" />
+
+        <div className="copy-media copy-media--top">
+          <div className="copy-media__copy">
+            <h3>4. Sales-ready assets</h3>
+            <p>
+              Teams shoot HDRIs or build 3D stages so the product can be staged
+              for customers.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure src={assets.salesAssets} alt="Sales-ready assets" />
+          </div>
         </div>
-        <div className="step">
-          <h3>5. Sales Configurator</h3>
-          <p>
-            In-house or third-party collaboration, optimized 3D model, materials,
-            environments, all digital assets will be organized to create the end
-            configurator. Cameras and other interactivity will be added. PM will
-            review configuration options ensure they are true to sales rules. For
-            example, if a user chooses a V8 engineer, a limited edition car paint
-            should be available.
-          </p>
-          <Figure src={assets.configurator} alt="Sales configurator" />
+
+        <div className="copy-media copy-media--top">
+          <div className="copy-media__copy">
+            <h3>5. Sales configurator</h3>
+            <p>
+              Models, materials, and environments become the live configurator.
+              Cameras and interactions go in. PMs check that options match sales
+              rules, like unlocking a limited paint only when a V8 is selected.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure src={assets.configurator} alt="Sales configurator" />
+          </div>
         </div>
       </section>
 
@@ -142,19 +134,19 @@ export function FormaEditorPage() {
         <p className="section__label">Target Users</p>
         <div className="user-grid">
           <div>
-            <h3>Technical Artist</h3>
+            <h3>Technical artist</h3>
             <ul>
-              <li>The narrator of 3D experience</li>
-              <li>Comfortable with 3D tools</li>
-              <li>Efficiency matters</li>
+              <li>Shapes the 3D experience</li>
+              <li>Comfortable in 3D tools</li>
+              <li>Cares about speed</li>
             </ul>
           </div>
           <div>
-            <h3>Projuct Manager</h3>
+            <h3>Product manager</h3>
             <ul>
-              <li>The gatekeeper of model correctness</li>
-              <li>Uses text-heavy UI like BOM, Excel</li>
-              <li>Manage sales content</li>
+              <li>Owns model correctness</li>
+              <li>Lives in BOM and spreadsheet UIs</li>
+              <li>Manages sales content</li>
             </ul>
           </div>
         </div>
@@ -163,101 +155,96 @@ export function FormaEditorPage() {
       <section id="problem" className="section">
         <p className="section__label">Main Problem</p>
         <p>
-          In the Sales Configurator development stage, auto brands rely heavily
-          on expensive manual agency works or slow in-house development for
-          difficult-to-maintain solutions due to the absence of proper tools.
-          High recursive cost result in companies searching for better solutions.
+          At the sales configurator stage, brands lean on costly agencies or slow
+          in-house builds that are hard to maintain. Without the right tool, that
+          spend keeps coming back.
         </p>
       </section>
 
       <section id="metrics" className="section">
         <p className="section__label">Success Metrics</p>
         <p>
-          Instead of “growing X by Y percent” approach, the success metrics of
-          the early stage is simple, as long as we onboard targeted industry
-          leaders, it’s a win, which we completed the milestone soon after
-          release.
+          Early success was not a vanity percentage. Landing target industry
+          leaders was the bar, and we hit it soon after launch.
         </p>
       </section>
 
       <section id="process" className="section">
-        <p className="section__label">Design Process - Overall</p>
-        <div className="process-grid">
-          <article>
-            <h3>Framing</h3>
-            <Figure src={assets.framing} alt="Framing" />
-          </article>
-          <article>
-            <h3>2. Stakeholder Alignment</h3>
-            <p>Mapping features into Information Architecture Diagram</p>
-            <Figure src={assets.stakeholder} alt="Stakeholder alignment" />
-          </article>
-          <article>
-            <h3>3. Design Ideation</h3>
-            <p>Translate requirement into features</p>
-            <Figure src={assets.ideation} alt="Design ideation" />
-          </article>
-          <article>
-            <h3>4. Production</h3>
-            <Figure src={assets.production} alt="Production" />
-          </article>
+        <p className="section__label">Design Process</p>
+        <div className="media-cluster media-cluster--tiles">
+          <Figure src={assets.framing} alt="Framing" caption="Framing" />
+          <Figure
+            src={assets.stakeholder}
+            alt="Stakeholder alignment"
+            caption="Stakeholder alignment"
+          />
+          <Figure
+            src={assets.ideation}
+            alt="Design ideation"
+            caption="Design ideation"
+          />
+          <Figure
+            src={assets.production}
+            alt="Production"
+            caption="Production"
+          />
         </div>
       </section>
 
       <section id="feature" className="section">
-        <p className="section__label">Design Process - Feature</p>
-        <h3>Example Feature - Rule Engine</h3>
+        <p className="section__label">Feature deep dive</p>
+        <h3>Rule engine</h3>
         <p>
-          Rule Engine is created to help manufacturing managers set up rules for
-          complex 3D product models. It handles the logic behind the scenes, so
-          doing something like selecting a specific region automatically unlocks
-          the right features and filters out unavailable options. It keeps the
-          data completely accurate and ensures users can only configure products
-          that can actually be built.
+          The rule engine lets manufacturing managers encode what can be built.
+          Pick a region and the cockpit flips to right-hand drive. Pick Premium
+          and the safety pack unlocks. The UI only shows configurations that can
+          actually ship.
         </p>
         <blockquote>
-          Selecting &quot;New Zealand&quot; in context automatically switches the
-          cockpit to right-hand drive and unlocks regional paint colors or
-          choosing the Premium trim unlocks the advanced safety tech pack.
+          Selecting New Zealand switches the cockpit to right-hand drive and
+          unlocks regional paints. Choosing Premium unlocks the advanced safety
+          pack.
         </blockquote>
         <div className="option">
-          <h3>Option.1 Spreadsheets</h3>
+          <h3>Option 1 · Spreadsheets</h3>
           <Figure src={assets.ruleIt1} alt="Rule engine spreadsheet option" />
-          <p>👍 : Easy to stack and sort, great for simple rules</p>
-          <p>👎 : Difficult to create nested Rules</p>
+          <p>👍 Easy to stack and sort, great for simple rules</p>
+          <p>👎 Difficult to create nested rules</p>
         </div>
         <div className="option">
-          <h3>Option.2 Block</h3>
+          <h3>Option 2 · Blocks</h3>
           <Figure src={assets.ruleIt2} alt="Rule engine block option" />
-          <p>👍 : Able to create deeply nested rules</p>
-          <p>👎 : Easily get messy and chunky for a single rule set</p>
+          <p>👍 Able to create deeply nested rules</p>
+          <p>👎 Easily gets messy for a single rule set</p>
         </div>
         <div className="option">
-          <h3>Option.3 Hybrid</h3>
+          <h3>Option 3 · Hybrid</h3>
           <Figure src={assets.ruleIt3} alt="Rule engine hybrid option" />
-          <p>👍 : Easy to view and organize</p>
-          <p>👎 : Not yet polished</p>
+          <p>👍 Easy to view and organize</p>
+          <p>👎 Not yet polished</p>
         </div>
         <div className="option">
           <h3>Finalized</h3>
           <Figure src={assets.ruleFinalize} alt="Finalized rule engine" />
-          <Figure src={assets.ruleDetails} alt="Rule engine interaction details" />
-          <p>✅ : Align with Unity Design System</p>
-          <p>✅ : Clear Connection between conditions</p>
-          <p>✅ : Designed for detail interactions and edge cases</p>
+          <Figure
+            src={assets.ruleDetails}
+            alt="Rule engine interaction details"
+          />
+          <p>✅ Aligns with Unity Design System</p>
+          <p>✅ Clear connections between conditions</p>
+          <p>✅ Designed for detail interactions and edge cases</p>
         </div>
       </section>
 
       <section id="constraints" className="section">
         <p className="section__label">Working with Constraints</p>
-        <h3>Growing Design System</h3>
+        <h3>Growing the design system</h3>
         <p>
-          Unity’s design framework handles packed UIs well, but the clutter
-          clashed with Forma’s need for an inviting interface. I collaborated
-          with the core design system team to ensure new use cases are addressed
-          and also created new patterns to help grow the design system.
+          Unity&apos;s framework is built for dense editor UIs. Forma needed
+          something more inviting. I worked with the core design system team on
+          those gaps and added patterns so the system could grow with us.
         </p>
-        <div className="image-row">
+        <div className="media-cluster media-cluster--tiles">
           <Figure src={assets.designSystem1} alt="Design system exploration" />
           <Figure src={assets.designSystem2} alt="Design system exploration" />
           <Figure src={assets.designSystem3} alt="Design system exploration" />
@@ -270,9 +257,8 @@ export function FormaEditorPage() {
         <article className="feature-block">
           <h3>From months to hours</h3>
           <p>
-            Before Forma exist, it requires a teams of 3d artists and engineers
-            months to create configurators. Now, Forma does all the heavy
-            lifting, making a configurator is only a matter of hours.
+            Before Forma, artists and engineers spent months on a configurator.
+            Forma does the heavy lifting so a build can land in hours.
           </p>
           <CaseStudyVideo
             src={formaVideos.mvp.src}
@@ -282,22 +268,22 @@ export function FormaEditorPage() {
           />
         </article>
         <article className="feature-block">
-          <h3>Create product variations in seconds</h3>
+          <h3>Variants in seconds</h3>
           <p>
-            Users could create product variations simply by dragging elements
-            from the product outline, materials, or the object in the scene and
-            dropping them to the variant table, there’s no need to code a single
-            line to create product variations.
+            Drag from the outline, materials, or scene into the variant table. No
+            code required.
           </p>
-          <Figure src={assets.productTab} alt="Product Tab" caption="Product Tab" />
+          <Figure
+            src={assets.productTab}
+            alt="Product Tab"
+            caption="Product Tab"
+          />
         </article>
         <article className="feature-block">
-          <h3>WYSIWYG, saving 73% communication overhead</h3>
+          <h3>WYSIWYG collaboration</h3>
           <p>
-            In Forma, what you see is what you get, now teams could visualize and
-            collaborate on the exact scene instead of talking through wireframes
-            or long documents, saving hundred hours of communication costs across
-            different department.
+            Teams review the real scene instead of wireframes and long docs. That
+            cut a large share of cross-team back and forth.
           </p>
           <Figure
             src={assets.wysiwyg}
@@ -306,14 +292,16 @@ export function FormaEditorPage() {
           />
         </article>
         <article className="feature-block">
-          <h3>Single-source of truth model management</h3>
+          <h3>One source of truth</h3>
           <p>
-            Scaling for multiple platform became easy. Set up rendering methods,
-            models, environment, and material for target platform all in one
-            place. Saving companies millions on recursive spending, a true budget
-            saver.
+            Rendering methods, models, environments, and materials for each
+            platform live in one place. Less recursive spend across channels.
           </p>
-          <Figure src={assets.profile} alt="Profile window" caption="Profile window" />
+          <Figure
+            src={assets.profile}
+            alt="Profile window"
+            caption="Profile window"
+          />
         </article>
         <article className="feature-block">
           <h3>An easy entry to virtual photography</h3>
@@ -326,9 +314,9 @@ export function FormaEditorPage() {
         <article className="feature-block">
           <h3>Iterate compositions on the fly</h3>
           <p>
-            It’s 20 times faster to create compositions in RT3D, Alyx could reuse
-            environment and fine tune look and feel to create a consistent brand
-            identity across scene.
+            Creating compositions in RT3D is much faster. Reuse environments and
+            fine-tune look and feel so brand identity stays consistent across
+            scenes.
           </p>
           <Figure
             src={assets.environment}
@@ -337,23 +325,20 @@ export function FormaEditorPage() {
           />
         </article>
         <article className="feature-block">
-          <h3>True-to-sales rules is a few clicks away</h3>
+          <h3>True-to-sales rules in a few clicks</h3>
           <p>
-            Creating rules true to sales is easier than ever, simply import from
-            code or use our simple UI to edit product variation. No need for
-            compare thousands line of rule code and excel sheets on two monitors
-            and sending screenshots and emails back and force with the engineers.
+            Import rules from code or edit product variations in a simple UI. No
+            more comparing thousands of lines of rule code and spreadsheets
+            across two monitors.
           </p>
           <Figure src={assets.ruleTab} alt="Rule Tab" caption="Rule Tab" />
         </article>
         <article className="feature-block">
           <h3>An innovation of workflow</h3>
           <p>
-            Forma saves hundreds hours in each step of the workflow. Users can
-            create an immersive experience and export them into multi-channels
-            all in RT3D with no code required. It is true workflow innovation
-            that help small retailers to big companies making their transition
-            into 3D content creation.
+            Forma saves time at each step. Create an immersive experience and
+            export to multiple channels in RT3D with no code required, from small
+            retailers to large companies moving into 3D content creation.
           </p>
           <Figure src={assets.exportTab} alt="Export Tab" caption="Export Tab" />
         </article>
@@ -362,9 +347,8 @@ export function FormaEditorPage() {
       <section id="shipping" className="section">
         <p className="section__label">Shipping and Beyond</p>
         <p>
-          Volkswagen ends up being one of the first batches of early adopters of
-          Unity Forma alongside various industry leaders including Airbus,
-          Stellantis, Arksen and many more.
+          Volkswagen was among the first early adopters, alongside Airbus,
+          Stellantis, Arksen, and others.
         </p>
         <div className="media-frame">
           <iframe
@@ -374,112 +358,140 @@ export function FormaEditorPage() {
             allowFullScreen
           />
         </div>
-        <Figure src={assets.result} alt="Shipping results and early adopters" />
+        <div className="media-cluster media-cluster--3 media-cluster--results">
+          <Figure
+            src="/media/forma-editor/result-licenses.png"
+            alt="500 licenses sold"
+          />
+          <Figure
+            src="/media/forma-editor/result-revenue.png"
+            alt="$2.8M revenue"
+          />
+          <Figure
+            src="/media/forma-editor/result-team.png"
+            alt="3X team expansion"
+          />
+        </div>
+        <div className="media-cluster media-cluster--brands">
+          <Figure src="/media/forma-editor/brand-airbus.png" alt="Airbus" />
+          <Figure src="/media/forma-editor/brand-vw.png" alt="Volkswagen" />
+          <Figure
+            src="/media/forma-editor/brand-stellantis.png"
+            alt="Stellantis"
+          />
+          <Figure src="/media/forma-editor/brand-arksen.png" alt="Arksen" />
+        </div>
       </section>
 
       <section id="validation" className="section">
-        <p className="section__label">
-          Post-launch Validation - Improved Template to Support More Device Types
+        <p className="section__label">Post-launch validation</p>
+        <p className="section__kicker">
+          A runtime template that fits more devices
         </p>
-        <h3>Earlier Runtime UI isn’t mobile friendly enough</h3>
         <p>
-          In the beginning, we were only targeting desktop users. Through user
-          studies, we found there’s strong demand to build configurators for
-          mobile devices.
+          We shipped for desktop first. Studies quickly showed demand for mobile
+          configurators, so we had to stretch the runtime UI across phones and
+          large screens with limited eng capacity.
         </p>
+
+        <div className="copy-media copy-media--top">
+          <div className="copy-media__copy">
+            <h3>The constraint</h3>
+            <p>
+              Unity UI had no web-style columns or media queries. We were not
+              building classic responsive or adaptive layouts. The job was a
+              generic template that could detect orientation and hold up from a
+              TV down to an iPhone SE.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure
+              src={assets.runtimePreview}
+              alt="Runtime UI in preview"
+              caption="Runtime preview before the mobile pass"
+            />
+          </div>
+        </div>
+
+        <div className="copy-media copy-media--top">
+          <div className="copy-media__copy">
+            <h3>Structure first</h3>
+            <p>
+              I mapped finite pieces like logo and product name into fixed slots,
+              and indefinite lists like variants into scrollable regions so the
+              layout could absorb whatever the user created.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure
+              src={assets.mobileAnalysis}
+              alt="Mobile UI layout analysis"
+            />
+          </div>
+        </div>
+
+        <div className="copy-media copy-media--top">
+          <div className="copy-media__copy">
+            <h3>Wireframe</h3>
+            <p>
+              Scene on top, controls below. That pattern showed up across auto
+              game UIs and configurators, and it presents cars cleanly.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure src={assets.mobileWireframe} alt="Mobile wireframe" />
+          </div>
+        </div>
+
+        <div className="media-cluster media-cluster--2">
+          <Figure
+            src={assets.landscapePortrait}
+            alt="Landscape and portrait mockups"
+            caption="Landscape and portrait"
+          />
+          <Figure
+            src={assets.layoutCompare}
+            alt="Layout comparison"
+            caption="Layout options"
+          />
+        </div>
+        <p>
+          After PM review we needed more than cars, so I moved to a squarer
+          scene ratio and kept iterating until the layout needed few code
+          branches but still worked for other products.
+        </p>
+
+        <div className="copy-media copy-media--top">
+          <div className="copy-media__copy">
+            <h3>Final layout</h3>
+            <p>
+              Portrait and landscape stay close. The control sheet stays
+              vertical. Navbar and header are shared. Cards only change scroll
+              direction. Price sits centered under the scene. The UI toggle stays
+              top right.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure src={assets.decision} alt="Final layout decision" />
+          </div>
+        </div>
+
         <Figure
-          src={assets.runtimePreview}
-          alt="Runtime UI in preview"
-          caption="Challenge"
+          src={assets.allScale}
+          alt="UI tested across screen sizes"
+          caption="Same UI from phone to desktop. Beyond 4K, eng scales the UI by 2×."
         />
-        <h3>Challenge: Expanding use case in the last minute</h3>
-        <p>
-          With limited engineering power, we need a generic UI that detects
-          device orientation and will work from a large TV screen to a small
-          i-phone SE screen.
-        </p>
-        <p>
-          *** We are neither building a responsive UI nor an adaptive UI here!
-          Neither UGUI nor UI Element provides an easy way to create responsive
-          UI that is so common in the web/mobile world. There’s no column
-          systems, media query, sorts of things that make engineering responsive
-          layout easy. Therefore, to maximize the outcome with the least time
-        </p>
-        <p>
-          What I did first is to analyze the configurator, identify finite and
-          indefinite elements so we know how to create a layout that consumes and
-          displays data well. For finite elements like logo and product name,
-          there’s always one of each in a configurator, therefore, a fixed
-          container would work well. On the other hand, for an indefinite list
-          like product variants which users could make as many as the PC could
-          handle, we need to define a container with a scrollable area.
-        </p>
-        <Figure src={assets.mobileAnalysis} alt="Mobile UI layout analysis" />
-        <p>
-          Then I moved on to wireframe the basic structural interactions. The
-          reason I used a layout where the scene is on top and the control sheet
-          at the bottom is based on my research on multiple automotive game UI
-          and configurators, this layout is optimal for car presentations.
-        </p>
-        <Figure src={assets.mobileWireframe} alt="Mobile wireframe" />
-        <h3>Explore scalable solution in a tight timeline</h3>
-        <p>
-          Next step, I created mockups for both landscape and portrait views.
-        </p>
-        <Figure
-          src={assets.landscapePortrait}
-          alt="Landscape and portrait mockups"
-        />
-        <p>
-          After discussion with the PM, we think our template should serve more
-          products besides cars, therefore, I decided to use a more squared ratio
-          scene. Also, I iterated on several different layouts to get to a UI
-          that needs the least conditions in code but still works well for any
-          sort of product.
-        </p>
-        <Figure src={assets.layoutCompare} alt="Layout comparison" />
-        <h3>
-          Understand engineering to create efficient designs that balanced
-          flexibility and usability
-        </h3>
-        <p>
-          Below is the final layout, the difference between portrait and
-          landscape is minimized:
-        </p>
-        <Figure src={assets.decision} alt="Final layout decision" />
-        <ul>
-          <li>The control sheet is always vertical</li>
-          <li>Using same navbar and header</li>
-          <li>
-            Using a card list so the behavior difference only lies in the
-            scrolling direction.
-          </li>
-          <li>Price tag always centered at the bottom of the scene</li>
-          <li>UI toggle always stays on the top-right</li>
-        </ul>
-        <p>
-          I tested out the design on multiple screen-sized as follows. with the
-          same pixels (under the premise all UI runs on default system, scaling
-          factors) The UI works fine from small smartphone screens to desktops.
-          To run beyond a 4K screen, in the engineering end just need to specify
-          multiplication by 2 for the UI.
-        </p>
-        <Figure src={assets.allScale} alt="UI tested across screen sizes" />
       </section>
 
       <section id="takeaway" className="section">
-        <p className="section__label">TAKEAWAY</p>
+        <p className="section__label">Takeaway</p>
         <h2>Building empathy as a team</h2>
         <p>
-          Building products for specialized experts is difficult. Early on, we
-          noticed the team was making technical decisions that didn&apos;t quite
-          fit our users&apos; needs because they lacked the right context. To fix
-          this, I started weekly product reviews with everyone from engineering
-          to business. We walked through workflows and shared research findings
-          together. This changed how our developers worked—they began actively
-          evaluating if their code actually solved the user’s problem. Because
-          the whole team understood the &apos;why&apos; behind every feature,
-          they became faster and were able to make smart decisions on their own.
+          Building for specialists is hard when the team lacks context. Weekly
+          reviews with eng and business walked real workflows and research
+          together. Developers started asking whether the code solved the user
+          problem. Once everyone shared the why, decisions got faster and more
+          autonomous.
         </p>
       </section>
 
@@ -494,7 +506,7 @@ export function FormaEditorPage() {
               help us to provide faster and higher quality real-time content like
               configurable product visualization.”
             </p>
-            <cite>— Head of Global Digital Marketing, VW</cite>
+            <cite>Head of Global Digital Marketing, VW</cite>
           </blockquote>
           <blockquote>
             <img src={assets.texelLogo} alt="Texel Logic" className="quote-logo" />
@@ -504,7 +516,7 @@ export function FormaEditorPage() {
               and will save time building complex configurations. We are excited
               to continue to use the tool!“
             </p>
-            <cite>— Studio Manager, Texel Logic</cite>
+            <cite>Studio Manager, Texel Logic</cite>
           </blockquote>
           <blockquote>
             <img
@@ -517,7 +529,7 @@ export function FormaEditorPage() {
               rendering tools into their CG pipeline, and Unity Forma helps get
               us there quicker than any other tool in the market.
             </p>
-            <cite>— Technology Director, Designory</cite>
+            <cite>Technology Director, Designory</cite>
           </blockquote>
         </div>
       </section>

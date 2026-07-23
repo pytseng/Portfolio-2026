@@ -4,6 +4,8 @@ export type ProjectMeta = {
   path: string
   thumbnail: string
   blurb: string
+  /** Show lock affordance; page is gated with PasswordGate */
+  locked?: boolean
 }
 
 const CDN = 'https://images.squarespace-cdn.com/content/v1/5a09f237017db2f48e166521'
@@ -56,14 +58,17 @@ export const projects: ProjectMeta[] = [
     title: 'Junyi Academy',
     path: '/junyi',
     thumbnail: `${CDN}/1531196261851-H975ZKAG60XRKX9H432D/Asset+3haha.png`,
-    blurb: 'Password-protected on pytseng.com — placeholder until unlocked.',
+    blurb:
+      'Design for social impact, an open learning platform for K-12 educators and students',
+    locked: true,
   },
   {
     slug: 'ford',
     title: 'Ford - Audio Experience',
     path: '/ford',
     thumbnail: `${CDN}/1531240007005-CNX9B6XJZJA9R8G6GVHU/Asset+1car.png`,
-    blurb: 'Password-protected on pytseng.com — placeholder until unlocked.',
+    blurb: 'Autonomous vehicle dashboard and earcon design.',
+    locked: true,
   },
 ]
 

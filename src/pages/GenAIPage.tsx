@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
 import { CaseStudyVideo } from '../components/CaseStudyVideo'
-import { MediaPlaceholder } from '../components/MediaPlaceholder'
 import type { TocItem } from '../data/formaCaseStudy'
 import { CDN } from '../data/projects'
 
@@ -135,10 +134,9 @@ export function GenAIPage() {
           See a report for{' '}
           <a href={reports.meshy} target="_blank" rel="noreferrer">
             meshy.ai
-          </a>{' '}
-          or civit.ai
+          </a>
+          .
         </p>
-        <MediaPlaceholder id="MEDIA::gen-ai::civit-report" />
         <CaseStudyVideo
           src={videos.meshWorkflow.src}
           poster={videos.meshWorkflow.poster}

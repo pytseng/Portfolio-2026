@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { TocItem } from '../data/formaCaseStudy'
 import { useActiveSection } from '../hooks/useActiveSection'
@@ -13,6 +13,8 @@ type Props = {
   lede?: string
 }
 
+const HERO_ZOOM_MAX = 1.25
+
 export function CaseStudyLayout({
   title,
   brand,
@@ -23,6 +25,40 @@ export function CaseStudyLayout({
 }: Props) {
   const [tocOpen, setTocOpen] = useState(false)
   const activeId = useActiveSection(toc)
+  const heroRef = useRef<HTMLElement>(null)
+  const zoomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const hero = heroRef.current
+    const zoom = zoomRef.current
+    if (!hero || !zoom || !heroImage) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (reduceMotion.matches) return
+
+    let raf = 0
+    const update = () => {
+      const rect = hero.getBoundingClientRect()
+      const travel = Math.max(rect.height * 0.85, 1)
+      const progress = Math.min(1, Math.max(0, -rect.top / travel))
+      const scale = 1 + progress * (HERO_ZOOM_MAX - 1)
+      zoom.style.transform = `scale(${scale})`
+    }
+
+    const onScroll = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [heroImage])
 
   return (
     <div className="page case-page">
@@ -40,8 +76,7 @@ export function CaseStudyLayout({
         </button>
       </header>
 
-      <section className="hero hero--case" id="top">
-        <div className="hero__atmosphere" aria-hidden="true" />
+      <section className="hero hero--case" id="top" ref={heroRef}>
         <div className="hero__copy">
           {brand ? <p className="hero__brand">{brand}</p> : null}
           <h1>{title}</h1>
@@ -61,7 +96,9 @@ export function CaseStudyLayout({
         </div>
         {heroImage ? (
           <div className="hero__visual">
-            <img src={heroImage} alt="" />
+            <div className="hero__visual-zoom" ref={zoomRef}>
+              <img src={heroImage} alt="" />
+            </div>
           </div>
         ) : null}
       </section>
@@ -83,13 +120,15 @@ export function Figure({
   src,
   alt,
   caption,
+  className,
 }: {
   src: string
   alt: string
   caption?: string
+  className?: string
 }) {
   return (
-    <figure className="figure">
+    <figure className={['figure', className].filter(Boolean).join(' ')}>
       <img src={src} alt={alt} loading="lazy" />
       {caption ? <figcaption>{caption}</figcaption> : null}
     </figure>

@@ -1,7 +1,8 @@
 import { lazy, Suspense, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { projects } from '../data/projects'
+import { LockIcon } from '../components/PasswordGate'
 import { HeroGrid } from '../components/home/HeroGrid'
+import { projects } from '../data/projects'
 
 const FogRevealHero = lazy(() =>
   import('../components/home/FogRevealHero').then((m) => ({
@@ -79,7 +80,12 @@ export function Home({ live = true }: { live?: boolean }) {
                   <span className="work-card__index">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <h3>{project.title}</h3>
+                  <h3>
+                    <span>{project.title}</span>
+                    {project.locked ? (
+                      <LockIcon className="work-card__lock" />
+                    ) : null}
+                  </h3>
                   <p>{project.blurb}</p>
                 </div>
               </Link>

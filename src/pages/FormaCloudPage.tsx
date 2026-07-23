@@ -1,7 +1,15 @@
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
-import { VideoPlaceholder } from '../components/VideoPlaceholder'
+import { CaseStudyVideo } from '../components/CaseStudyVideo'
 import type { TocItem } from '../data/formaCaseStudy'
 import { CDN } from '../data/projects'
+
+const cloudVideos = {
+  /** CapCut 1007.mov ↔ Squarespace d10d2f4b… (~190.5s) */
+  e2eWalkthrough: {
+    src: '/media/forma-cloud/e2e-walkthrough.mp4',
+    poster: '/media/forma-cloud/e2e-walkthrough-poster.jpg',
+  },
+}
 
 const toc: TocItem[] = [
   { id: 'contributions', label: 'Contributions' },
@@ -128,7 +136,12 @@ export function FormaCloudPage() {
           alt="Forma Cloud end-to-end overview chart"
           caption="Forma Cloud end-to-end overview"
         />
-        <VideoPlaceholder id="VIDEO::forma-cloud::e2e-walkthrough" />
+        <CaseStudyVideo
+          src={cloudVideos.e2eWalkthrough.src}
+          poster={cloudVideos.e2eWalkthrough.poster}
+          label="Forma Cloud end-to-end walkthrough"
+          caption="End-to-end walkthrough — link, publish, and manage 3D content"
+        />
       </section>
 
       <section id="influence" className="section">
