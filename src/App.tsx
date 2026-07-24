@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import './App.css'
 import { ScrollToTop } from './components/ScrollToTop'
@@ -11,9 +12,24 @@ import { JunyiPage } from './pages/JunyiPage'
 import { ReadmePage } from './pages/ReadmePage'
 import { RenderStudioPage } from './pages/RenderStudioPage'
 
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void
+  }
+}
+
 function AppShell() {
   const { pathname } = useLocation()
   const isHome = pathname === '/'
+
+  useEffect(() => {
+    if (!import.meta.env.PROD) return
+    window.gtag?.('event', 'page_view', {
+      page_path: pathname,
+      page_location: window.location.href,
+      page_title: document.title,
+    })
+  }, [pathname])
 
   return (
     <>

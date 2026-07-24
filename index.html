@@ -15,6 +15,20 @@
       rel="stylesheet"
     />
     <title>Po Yen Tseng — Portfolio 2026</title>
+    <!-- Google Analytics (GA4) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-WEPKNKQZF9"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      /* SPA: page_view is sent manually on route changes from App.tsx */
+      gtag('config', 'G-WEPKNKQZF9', { send_page_view: false })
+    </script>
   </head>
   <body>
     <div id="root"></div>
