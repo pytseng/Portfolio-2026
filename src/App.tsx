@@ -11,6 +11,7 @@ import { Home } from './pages/Home'
 import { JunyiPage } from './pages/JunyiPage'
 import { ReadmePage } from './pages/ReadmePage'
 import { RenderStudioPage } from './pages/RenderStudioPage'
+import { SecretStashPage } from './pages/SecretStashPage'
 
 declare global {
   interface Window {
@@ -44,6 +45,7 @@ function AppShell() {
       <Routes>
         <Route path="/" element={null} />
         <Route path="/readme" element={<ReadmePage />} />
+        <Route path="/secret-stash" element={<SecretStashPage />} />
         <Route path="/forma-editor" element={<FormaEditorPage />} />
         <Route path="/gen-ai" element={<GenAIPage />} />
         <Route path="/render-studio" element={<RenderStudioPage />} />

@@ -19,6 +19,14 @@ export const projects: ProjectMeta[] = [
     blurb: 'User guide — who I am, what I design, and where to look.',
   },
   {
+    slug: 'secret-stash',
+    title: 'SecretStash',
+    path: '/secret-stash',
+    thumbnail: '/media/secret-stash/secret-stash-hero.png',
+    blurb:
+      'AI packing companion for international outdoor travel: weather-aware plans you can correct.',
+  },
+  {
     slug: 'forma-editor',
     title: 'Forma Editor',
     path: '/forma-editor',
