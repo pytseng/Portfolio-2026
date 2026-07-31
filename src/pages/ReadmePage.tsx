@@ -46,8 +46,12 @@ export function ReadmePage() {
           challenges.
         </p>
         <p>
-          For Gen AI design and AI assisted design process, check out{' '}
-          <Link to="/gen-ai">Gen AI in Render Studio</Link>
+          For AI interaction design, check out{' '}
+          <Link to="/secret-stash">SecretStash</Link> AI Gear Concierge.
+        </p>
+        <p>
+          For AI assisted design process, check out{' '}
+          <Link to="/gen-ai">Gen AI in Render Studio</Link>.
         </p>
         <p>
           For design and strategic impact, check out{' '}
