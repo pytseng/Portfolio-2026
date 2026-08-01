@@ -1,7 +1,10 @@
 import { useState, type ComponentType, type SVGProps } from 'react'
 import { createLucideIcon, type LucideIcon } from 'lucide-react'
 import { CaseStudyLayout } from '../components/CaseStudyLayout'
+import { MediaPlaceholder } from '../components/MediaPlaceholder'
+import { mediaAssets } from '../data/mediaAssets'
 import type { TocItem } from '../data/formaCaseStudy'
+import { mediaUrl } from '../lib/media'
 
 const toc: TocItem[] = [
   { id: 'summary', label: 'Summary' },
@@ -9,6 +12,7 @@ const toc: TocItem[] = [
   { id: 'role', label: 'Role' },
   { id: 'tech', label: 'Tech stack' },
   { id: 'challenges', label: 'Design challenges' },
+  { id: 'reasoning', label: 'Reasoning transparency' },
 ]
 
 const LIVE_URL = 'https://chat-ai-ux.vercel.app'
@@ -137,6 +141,7 @@ export function SecretStashPage() {
       brand="SecretStash"
       title="SecretStash"
       toc={toc}
+      heroImage={mediaUrl(mediaAssets.secretStashHeroBg)}
       lede="An AI packing companion for international travelers planning outdoor adventures."
     >
       <section id="summary" className="section">
@@ -243,7 +248,7 @@ export function SecretStashPage() {
         </ul>
       </section>
 
-      <section id="challenges" className="section section--last">
+      <section id="challenges" className="section">
         <p className="section__label">Design challenges</p>
         <ul>
           <li>
@@ -283,6 +288,15 @@ export function SecretStashPage() {
           This case study is still in progress. I’ll add more process detail
           soon.
         </p>
+      </section>
+
+      <section id="reasoning" className="section section--last">
+        <p className="section__label">Reasoning transparency</p>
+        <p>
+          Expose the model’s intermediate steps during generation so latency
+          reads as visible system status, not an opaque wait.
+        </p>
+        <MediaPlaceholder id="GIF::secret-stash::reasoning" />
       </section>
     </CaseStudyLayout>
   )

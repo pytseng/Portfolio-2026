@@ -1,3 +1,6 @@
+import { mediaAssets } from '../mediaAssets'
+import { mediaUrl } from '../../lib/media'
+
 export type ProjectMeta = {
   slug: string
   title: string
@@ -22,7 +25,7 @@ export const projects: ProjectMeta[] = [
     slug: 'secret-stash',
     title: 'SecretStash',
     path: '/secret-stash',
-    thumbnail: '/media/secret-stash/secret-stash-hero.png',
+    thumbnail: mediaUrl(mediaAssets.secretStashHeroBg),
     blurb:
       'AI packing companion for international outdoor travel: weather-aware plans you can correct.',
   },

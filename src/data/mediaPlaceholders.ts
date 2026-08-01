@@ -97,6 +97,16 @@ export const mediaPlaceholders: MediaPlaceholderMeta[] = [
     label: 'Ford — Audio Experience — full case study',
     note: 'Route gated via PasswordGate. Replace when full content is ready.',
   },
+
+  // —— SecretStash ——
+  {
+    id: 'GIF::secret-stash::reasoning',
+    kind: 'gif',
+    route: '/secret-stash',
+    sourcePath: '/secret-stash',
+    label: 'Reasoning transparency GIF',
+    note: 'Replace with a GIF of reasoning-step progress during generation.',
+  },
 ]
 
 export function getMediaPlaceholder(id: string) {
