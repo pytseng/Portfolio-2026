@@ -1,7 +1,6 @@
 import { useState, type ComponentType, type SVGProps } from 'react'
 import { createLucideIcon, type LucideIcon } from 'lucide-react'
-import { CaseStudyLayout } from '../components/CaseStudyLayout'
-import { MediaPlaceholder } from '../components/MediaPlaceholder'
+import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
 import { mediaAssets } from '../data/mediaAssets'
 import type { TocItem } from '../data/formaCaseStudy'
 import { mediaUrl } from '../lib/media'
@@ -11,8 +10,9 @@ const toc: TocItem[] = [
   { id: 'try', label: 'Live demo' },
   { id: 'role', label: 'Role' },
   { id: 'tech', label: 'Tech stack' },
+  { id: 'visualize-reasoning', label: 'Visualize reasoning' },
+  { id: 'subject-control', label: 'Subject control' },
   { id: 'challenges', label: 'Design challenges' },
-  { id: 'reasoning', label: 'Reasoning transparency' },
 ]
 
 const LIVE_URL = 'https://chat-ai-ux.vercel.app'
@@ -142,34 +142,30 @@ export function SecretStashPage() {
       title="SecretStash"
       toc={toc}
       heroImage={mediaUrl(mediaAssets.secretStashHeroBg)}
-      lede="An AI packing companion for international travelers planning outdoor adventures."
+      lede="An AI packing buddy for outdoor trips abroad. Chat about the adventure; get a shoppable gear list."
     >
       <section id="summary" className="section">
         <p className="section__label">Summary</p>
         <p>
-          For one-bag travelers and outdoor adventurers, finding proper gear in
-          foreign lands is a messy race against time, language, and inventory.
-          SecretStash transforms how people gear up for international trips. By
-          analyzing live local weather, elevation, and owned equipment through a
-          natural chat interface, it builds an accurate, shoppable packing list
-          before departure. It takes the guesswork out of expedition prep while
-          pioneering a personalized, context-aware approach to e-commerce.
+          Finding the right gear in a new country is messy: new shops, new
+          weather, limited time. SecretStash is a chat companion that looks at
+          live local conditions and what you already own, then builds a packing
+          list you can actually shop from before you leave.
         </p>
         <p>
-          <strong>Challenge:</strong> Create an intuitive AI-guided workflow that
-          processes trip context and gives curated, reliable purchase
-          suggestions based on live conditions.
+          <strong>Challenge:</strong> Make trip context feel easy to share, and
+          turn it into clear, trustworthy purchase suggestions.
         </p>
       </section>
 
       <section id="try" className="section">
         <p className="section__label">Live demo</p>
         <p>
-          Try the live app{' '}
+          Jump in{' '}
           <a href={LIVE_URL} target="_blank" rel="noreferrer">
             here
-          </a>{' '}
-          or on your phone.
+          </a>
+          , or open it on your phone and poke around.
         </p>
         <div className="live-embed">
           <div className="clay-phone">
@@ -196,9 +192,9 @@ export function SecretStashPage() {
       <section id="role" className="section">
         <p className="section__label">Role</p>
         <p>
-          Solo founder build: I designed, developed, and tested the entire app
-          end-to-end as a startup idea: product framing, conversation UX,
-          systems behavior, and the shipped web prototype.
+          Individual project. I shaped the product, conversation UX, systems
+          behavior, and the shipped web prototype end to end. It was a joy to
+          make.
         </p>
       </section>
 
@@ -248,7 +244,102 @@ export function SecretStashPage() {
         </ul>
       </section>
 
-      <section id="challenges" className="section">
+      <section id="visualize-reasoning" className="section">
+        <p className="section__label">Visualize reasoning</p>
+        <div className="copy-media copy-media--top copy-media--phone">
+          <div className="copy-media__copy">
+            <p>
+              A few seconds of tool wait can feel like a freeze. Reasoning steps
+              show what’s happening, and a small jumping-dots motion keeps the
+              wait light so it feels like progress, not a stall.
+            </p>
+            <p>Each reply starts by reading the ask, then picks a path:</p>
+            <ul>
+              <li>
+                <strong>Reading question</strong>: pick up place, activity, and
+                timing
+              </li>
+              <li>
+                <strong>Clarifying details</strong>: trip is too vague, so ask
+                first
+              </li>
+              <li>
+                <strong>Checking weather</strong>: place, season, or adventure
+                cue (or a weather tool call)
+              </li>
+              <li>
+                <strong>Searching web</strong>: product, store, or news cues
+              </li>
+              <li>
+                <strong>Matching layers</strong>: map gear to the route and
+                conditions
+              </li>
+              <li>
+                <strong>Packing answer</strong>: write the shoppable list once
+                tools finish
+              </li>
+            </ul>
+            <p>
+              Off-topic asks leave early with a friendly redirect. No fake
+              packing progress.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure
+              className="figure--phone"
+              src={mediaUrl(mediaAssets.secretStashReasoning)}
+              alt="SecretStash full-app UI showing reasoning pills advancing while a trip query runs"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section id="subject-control" className="section">
+        <p className="section__label">Subject control</p>
+        <div className="copy-media copy-media--top copy-media--phone">
+          <div className="copy-media__copy">
+            <p>
+              SecretStash runs on Claude Sonnet, a general model. To keep the
+              app on packing and gear related subjects, I added a few defense
+              layers:
+            </p>
+            <ul>
+              <li>
+                <strong>Empty state and starter chips</strong>: set the trip
+                framing before anyone types
+              </li>
+              <li>
+                <strong>Pre-LLM intent routing</strong>: cheap pattern checks
+                sort each ask into in-scope, needs clarify, or off-topic. Hard
+                misses never reach tools
+              </li>
+              <li>
+                <strong>System prompt</strong>: once the model runs, it still
+                only answers packing, layers, and gear, with a short redirect
+                script for everything else
+              </li>
+              <li>
+                <strong>Tools stay gated</strong>: weather and web search only
+                run on the packing path
+              </li>
+            </ul>
+            <p>
+              In the clip: sports scores and “talk about anything” get nudged
+              back, Tokyo outfit trends stay light, and packing for a Mt. Fuji
+              summit in September opens the real flow.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <Figure
+              className="figure--phone"
+              src={mediaUrl(mediaAssets.secretStashScoping)}
+              alt="Multi-turn SecretStash chat moving from off-topic asks toward a Mt. Fuji packing request"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section id="challenges" className="section section--last">
         <p className="section__label">Design challenges</p>
         <ul>
           <li>
@@ -285,18 +376,9 @@ export function SecretStashPage() {
           </li>
         </ul>
         <p>
-          This case study is still in progress. I’ll add more process detail
-          soon.
+          Still cooking this case study. More process notes coming soon. Thanks
+          for reading along.
         </p>
-      </section>
-
-      <section id="reasoning" className="section section--last">
-        <p className="section__label">Reasoning transparency</p>
-        <p>
-          Expose the model’s intermediate steps during generation so latency
-          reads as visible system status, not an opaque wait.
-        </p>
-        <MediaPlaceholder id="GIF::secret-stash::reasoning" />
       </section>
     </CaseStudyLayout>
   )

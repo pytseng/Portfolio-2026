@@ -5,6 +5,7 @@
 export const mediaAssets = {
   secretStashHeroBg: 'secret-stash/herobg.png',
   secretStashReasoning: 'secret-stash/reasoning.gif',
+  secretStashScoping: 'secret-stash/scoping.gif',
 } as const
 
 export type MediaAssetKey = keyof typeof mediaAssets
