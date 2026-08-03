@@ -12,7 +12,101 @@ const toc: TocItem[] = [
   { id: 'tech', label: 'Tech stack' },
   { id: 'visualize-reasoning', label: 'Visualize reasoning' },
   { id: 'subject-control', label: 'Subject control' },
-  { id: 'challenges', label: 'Design challenges' },
+  { id: 'human-ai', label: 'Human AI collaboration' },
+  { id: 'grounding', label: 'Grounding & confidence' },
+  { id: 'design-tokens', label: 'Design tokens' },
+]
+
+type TokenStep = {
+  weight: number | string
+  hex: string
+  css?: string
+}
+
+const colorScales: {
+  name: string
+  role: string
+  steps: TokenStep[]
+}[] = [
+  {
+    name: 'Emerald',
+    role: 'Primary / brand',
+    steps: [
+      { weight: 50, hex: '#ECFDF5' },
+      { weight: 100, hex: '#D1FAE5' },
+      { weight: 200, hex: '#A7F3D0', css: '--emerald-soft' },
+      { weight: 300, hex: '#6EE7B7' },
+      { weight: 400, hex: '#34D399', css: '--emerald-bright' },
+      { weight: 500, hex: '#0DA85C', css: '--emerald-jewel' },
+      { weight: 600, hex: '#059669' },
+      { weight: 700, hex: '#047857', css: '--emerald-deep' },
+      { weight: 800, hex: '#065F46' },
+      { weight: 900, hex: '#064E3B' },
+    ],
+  },
+  {
+    name: 'Cream',
+    role: 'Warm stash glow',
+    steps: [
+      { weight: 50, hex: '#FFFEF5' },
+      { weight: 100, hex: '#FAFAC6', css: '--cream' },
+      { weight: 200, hex: '#F3EEA8' },
+      { weight: 300, hex: '#E5D96E' },
+      { weight: 400, hex: '#D4C24A' },
+      { weight: 500, hex: '#B8A635' },
+    ],
+  },
+  {
+    name: 'Silver',
+    role: 'Neutral / surface',
+    steps: [
+      { weight: 50, hex: '#F8FAFA' },
+      { weight: 100, hex: '#EEF2F2', css: '--silver-light' },
+      { weight: 200, hex: '#DCE2E2', css: '--silver-base' },
+      { weight: 300, hex: '#B8C4C4', css: '--silver-deep' },
+      { weight: 400, hex: '#8A9696', css: '--text-muted' },
+      { weight: 500, hex: '#5C5C5C', css: '--text-secondary' },
+      { weight: 600, hex: '#2F2F2F', css: '--text-primary' },
+      { weight: 700, hex: '#1F1F1F' },
+      { weight: 800, hex: '#141414' },
+      { weight: 900, hex: '#0A0A0A' },
+    ],
+  },
+]
+
+const semanticTokens: {
+  token: string
+  ref: string
+  hex: string
+}[] = [
+  { token: 'color/bg/app', ref: 'silver/200', hex: '#DCE2E2' },
+  { token: 'color/bg/surface', ref: 'silver/50', hex: '#F8FAFA' },
+  { token: 'color/bg/composer', ref: 'chat-surface', hex: '#E8F0EC' },
+  { token: 'color/fg/default', ref: 'silver/600', hex: '#2F2F2F' },
+  { token: 'color/fg/muted', ref: 'silver/400', hex: '#8A9696' },
+  { token: 'color/fg/brand', ref: 'emerald/500', hex: '#0DA85C' },
+  { token: 'color/fg/on-brand', ref: 'white', hex: '#FFFFFF' },
+  { token: 'color/action/primary', ref: 'emerald/500', hex: '#0DA85C' },
+  { token: 'color/action/primary-pressed', ref: 'emerald/700', hex: '#047857' },
+  { token: 'color/accent/glow-warm', ref: 'cream/100', hex: '#FAFAC6' },
+]
+
+const spaceTokens: { token: string; value: string }[] = [
+  { token: 'space/1', value: '4' },
+  { token: 'space/2', value: '8' },
+  { token: 'space/3', value: '12' },
+  { token: 'space/4', value: '16' },
+  { token: 'space/5', value: '20' },
+  { token: 'space/6', value: '24' },
+  { token: 'space/8', value: '32' },
+]
+
+const radiusTokens: { token: string; value: string }[] = [
+  { token: 'radius/sm', value: '8' },
+  { token: 'radius/md', value: '12' },
+  { token: 'radius/lg', value: '16' },
+  { token: 'radius/xl', value: '18' },
+  { token: 'radius/pill', value: '999' },
 ]
 
 const LIVE_URL = 'https://chat-ai-ux.vercel.app'
@@ -83,6 +177,25 @@ const SerpApiIcon = createLucideIcon('SerpApiBrand', [
   ['path', { d: 'M16 18.2V20.5', key: 's6' }],
 ])
 
+const OpenMeteoIcon = createLucideIcon('OpenMeteoBrand', [
+  ['circle', { cx: '12', cy: '10', r: '3.2', key: 'sun' }],
+  ['path', { d: 'M12 3.2v1.4', key: 'r1' }],
+  ['path', { d: 'M12 15.4v1.4', key: 'r2' }],
+  ['path', { d: 'M5.2 10H3.8', key: 'r3' }],
+  ['path', { d: 'M20.2 10h-1.4', key: 'r4' }],
+  ['path', { d: 'M7.1 5.1 6.1 4.1', key: 'r5' }],
+  ['path', { d: 'M17.9 15.9l-1-1', key: 'r6' }],
+  ['path', { d: 'M17.9 5.1l1-1', key: 'r7' }],
+  ['path', { d: 'M7.1 14.9l-1 1', key: 'r8' }],
+  [
+    'path',
+    {
+      d: 'M6.5 18.5h9.2a3.3 3.3 0 0 0 .4-6.6 4.6 4.6 0 0 0-8.7-1.4 2.9 2.9 0 0 0-1 5.6z',
+      key: 'cloud',
+    },
+  ],
+])
+
 const ViteIcon = createLucideIcon('ViteBrand', [
   ['path', { d: 'M12 2 3 14h7l-2 8 12-14h-7L15 2z', key: 'bolt' }],
 ])
@@ -92,6 +205,45 @@ const VercelIcon = createLucideIcon('VercelBrand', [
 ])
 
 type TechIcon = LucideIcon | ComponentType<BrandSvgProps>
+
+type GroundingHotspot = {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+const groundingWays: {
+  id: 'weather' | 'confidence' | 'products'
+  title: string
+  body: string
+  Icon: TechIcon
+  filled?: boolean
+  hotspot: GroundingHotspot
+}[] = [
+  {
+    id: 'weather',
+    title: 'Live weather data',
+    body: 'Temps and conditions come from Open-Meteo, not model memory.',
+    Icon: OpenMeteoIcon,
+    hotspot: { left: 4.87, top: 1.98, width: 90, height: 41.46 },
+  },
+  {
+    id: 'confidence',
+    title: 'Confidence meter',
+    body: 'Far-out dates show Medium when the source is climate normals.',
+    Icon: ClaudeIcon,
+    filled: true,
+    hotspot: { left: 11.03, top: 27.69, width: 77.69, height: 6.82 },
+  },
+  {
+    id: 'products',
+    title: 'Searched products',
+    body: 'Expanded picks load real SerpAPI images, not invented stock.',
+    Icon: SerpApiIcon,
+    hotspot: { left: 8.46, top: 70.52, width: 82.82, height: 27.1 },
+  },
+]
 
 const techStack: {
   name: string
@@ -135,6 +287,9 @@ const techStack: {
 
 export function SecretStashPage() {
   const [activeTech, setActiveTech] = useState<string | null>(null)
+  const [activeGrounding, setActiveGrounding] = useState<
+    (typeof groundingWays)[number]['id'] | null
+  >(null)
 
   return (
     <CaseStudyLayout
@@ -160,33 +315,29 @@ export function SecretStashPage() {
 
       <section id="try" className="section">
         <p className="section__label">Live demo</p>
-        <p>
-          Jump in{' '}
-          <a href={LIVE_URL} target="_blank" rel="noreferrer">
-            here
-          </a>
-          , or open it on your phone and poke around.
-        </p>
-        <div className="live-embed">
-          <div className="clay-phone">
-            <div className="clay-phone__shell">
-              <div className="clay-phone__screen">
-                <iframe
-                  title="SecretStash live prototype"
-                  src={LIVE_URL}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  allow="clipboard-write"
-                />
+        <div className="live-demo">
+          <div className="live-demo__embed">
+            <div className="clay-phone">
+              <div className="clay-phone__shell">
+                <div className="clay-phone__screen">
+                  <iframe
+                    title="SecretStash live prototype"
+                    src={LIVE_URL}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    allow="clipboard-write"
+                  />
+                </div>
               </div>
             </div>
           </div>
+          <p className="live-demo__copy">
+            <a href={LIVE_URL} target="_blank" rel="noreferrer">
+              Open live app
+            </a>{' '}
+            here, or open it on your phone and poke around.
+          </p>
         </div>
-        <p className="live-embed__link">
-          <a href={LIVE_URL} target="_blank" rel="noreferrer">
-            Open live app ↗
-          </a>
-        </p>
       </section>
 
       <section id="role" className="section">
@@ -339,46 +490,236 @@ export function SecretStashPage() {
         </div>
       </section>
 
-      <section id="challenges" className="section section--last">
-        <p className="section__label">Design challenges</p>
-        <ul>
-          <li>
-            Grounding packing advice in reliable live weather and commerce data
-            when default scraping fails
-          </li>
-          <li>
-            Scoping the AI interaction: layered subject control, off-topic
-            rejection, and redirect tone
-          </li>
-          <li>
-            Making wait states legible: reasoning progress, pause controls, and
-            calm stop messaging
-          </li>
-          <li>
-            Suggestion cards with live image search, owned/revisit loops, and
-            stash as durable memory
-          </li>
-          <li>
-            Multi-turn memory under context limits: summarization, past chat,
-            and new chat resets
-          </li>
-          <li>
-            Expressing confidence without false certainty; designing for tool
-            and LLM failure
-          </li>
-          <li>
-            Practical retrieval (RAG) for categories, preferences, and product
-            grounding
-          </li>
-          <li>
-            Visual system: liquid motion background, glass UI, and artwork
-            derived from the product collection
-          </li>
-        </ul>
-        <p>
-          Still cooking this case study. More process notes coming soon. Thanks
-          for reading along.
-        </p>
+      <section id="human-ai" className="section">
+        <p className="section__label">Human AI collaboration</p>
+
+        <div className="hai-trio">
+          <article className="hai-card">
+            <p className="section__kicker">Profile baseline</p>
+            <p>
+              On a first packing ask, the app pauses for gender, style, and
+              size before product picks load.
+            </p>
+            <div className="hai-card__stage">
+              <img
+                src={mediaUrl(mediaAssets.secretStashHaiPrefs)}
+                alt="Quick preferences card after a Chamonix ski ask, with gender, style, and size chips"
+                loading="lazy"
+              />
+            </div>
+          </article>
+
+          <article className="hai-card">
+            <p className="section__kicker">Clarify the trip</p>
+            <p>
+              If the ask is too vague, the model asks for place and trip type
+              instead of guessing.
+            </p>
+            <div className="hai-card__stage">
+              <img
+                src={mediaUrl(mediaAssets.secretStashHaiClarify)}
+                alt="Vague Going away soon ask with SecretStash requesting destination and trip type"
+                loading="lazy"
+              />
+            </div>
+          </article>
+
+          <article className="hai-card">
+            <p className="section__kicker">Mark as owned</p>
+            <p>
+              Marking an item as owned drops it from the active list into
+              Already have.
+            </p>
+            <div className="hai-card__stage">
+              <img
+                src={mediaUrl(mediaAssets.secretStashHaiOwned)}
+                alt="Suggested items list with Wetsuit boots moved into Already have"
+                loading="lazy"
+              />
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="grounding" className="section">
+        <p className="section__label">Grounding & confidence</p>
+
+        <div className="grounding">
+          <div className="grounding__copy">
+            <p>
+              Models invent temps and gear when tools are optional. I ground
+              packing answers in live data, then show how sure those estimates
+              are, so trust comes from accuracy instead of confident-sounding
+              guesses.
+            </p>
+            <ul className="grounding__ways" aria-label="How grounding works">
+              {groundingWays.map((item) => {
+                const Icon = item.Icon
+                const active = activeGrounding === item.id
+                return (
+                  <li key={item.id}>
+                    <button
+                      type="button"
+                      className={[
+                        'grounding__way',
+                        active ? 'grounding__way--active' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      onMouseEnter={() => setActiveGrounding(item.id)}
+                      onMouseLeave={() => setActiveGrounding(null)}
+                      onFocus={() => setActiveGrounding(item.id)}
+                      onBlur={() => setActiveGrounding(null)}
+                    >
+                      <span className="grounding__way-icon" aria-hidden="true">
+                        {item.filled ? (
+                          <Icon />
+                        ) : (
+                          <Icon strokeWidth={1.75} absoluteStrokeWidth />
+                        )}
+                      </span>
+                      <span className="grounding__way-text">
+                        <strong>{item.title}</strong>
+                        <span>{item.body}</span>
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+
+          <div
+            className={[
+              'grounding__frame',
+              activeGrounding ? 'grounding__frame--lit' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            <img
+              src={mediaUrl(mediaAssets.secretStashGroundingK2)}
+              alt="K2 October answer with Medium confidence meter and an expanded product search"
+              loading="lazy"
+            />
+            {groundingWays.map((item) => (
+              <span
+                key={item.id}
+                className={[
+                  'grounding__hotspot',
+                  activeGrounding === item.id
+                    ? 'grounding__hotspot--active'
+                    : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                style={{
+                  left: `${item.hotspot.left}%`,
+                  top: `${item.hotspot.top}%`,
+                  width: `${item.hotspot.width}%`,
+                  height: `${item.hotspot.height}%`,
+                }}
+                aria-hidden="true"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="design-tokens" className="section section--last">
+        <p className="section__label">Design tokens</p>
+
+        <div className="token-block">
+          <p className="token-block__label">Color scales</p>
+          <div className="token-scales">
+            {colorScales.map((scale) => (
+              <div key={scale.name} className="token-scale">
+                <div className="token-scale__head">
+                  <strong>{scale.name}</strong>
+                  <span>{scale.role}</span>
+                </div>
+                <ul className="token-scale__steps">
+                  {scale.steps.map((step) => (
+                    <li
+                      key={`${scale.name}-${step.weight}`}
+                      className="token-scale__step"
+                      title={
+                        step.css
+                          ? `${scale.name.toLowerCase()}/${step.weight} · ${step.css}`
+                          : `${scale.name.toLowerCase()}/${step.weight}`
+                      }
+                    >
+                      <span
+                        className="token-scale__swatch"
+                        style={{ background: step.hex }}
+                        aria-hidden="true"
+                      />
+                      <span className="token-scale__weight">{step.weight}</span>
+                      <span className="token-scale__hex">{step.hex}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="token-block">
+          <p className="token-block__label">Semantic color</p>
+          <ul className="token-semantic">
+            {semanticTokens.map((item) => (
+              <li key={item.token} className="token-semantic__item">
+                <span
+                  className="token-semantic__swatch"
+                  style={{ background: item.hex }}
+                  aria-hidden="true"
+                />
+                <code className="token-semantic__name">{item.token}</code>
+                <span className="token-semantic__ref">{item.ref}</span>
+                <span className="token-semantic__hex">{item.hex}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="token-block token-block--split">
+          <div>
+            <p className="token-block__label">Space</p>
+            <ul className="token-size">
+              {spaceTokens.map((item) => (
+                <li key={item.token} className="token-size__item">
+                  <span
+                    className="token-size__bar"
+                    style={{ width: `${Number(item.value) * 2}px` }}
+                    aria-hidden="true"
+                  />
+                  <code>{item.token}</code>
+                  <span>{item.value}px</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="token-block__label">Radius</p>
+            <ul className="token-radius">
+              {radiusTokens.map((item) => (
+                <li key={item.token} className="token-radius__item">
+                  <span
+                    className="token-radius__shape"
+                    style={{
+                      borderRadius:
+                        item.value === '999' ? '999px' : `${item.value}px`,
+                    }}
+                    aria-hidden="true"
+                  />
+                  <code>{item.token}</code>
+                  <span>{item.value}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
       </section>
     </CaseStudyLayout>
   )
