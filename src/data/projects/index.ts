@@ -117,6 +117,16 @@ export const projects: ProjectMeta[] = [
     locked: true,
   },
   {
+    slug: 'nuwa',
+    title: 'Nüwa',
+    path: 'https://nuwa-six.vercel.app/',
+    liveUrl: 'https://nuwa-six.vercel.app/',
+    thumbnail: '/side-quests/nuwa.png',
+    blurb:
+      'An ink wash globe of the earth’s most iconic landscapes, each matched to the painting it echoes.',
+    lane: 'side-quests',
+  },
+  {
     slug: 'ringcard',
     title: 'RingCard',
     path: 'https://muaythai-schedule.vercel.app/',
