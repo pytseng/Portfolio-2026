@@ -117,13 +117,13 @@ export const projects: ProjectMeta[] = [
     locked: true,
   },
   {
-    slug: 'nuwa',
-    title: 'Nüwa',
+    slug: 'pangu',
+    title: 'Pangu',
     path: 'https://nuwa-six.vercel.app/',
     liveUrl: 'https://nuwa-six.vercel.app/',
-    thumbnail: '/side-quests/nuwa.png',
+    thumbnail: '/side-quests/pangu.png',
     blurb:
-      'An ink wash globe of the earth’s most iconic landscapes, each matched to the painting it echoes.',
+      'The most representative landscapes on Earth — an ink-wash globe of iconic places and the art they echo.',
     lane: 'side-quests',
   },
   {
@@ -133,7 +133,7 @@ export const projects: ProjectMeta[] = [
     liveUrl: 'https://muaythai-schedule.vercel.app/',
     thumbnail: '/side-quests/ringcard.png',
     blurb:
-      'Muay Thai schedule for past and upcoming fight events in Thailand, with live data.',
+      'A martial arts event platform for the biggest, most exciting fight nights in the world.',
     lane: 'side-quests',
   },
   {
@@ -142,8 +142,7 @@ export const projects: ProjectMeta[] = [
     path: 'https://earth101.vercel.app/',
     liveUrl: 'https://earth101.vercel.app/',
     thumbnail: '/side-quests/earth-101.png',
-    blurb:
-      'A guide to Earth’s most epic, representative nature: surfaces worth knowing.',
+    blurb: 'A passport to learn our planet.',
     lane: 'side-quests',
   },
 ]
