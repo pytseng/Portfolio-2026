@@ -10,6 +10,16 @@ export const mediaAssets = {
   secretStashHaiClarify: 'secret-stash/hai-clarify.png?v=20260803b',
   secretStashHaiOwned: 'secret-stash/hai-owned.png?v=20260803b',
   secretStashGroundingK2: 'secret-stash/grounding-k2.png?v=20260803c',
+  secretStashPaySearch: 'secret-stash/pay-01-search.png',
+  secretStashPayExpand: 'secret-stash/pay-02-expand.png',
+  secretStashPayAdd: 'secret-stash/pay-03-add.png',
+  secretStashPayCart: 'secret-stash/pay-04-cart.png',
+  secretStashPayCheckout: 'secret-stash/pay-05-checkout.png',
+  secretStashPayFill: 'secret-stash/pay-06-fill.png',
+  secretStashPayComplete: 'secret-stash/pay-07-complete.png',
+  secretStashPayStash: 'secret-stash/pay-08-stash.png',
+  secretStashPayFlow: 'secret-stash/pay-flow.mp4',
+  secretStashPayFlowPoster: 'secret-stash/pay-flow-poster.png',
 } as const
 
 export type MediaAssetKey = keyof typeof mediaAssets

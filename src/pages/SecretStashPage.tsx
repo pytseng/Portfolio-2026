@@ -14,6 +14,7 @@ const toc: TocItem[] = [
   { id: 'subject-control', label: 'Subject control' },
   { id: 'human-ai', label: 'Human AI collaboration' },
   { id: 'grounding', label: 'Grounding & confidence' },
+  { id: 'payment-flow', label: 'Payment flow' },
   { id: 'design-tokens', label: 'Design tokens' },
 ]
 
@@ -245,6 +246,71 @@ const groundingWays: {
   },
 ]
 
+const payFlowSteps: {
+  id: string
+  label: string
+  body: string
+  src: string
+  alt: string
+}[] = [
+  {
+    id: 'search',
+    label: 'Search for an adventure',
+    body: 'Ask for a trip. SecretStash packs the list from live conditions.',
+    src: mediaAssets.secretStashPaySearch,
+    alt: 'SecretStash chat after asking to pack for a 20-day Patagonia trek, with suggested items',
+  },
+  {
+    id: 'expand',
+    label: 'Expand a product suggestion',
+    body: 'Open a gear row to load real, shoppable product cards.',
+    src: mediaAssets.secretStashPayExpand,
+    alt: 'Expanded product suggestion showing searchable shop results with prices',
+  },
+  {
+    id: 'add',
+    label: 'Add a product',
+    body: 'Tap + on a card to drop it in the cart.',
+    src: mediaAssets.secretStashPayAdd,
+    alt: 'Product card added to cart with the plus control turned to minus',
+  },
+  {
+    id: 'cart',
+    label: 'Open the cart',
+    body: 'The cart holds the picks before any money moves.',
+    src: mediaAssets.secretStashPayCart,
+    alt: 'Checkout cart sheet listing a saved product and subtotal',
+  },
+  {
+    id: 'checkout',
+    label: 'Checkout',
+    body: 'Express pay or card, with a shipping address already in reach.',
+    src: mediaAssets.secretStashPayCheckout,
+    alt: 'Checkout sheet with shipping address and express payment buttons',
+  },
+  {
+    id: 'fill',
+    label: 'Fill in payment',
+    body: 'Manual card entry for shops that are not on express rails yet.',
+    src: mediaAssets.secretStashPayFill,
+    alt: 'Manual checkout form with card number, expiry, CVC, and name filled in',
+  },
+  {
+    id: 'complete',
+    label: 'Checkout complete',
+    body: 'A demo payment lands, and the item is marked for Stash.',
+    src: mediaAssets.secretStashPayComplete,
+    alt: 'Payment received confirmation with order id and added to Stash copy',
+  },
+  {
+    id: 'stash',
+    label: 'Loaded in Stash',
+    body: 'The bought piece shows up in the owned Stash panel.',
+    src: mediaAssets.secretStashPayStash,
+    alt: 'Stash panel showing the purchased product in the owned inventory list',
+  },
+]
+
 const techStack: {
   name: string
   detail: string
@@ -290,6 +356,8 @@ export function SecretStashPage() {
   const [activeGrounding, setActiveGrounding] = useState<
     (typeof groundingWays)[number]['id'] | null
   >(null)
+  const [payStep, setPayStep] = useState(0)
+  const activePay = payFlowSteps[payStep]
 
   return (
     <CaseStudyLayout
@@ -624,6 +692,85 @@ export function SecretStashPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section id="payment-flow" className="section">
+        <p className="section__label">Payment flow</p>
+        <p>
+          The rollout is not only scraping products from pages that already
+          exist. SecretStash is also meant to connect with agent-searchable
+          commerce — so a small shop can make its gear findable inside the
+          chat, not only on its own storefront.
+        </p>
+        <p>
+          The path below is that checkout: search an adventure, expand a
+          suggestion, add a product, pay, and land the piece in Stash.
+        </p>
+
+        <div className="pay-flow">
+          <ol className="pay-flow__steps" aria-label="Checkout steps">
+            {payFlowSteps.map((step, index) => {
+              const selected = payStep === index
+              return (
+                <li key={step.id}>
+                  <button
+                    type="button"
+                    className={[
+                      'pay-flow__step',
+                      selected ? 'pay-flow__step--active' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    aria-current={selected ? 'step' : undefined}
+                    onClick={() => setPayStep(index)}
+                  >
+                    <span className="pay-flow__num" aria-hidden="true">
+                      {index + 1}
+                    </span>
+                    <span className="pay-flow__step-text">
+                      <strong>{step.label}</strong>
+                      <span>{step.body}</span>
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ol>
+
+          <div className="pay-flow__stage">
+            <img
+              src={mediaUrl(activePay.src)}
+              alt={activePay.alt}
+              key={activePay.id}
+            />
+          </div>
+        </div>
+
+        <p className="section__kicker pay-flow__video-label">
+          Full checkout, three products
+        </p>
+        <p>
+          Adding three picks and paying through — the same path a small shop
+          would ride once its catalog is searchable in the chat.
+        </p>
+        <figure className="pay-flow__video">
+          <div className="pay-flow__video-frame">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={mediaUrl(mediaAssets.secretStashPayFlowPoster)}
+              aria-label="SecretStash checkout demo adding three products and completing payment"
+            >
+              <source
+                src={mediaUrl(mediaAssets.secretStashPayFlow)}
+                type="video/mp4"
+              />
+            </video>
+          </div>
+        </figure>
       </section>
 
       <section id="design-tokens" className="section section--last">
