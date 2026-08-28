@@ -15,6 +15,7 @@ const toc: TocItem[] = [
   { id: 'human-ai', label: 'Human AI collaboration' },
   { id: 'grounding', label: 'Grounding & confidence' },
   { id: 'payment-flow', label: 'Payment flow' },
+  { id: 'stash', label: 'Stash' },
   { id: 'design-tokens', label: 'Design tokens' },
 ]
 
@@ -696,49 +697,50 @@ export function SecretStashPage() {
 
       <section id="payment-flow" className="section">
         <p className="section__label">Payment flow</p>
-        <p>
-          The rollout is not only scraping products from pages that already
-          exist. SecretStash is also meant to connect with agent-searchable
-          commerce — so a small shop can make its gear findable inside the
-          chat, not only on its own storefront.
-        </p>
-        <p>
-          The path below is that checkout: search an adventure, expand a
-          suggestion, add a product, pay, and land the piece in Stash.
-        </p>
-
-        <div className="pay-flow">
-          <ol className="pay-flow__steps" aria-label="Checkout steps">
-            {payFlowSteps.map((step, index) => {
-              const selected = payStep === index
-              return (
-                <li key={step.id}>
-                  <button
-                    type="button"
-                    className={[
-                      'pay-flow__step',
-                      selected ? 'pay-flow__step--active' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    aria-current={selected ? 'step' : undefined}
-                    onClick={() => setPayStep(index)}
-                  >
-                    <span className="pay-flow__num" aria-hidden="true">
-                      {index + 1}
-                    </span>
-                    <span className="pay-flow__step-text">
-                      <strong>{step.label}</strong>
-                      <span>{step.body}</span>
-                    </span>
-                  </button>
-                </li>
-              )
-            })}
-          </ol>
-
-          <div className="pay-flow__stage">
-            <img
+        <div className="copy-media copy-media--top copy-media--phone">
+          <div className="copy-media__copy">
+            <p>
+              The rollout is not only scraping products from pages that already
+              exist. SecretStash is also meant to connect with agent-searchable
+              commerce — so a small shop can make its gear findable inside the
+              chat, not only on its own storefront.
+            </p>
+            <p>
+              The path below is that checkout: search an adventure, expand a
+              suggestion, add a product, pay, and land the piece in Stash.
+            </p>
+            <ol className="pay-flow__steps" aria-label="Checkout steps">
+              {payFlowSteps.map((step, index) => {
+                const selected = payStep === index
+                return (
+                  <li key={step.id}>
+                    <button
+                      type="button"
+                      className={[
+                        'pay-flow__step',
+                        selected ? 'pay-flow__step--active' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      aria-current={selected ? 'step' : undefined}
+                      onClick={() => setPayStep(index)}
+                    >
+                      <span className="pay-flow__num" aria-hidden="true">
+                        {index + 1}
+                      </span>
+                      <span className="pay-flow__step-text">
+                        <strong>{step.label}</strong>
+                        <span>{step.body}</span>
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ol>
+          </div>
+          <div className="copy-media__media">
+            <Figure
+              className="figure--phone figure--phone-soft"
               src={mediaUrl(activePay.src)}
               alt={activePay.alt}
               key={activePay.id}
@@ -746,31 +748,147 @@ export function SecretStashPage() {
           </div>
         </div>
 
-        <p className="section__kicker pay-flow__video-label">
-          Full checkout, three products
+        <div className="copy-media copy-media--top copy-media--phone">
+          <div className="copy-media__copy">
+            <p className="section__kicker">Full checkout, three products</p>
+            <p>
+              Adding three picks and paying through — the same path a small shop
+              would ride once its catalog is searchable in the chat.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <figure className="figure figure--phone phone-clip">
+              <div className="phone-clip__frame">
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster={mediaUrl(mediaAssets.secretStashPayFlowPoster)}
+                  aria-label="SecretStash checkout demo adding three products and completing payment"
+                >
+                  <source
+                    src={mediaUrl(mediaAssets.secretStashPayFlow)}
+                    type="video/mp4"
+                  />
+                </video>
+              </div>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="stash" className="section">
+        <p className="section__label">Stash</p>
+        <div className="copy-media copy-media--top copy-media--phone">
+          <div className="copy-media__copy">
+            <p>
+              Stash is the gear you already own. Bought pieces land here. So do
+              things you already had, or added by hand.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <figure className="figure figure--phone phone-clip">
+              <div className="phone-clip__frame">
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster={mediaUrl(mediaAssets.secretStashBrowsePoster)}
+                  aria-label="Opening Stash from chat, switching card and list views, renaming an item, and filtering by footwear"
+                >
+                  <source
+                    src={mediaUrl(mediaAssets.secretStashBrowse)}
+                    type="video/mp4"
+                  />
+                </video>
+              </div>
+            </figure>
+          </div>
+        </div>
+
+        <div className="copy-media copy-media--top copy-media--phone">
+          <div className="copy-media__copy">
+            <p className="section__kicker">Test packing</p>
+            <p>
+              For one-bag trips, the combo is the whole problem. The board on
+              top is what goes in the bag. The list below is everything you
+              own. Same idea as a game stash: loadout above, inventory below.
+            </p>
+          </div>
+          <div className="copy-media__media">
+            <figure className="figure figure--phone phone-clip">
+              <div className="phone-clip__frame">
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster={mediaUrl(mediaAssets.secretStashPackPoster)}
+                  aria-label="Pack mode with items added to and removed from the trip board"
+                >
+                  <source
+                    src={mediaUrl(mediaAssets.secretStashPack)}
+                    type="video/mp4"
+                  />
+                </video>
+              </div>
+            </figure>
+          </div>
+        </div>
+
+        <p>
+          I used to give Stash and Pack equal tabs in this panel. That made
+          the hierarchy muddy. A side sheet is usually one job. The menu
+          already lives on the left.
         </p>
         <p>
-          Adding three picks and paying through — the same path a small shop
-          would ride once its catalog is searchable in the chat.
+          Packing is easier when everything is laid out in front of you. A
+          second page also meant the owned list showed up twice, and it was
+          unclear where to edit.
         </p>
-        <figure className="pay-flow__video">
-          <div className="pay-flow__video-frame">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              poster={mediaUrl(mediaAssets.secretStashPayFlowPoster)}
-              aria-label="SecretStash checkout demo adding three products and completing payment"
-            >
-              <source
-                src={mediaUrl(mediaAssets.secretStashPayFlow)}
-                type="video/mp4"
+
+        <div className="hai-trio stash-then">
+          <article className="hai-card">
+            <p className="section__kicker">Two tabs</p>
+            <p>Switching Stash and Pack as equal views in the same sheet.</p>
+            <div className="hai-card__stage">
+              <img
+                src={mediaUrl(mediaAssets.secretStashOldSwitch)}
+                alt="Old inventory panel switching between List inventory and Game style inventory tabs"
+                loading="lazy"
               />
-            </video>
-          </div>
-        </figure>
+            </div>
+          </article>
+
+          <article className="hai-card">
+            <p className="section__kicker">List on its own</p>
+            <p>Owned items lived in a list view with its own chrome.</p>
+            <div className="hai-card__stage">
+              <img
+                src={mediaUrl(mediaAssets.secretStashOldList)}
+                alt="Old list inventory tab with category chips and row actions for each item"
+                loading="lazy"
+              />
+            </div>
+          </article>
+
+          <article className="hai-card">
+            <p className="section__kicker">Pack as a page</p>
+            <p>The game board was a second destination, not a mode.</p>
+            <div className="hai-card__stage">
+              <img
+                src={mediaUrl(mediaAssets.secretStashOldGame)}
+                alt="Old game-style inventory tab with a separate pack board and item grid"
+                loading="lazy"
+              />
+            </div>
+          </article>
+        </div>
       </section>
 
       <section id="design-tokens" className="section section--last">
