@@ -118,12 +118,11 @@ export const projects: ProjectMeta[] = [
   },
   {
     slug: 'eyewall-lab',
-    title: 'Eyewall Lab',
+    title: 'Eyewall Labs',
     path: 'https://eyewall-labs.vercel.app/',
     liveUrl: 'https://eyewall-labs.vercel.app/',
     thumbnail: '/side-quests/eyewall-lab.png',
-    blurb:
-      'A vortex of live dashboards — an interactive lab for spinning data into a storm eyewall.',
+    blurb: 'Brand site in progress.',
     lane: 'side-quests',
   },
   {
@@ -133,7 +132,7 @@ export const projects: ProjectMeta[] = [
     liveUrl: 'https://capital-gang.vercel.app/',
     thumbnail: '/side-quests/capital-gang.png',
     blurb:
-      'A public ledger of congressional stock trades — members, whales, and late disclosures.',
+      'A public ledger of congressional stock trades. See how the capital gang games.',
     lane: 'side-quests',
   },
   {
