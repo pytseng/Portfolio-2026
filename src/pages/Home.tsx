@@ -6,7 +6,26 @@ import {
   projects,
   workLanes,
   type ProjectLane,
+  type ProjectMeta,
 } from '../data/projects'
+
+const SIDE_QUEST_ORDER = [
+  'capital-gang',
+  'ringcard',
+  'pangu',
+  'eyewall-lab',
+  'earth-101',
+] as const
+
+function projectsInLane(lane: ProjectLane): ProjectMeta[] {
+  if (lane !== 'side-quests') {
+    return projects.filter((project) => project.lane === lane)
+  }
+  return SIDE_QUEST_ORDER.flatMap((slug) => {
+    const match = projects.find((project) => project.slug === slug)
+    return match ? [match] : []
+  })
+}
 
 const FogRevealHero = lazy(() =>
   import('../components/home/FogRevealHero').then((m) => ({
@@ -19,7 +38,7 @@ export function Home({ live = true }: { live?: boolean }) {
   const [lane, setLane] = useState<ProjectLane>('selected')
   const stitchApi = useRef<(() => void) | null>(null)
   const activeLane = workLanes.find((item) => item.id === lane) ?? workLanes[0]
-  const visibleProjects = projects.filter((project) => project.lane === lane)
+  const visibleProjects = projectsInLane(lane)
 
   return (
     <div className="home">
@@ -102,7 +121,12 @@ export function Home({ live = true }: { live?: boolean }) {
               )
             })}
           </div>
-          <h2>{activeLane.heading}</h2>
+          <div className="works__title-row">
+            <h2>{activeLane.heading}</h2>
+            {activeLane.note ? (
+              <p className="works__note">{activeLane.note}</p>
+            ) : null}
+          </div>
         </header>
         <div
           id="works-panel"
@@ -112,7 +136,10 @@ export function Home({ live = true }: { live?: boolean }) {
           {visibleProjects.length === 0 ? (
             <p className="works__empty">{activeLane.empty}</p>
           ) : (
-            <ul className="works__list">
+            <ul
+              className="works__list"
+              key={visibleProjects.map((project) => project.slug).join('-')}
+            >
               {visibleProjects.map((project, index) => {
                 const media = (
                   <div className="work-card__media">

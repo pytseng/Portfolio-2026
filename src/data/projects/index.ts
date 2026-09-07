@@ -22,6 +22,7 @@ export const workLanes: {
   label: string
   heading: string
   empty: string
+  note?: string
 }[] = [
   {
     id: 'selected',
@@ -33,6 +34,7 @@ export const workLanes: {
     id: 'side-quests',
     label: 'Side quests',
     heading: 'Side quests',
+    note: 'All live.',
     empty: 'Loose ends and half-baked fun. More soon.',
   },
 ]
@@ -117,15 +119,6 @@ export const projects: ProjectMeta[] = [
     locked: true,
   },
   {
-    slug: 'eyewall-lab',
-    title: 'Eyewall Labs',
-    path: 'https://eyewall-labs.vercel.app/',
-    liveUrl: 'https://eyewall-labs.vercel.app/',
-    thumbnail: '/side-quests/eyewall-lab.png',
-    blurb: 'Brand site in progress.',
-    lane: 'side-quests',
-  },
-  {
     slug: 'capital-gang',
     title: 'Capital Gang',
     path: 'https://capital-gang.vercel.app/',
@@ -133,16 +126,6 @@ export const projects: ProjectMeta[] = [
     thumbnail: '/side-quests/capital-gang.png',
     blurb:
       'A public ledger of congressional stock trades. See how the capital gang games.',
-    lane: 'side-quests',
-  },
-  {
-    slug: 'pangu',
-    title: 'Pangu',
-    path: 'https://nuwa-six.vercel.app/',
-    liveUrl: 'https://nuwa-six.vercel.app/',
-    thumbnail: '/side-quests/pangu.png',
-    blurb:
-      'The most representative landscapes on Earth — an ink-wash globe of iconic places and the art they echo.',
     lane: 'side-quests',
   },
   {
@@ -156,14 +139,38 @@ export const projects: ProjectMeta[] = [
     lane: 'side-quests',
   },
   {
+    slug: 'pangu',
+    title: 'Pangu',
+    path: 'https://nuwa-six.vercel.app/',
+    liveUrl: 'https://nuwa-six.vercel.app/',
+    thumbnail: '/side-quests/pangu.png',
+    blurb: 'The most iconic landscapes and representing locations in our world.',
+    lane: 'side-quests',
+  },
+  {
+    slug: 'eyewall-lab',
+    title: 'Eyewall Labs',
+    path: 'https://eyewall-labs.vercel.app/',
+    liveUrl: 'https://eyewall-labs.vercel.app/',
+    thumbnail: '/side-quests/eyewall-lab.png',
+    blurb: 'Live brand site for my own registered firm Eyewall Labs.',
+    lane: 'side-quests',
+  },
+  {
     slug: 'earth-101',
     title: 'Earth 101',
     path: 'https://earth101.vercel.app/',
     liveUrl: 'https://earth101.vercel.app/',
     thumbnail: '/side-quests/earth-101.png',
-    blurb: 'A passport to learn our planet.',
+    blurb: 'A passport for learning the planet.',
     lane: 'side-quests',
   },
 ]
 
 export { CDN }
+
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    import.meta.hot?.invalidate()
+  })
+}
