@@ -1,5 +1,5 @@
-import { lazy, Suspense, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { LockIcon } from '../components/PasswordGate'
 import { HeroGrid } from '../components/home/HeroGrid'
 import {
@@ -34,9 +34,18 @@ const FogRevealHero = lazy(() =>
 )
 
 export function Home({ live = true }: { live?: boolean }) {
+  const { hash } = useLocation()
   const [worldBroken, setWorldBroken] = useState(false)
-  const [lane, setLane] = useState<ProjectLane>('selected')
+  const [lane, setLane] = useState<ProjectLane>(() =>
+    hash === '#side-quests' ? 'side-quests' : 'selected',
+  )
   const stitchApi = useRef<(() => void) | null>(null)
+
+  useEffect(() => {
+    if (!live || hash !== '#side-quests') return
+    setLane('side-quests')
+    document.getElementById('works')?.scrollIntoView()
+  }, [live, hash])
   const activeLane = workLanes.find((item) => item.id === lane) ?? workLanes[0]
   const visibleProjects = projectsInLane(lane)
 
@@ -91,7 +100,7 @@ export function Home({ live = true }: { live?: boolean }) {
       </section>
 
       <section className="works" id="works">
-        <header className="works__header">
+        <header className="works__header" id="side-quests">
           <p className="works__eyebrow">Works</p>
           <div
             className="works__tabs"

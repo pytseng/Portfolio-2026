@@ -5,8 +5,8 @@ import type { TocItem } from '../data/formaCaseStudy'
 
 const toc: TocItem[] = [
   { id: 'hi', label: 'Hi' },
-  { id: 'designed', label: 'Designed' },
-  { id: 'managed', label: 'Managed' },
+  { id: 'designed', label: 'Unity - Designed' },
+  { id: 'managed', label: 'Unity - Managed' },
   { id: 'cheers', label: 'Cheers!' },
 ]
 
@@ -25,6 +25,15 @@ const img = {
   dt: `${CDN}/bc865662-d429-430a-ba2b-6ed18b5818d4/overall-dtapp.png`,
 }
 
+function ProjectLink({ to, children }: { to: string; children: string }) {
+  return (
+    <Link className="readme-card__project" to={to}>
+      {children}
+      <span aria-hidden="true">→</span>
+    </Link>
+  )
+}
+
 export function ReadmePage() {
   return (
     <CaseStudyLayout
@@ -37,39 +46,60 @@ export function ReadmePage() {
       <section id="hi" className="section">
         <p className="section__label">Hi</p>
         <p>
-          Po here, I specialize in turning conceptual ideas into reality, with a
-          knack for deep-diving into complex problems, I’m pretty good at the
-          messy early stages of emerging tech. Previous role at Unity, I designed
-          and shipped nearly every product for the Automotive and Manufacturing
-          verticals, and led design for the digital twin authoring team. After a
-          sabbatical for family reason and personal growth, I’m ready for new
-          challenges.
+          Po here, I&apos;m a product designer with nine years of experience and
+          an exceptionally strong engineering background. I design things and I
+          build them. It goes all the way back to 2015, building full-stack web
+          apps on GCP and doing quantitative research using GQL at the top
+          edutech startup in Taiwan. Since then I did AR research at Cornell,
+          published at CVPR, and led product design at Unity on their Digital
+          Twin Platform, shipping to clients like Mercedes-Benz, Airbus, and
+          HOKA. These days I run my own studio, building AI-native products
+          myself from interface through working backend mainly in Cursor.
         </p>
-        <p>
-          For AI interaction design, check out{' '}
-          <Link to="/secret-stash">SecretStash</Link> AI Gear Concierge.
-        </p>
-        <p>
-          For AI assisted design process, check out{' '}
-          <Link to="/gen-ai">Gen AI in Render Studio</Link>.
-        </p>
-        <p>
-          For design and strategic impact, check out{' '}
-          <Link to="/render-studio">Render Studio</Link> and{' '}
-          <Link to="/forma-cloud">Forma Cloud</Link>
-        </p>
-        <p>
-          To see thorough (and lengthy) 0 - 1 design process check out{' '}
-          <Link to="/forma-editor">Forma Editor</Link>
-        </p>
+        <div className="readme-guides">
+          <article className="readme-card">
+            <p>
+              For AI interaction design, check out{' '}
+              <ProjectLink to="/secret-stash">SecretStash</ProjectLink> AI Gear
+              Concierge.
+            </p>
+          </article>
+          <article className="readme-card">
+            <p>
+              For AI assisted design process, check out{' '}
+              <span className="readme-card__hit">
+                <ProjectLink to="/gen-ai">Gen AI in Render Studio</ProjectLink>.
+              </span>
+            </p>
+          </article>
+          <article className="readme-card">
+            <p>
+              For passion projects, check out{' '}
+              <ProjectLink to="/#side-quests">Side Quests</ProjectLink>
+            </p>
+          </article>
+          <article className="readme-card">
+            <p>
+              For thorough (and lengthy) 0 - 1 design process check out{' '}
+              <ProjectLink to="/forma-editor">Forma Editor</ProjectLink>
+            </p>
+          </article>
+          <article className="readme-card">
+            <p>
+              For design and strategic impact, check out{' '}
+              <ProjectLink to="/render-studio">Render Studio</ProjectLink> and{' '}
+              <ProjectLink to="/forma-cloud">Forma Cloud</ProjectLink>
+            </p>
+          </article>
+        </div>
       </section>
 
       <section id="designed" className="section">
-        <p className="section__label">Designed</p>
+        <p className="section__label">Unity - Designed</p>
         <p>
-          Here are the products I designed, full ownership, zero to launched. It
-          began with one product and scaled to multiple and formed an ecosystem
-          of 3D content creation in the industrial space : )
+          At Unity, these are the products I designed, full ownership, zero to
+          launched. It began with one product and scaled to multiple and formed
+          an ecosystem of 3D content creation in the industrial space : )
         </p>
         <div className="image-row">
           <Figure src={img.studio} alt="Web-based Creation Tool" caption="Web-based Creation Tool" />
@@ -83,11 +113,11 @@ export function ReadmePage() {
       </section>
 
       <section id="managed" className="section">
-        <p className="section__label">Managed</p>
+        <p className="section__label">Unity - Managed</p>
         <p>
-          The execution and core design decisions were owned by the talented
-          designers I managed while being the Design Lead. I did the talking,
-          design crits, and overarching product strategy maintenance.
+          At Unity, the execution and core design decisions were owned by the
+          talented designers I managed while being the Design Lead. I did the
+          talking, design crits, and overarching product strategy maintenance.
         </p>
         <div className="image-row">
           <Figure src={img.hmi} alt="Unity-based Editor Tool" caption="Unity-based Editor Tool" />
