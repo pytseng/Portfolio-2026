@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { Fragment, lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { LockIcon } from '../components/PasswordGate'
 import { HeroGrid } from '../components/home/HeroGrid'
@@ -48,6 +48,9 @@ export function Home({ live = true }: { live?: boolean }) {
   }, [live, hash])
   const activeLane = workLanes.find((item) => item.id === lane) ?? workLanes[0]
   const visibleProjects = projectsInLane(lane)
+  const featuredProjects = visibleProjects.filter((project) => !project.archive)
+  const archiveProjects = visibleProjects.filter((project) => project.archive)
+  const listedProjects = [...featuredProjects, ...archiveProjects]
 
   return (
     <div className="home">
@@ -147,9 +150,9 @@ export function Home({ live = true }: { live?: boolean }) {
           ) : (
             <ul
               className="works__list"
-              key={visibleProjects.map((project) => project.slug).join('-')}
+              key={listedProjects.map((project) => project.slug).join('-')}
             >
-              {visibleProjects.map((project, index) => {
+              {listedProjects.map((project, index) => {
                 const media = (
                   <div className="work-card__media">
                     {project.thumbnail ? (
@@ -176,25 +179,36 @@ export function Home({ live = true }: { live?: boolean }) {
                   </div>
                 )
 
+                const showArchiveBreak =
+                  project.archive &&
+                  (index === 0 || !listedProjects[index - 1]?.archive)
+
                 return (
-                  <li key={project.slug}>
-                    {project.liveUrl ? (
-                      <a
-                        className="work-card"
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {media}
-                        {meta}
-                      </a>
-                    ) : (
-                      <Link className="work-card" to={project.path}>
-                        {media}
-                        {meta}
-                      </Link>
-                    )}
-                  </li>
+                  <Fragment key={project.slug}>
+                    {showArchiveBreak ? (
+                      <li className="works__archive">
+                        <p className="works__archive-label">Archive</p>
+                      </li>
+                    ) : null}
+                    <li>
+                      {project.liveUrl ? (
+                        <a
+                          className="work-card"
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {media}
+                          {meta}
+                        </a>
+                      ) : (
+                        <Link className="work-card" to={project.path}>
+                          {media}
+                          {meta}
+                        </Link>
+                      )}
+                    </li>
+                  </Fragment>
                 )
               })}
             </ul>

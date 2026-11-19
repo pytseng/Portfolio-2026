@@ -66,6 +66,30 @@ export const mediaPlaceholders: MediaPlaceholderMeta[] = [
   // —— Forma Cloud ——
   // Resolved: /media/forma-cloud/e2e-walkthrough.mp4
   // CapCut 1007.mov ↔ Squarespace d10d2f4b… (~190.5s)
+  {
+    id: 'MEDIA::forma-cloud::step-editor',
+    kind: 'gif',
+    route: '/forma-cloud',
+    sourcePath: '/forma-cloud',
+    label: 'Forma Editor — edit the model',
+    note: 'Step 1 of editor → Forma Cloud → ecommerce. Replace with a GIF or still.',
+  },
+  {
+    id: 'MEDIA::forma-cloud::step-cloud',
+    kind: 'gif',
+    route: '/forma-cloud',
+    sourcePath: '/forma-cloud',
+    label: 'Forma Cloud — manage the product',
+    note: 'Step 2 of editor → Forma Cloud → ecommerce. Replace with a GIF or still.',
+  },
+  {
+    id: 'MEDIA::forma-cloud::step-commerce',
+    kind: 'gif',
+    route: '/forma-cloud',
+    sourcePath: '/forma-cloud',
+    label: 'Ecommerce — the live storefront',
+    note: 'Step 3 of editor → Forma Cloud → ecommerce. Replace with a GIF or still.',
+  },
 
   // —— AR/VR Design ——
   // Resolved under /media/ar-vr/:

@@ -15,6 +15,8 @@ export type ProjectMeta = {
   liveUrl?: string
   /** Show lock affordance; page is gated with PasswordGate */
   locked?: boolean
+  /** Selected-lane project shown under the archive hairline */
+  archive?: boolean
 }
 
 export const workLanes: {
@@ -108,6 +110,7 @@ export const projects: ProjectMeta[] = [
       'Design for social impact, an open learning platform for K-12 educators and students',
     lane: 'selected',
     locked: true,
+    archive: true,
   },
   {
     slug: 'ford',
@@ -117,6 +120,17 @@ export const projects: ProjectMeta[] = [
     blurb: 'Autonomous vehicle dashboard and earcon design.',
     lane: 'selected',
     locked: true,
+    archive: true,
+  },
+  {
+    slug: 'forma-cloud-archive',
+    title: 'Forma Cloud backup',
+    path: '/forma-cloud-archive',
+    thumbnail: `${CDN}/4ad9baa1-7c22-4248-b9d9-1edd63c43516/Thumbnail.png`,
+    blurb: 'Earlier case study, kept as a locked backup.',
+    lane: 'selected',
+    locked: true,
+    archive: true,
   },
   {
     slug: 'capital-gang',
