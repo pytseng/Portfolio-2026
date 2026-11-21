@@ -4,7 +4,6 @@ import './App.css'
 import { ScrollToTop } from './components/ScrollToTop'
 import { ArVrPage } from './pages/ArVrPage'
 import { FordPage } from './pages/FordPage'
-import { FormaCloudArchivePage } from './pages/FormaCloudArchivePage'
 import { FormaCloudPage } from './pages/FormaCloudPage'
 import { FormaEditorPage } from './pages/FormaEditorPage'
 import { GenAIPage } from './pages/GenAIPage'
@@ -51,7 +50,6 @@ function AppShell() {
         <Route path="/gen-ai" element={<GenAIPage />} />
         <Route path="/render-studio" element={<RenderStudioPage />} />
         <Route path="/forma-cloud" element={<FormaCloudPage />} />
-        <Route path="/forma-cloud-archive" element={<FormaCloudArchivePage />} />
         <Route path="/ar-vr" element={<ArVrPage />} />
         <Route path="/junyi" element={<JunyiPage />} />
         <Route path="/ford" element={<FordPage />} />

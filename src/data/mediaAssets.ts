@@ -26,6 +26,8 @@ export const mediaAssets = {
   secretStashPackPoster: 'secret-stash/stash-pack-poster.png',
   formaCloudHero: 'forma-cloud/hero.webp',
   formaCloudThumb: 'forma-cloud/thumbnail.webp',
+  formaEditorHero: 'forma-editor/hero.jpg?v=20261121e',
+  formaEditorThumb: 'forma-editor/thumbnail.jpg?v=20261121e',
   formaCloudPreview: 'forma-cloud/preview.png',
   formaCloudSystem: 'forma-cloud/system-graph.png',
   formaCloudStepEditor: 'forma-cloud/step-editor.jpg',

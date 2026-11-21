@@ -1,6 +1,8 @@
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
 import { CaseStudyVideo } from '../components/CaseStudyVideo'
 import { assets, tocItems } from '../data/formaCaseStudy'
+import { mediaAssets } from '../data/mediaAssets'
+import { mediaUrl } from '../lib/media'
 
 const formaVideos = {
   overview: {
@@ -19,7 +21,9 @@ export function FormaEditorPage() {
       brand="Forma Editor"
       title="Unity Forma Editor"
       toc={tocItems}
-      heroImage="/media/forma-editor/hero.jpg"
+      heroImage={mediaUrl(mediaAssets.formaEditorHero)}
+      heroAlt="Forma Editor product shot — Aviera configurator"
+      heroPriority
       lede="Turning complex 3D product data into interactive configurators for automotive and manufacturing."
     >
       <section id="overview" className="section">
