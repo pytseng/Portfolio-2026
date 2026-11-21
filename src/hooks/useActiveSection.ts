@@ -1,6 +1,26 @@
 import { useEffect, useState } from 'react'
 import type { TocItem } from '../data/formaCaseStudy'
 
+const ROOT_MARGIN = '-30% 0px -60% 0px'
+
+function sectionHeading(section: HTMLElement) {
+  return (
+    section.querySelector<HTMLElement>(
+      ':scope > .section__label, :scope > h2, :scope > h3',
+    ) ?? section
+  )
+}
+
+/** Last section whose heading has reached ~30% from the top of the viewport. */
+function activeSectionId(elements: HTMLElement[]) {
+  const line = window.innerHeight * 0.3
+  let current = elements[0]?.id ?? ''
+  for (const el of elements) {
+    if (sectionHeading(el).getBoundingClientRect().top <= line) current = el.id
+  }
+  return current
+}
+
 export function useActiveSection(items: TocItem[]) {
   const [activeId, setActiveId] = useState(items[0]?.id ?? '')
 
@@ -11,28 +31,33 @@ export function useActiveSection(items: TocItem[]) {
 
     if (elements.length === 0) return
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort(
-            (a, b) =>
-              (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0) ||
-              a.boundingClientRect.top - b.boundingClientRect.top,
-          )
+    const pick = () => {
+      const next = activeSectionId(elements)
+      setActiveId((current) => (current === next ? current : next))
+    }
 
-        if (visible[0]?.target.id) {
-          setActiveId(visible[0].target.id)
-        }
-      },
-      {
-        rootMargin: '-20% 0px -55% 0px',
-        threshold: [0, 0.15, 0.4, 0.7],
-      },
-    )
+    const observer = new IntersectionObserver(pick, {
+      rootMargin: ROOT_MARGIN,
+      threshold: [0, 0.01, 1],
+    })
 
     elements.forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
+
+    let raf = 0
+    const onScroll = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(pick)
+    }
+
+    pick()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      cancelAnimationFrame(raf)
+      observer.disconnect()
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [items])
 
   return activeId

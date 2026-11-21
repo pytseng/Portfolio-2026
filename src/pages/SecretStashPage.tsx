@@ -366,6 +366,7 @@ export function SecretStashPage() {
       title="SecretStash"
       toc={toc}
       heroImage={mediaUrl(mediaAssets.secretStashHeroBg)}
+      liveUrl={LIVE_URL}
       lede="An AI packing buddy for outdoor trips abroad. Chat about the adventure; get a shoppable gear list."
     >
       <section id="summary" className="section">

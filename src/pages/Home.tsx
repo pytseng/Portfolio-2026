@@ -42,9 +42,13 @@ export function Home({ live = true }: { live?: boolean }) {
   const stitchApi = useRef<(() => void) | null>(null)
 
   useEffect(() => {
-    if (!live || hash !== '#side-quests') return
-    setLane('side-quests')
-    document.getElementById('works')?.scrollIntoView()
+    if (!live) return
+    if (hash !== '#works' && hash !== '#side-quests') return
+    setLane(hash === '#side-quests' ? 'side-quests' : 'selected')
+    const works = document.getElementById('works')
+    if (!works) return
+    const top = works.getBoundingClientRect().top + window.scrollY
+    window.scrollTo(0, top)
   }, [live, hash])
   const activeLane = workLanes.find((item) => item.id === lane) ?? workLanes[0]
   const visibleProjects = projectsInLane(lane)

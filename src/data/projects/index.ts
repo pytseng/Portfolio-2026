@@ -183,6 +183,22 @@ export const projects: ProjectMeta[] = [
   },
 ]
 
+export function worksHashForPath(pathname: string) {
+  const project = projects.find((item) => item.path === pathname)
+  return project?.lane === 'side-quests' ? '#side-quests' : '#works'
+}
+
+const caseStudies = projects.filter(
+  (item) => item.lane === 'selected' && item.path.startsWith('/'),
+)
+
+export function nextCaseStudy(pathname: string) {
+  const index = caseStudies.findIndex((item) => item.path === pathname)
+  if (index === -1) return null
+  const next = caseStudies[(index + 1) % caseStudies.length]
+  return { title: next.title, path: next.path }
+}
+
 export { CDN }
 
 if (import.meta.hot) {

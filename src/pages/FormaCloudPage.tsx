@@ -229,6 +229,7 @@ export function FormaCloudPage() {
       heroImage={img.hero}
       heroAlt="Forma Cloud product window showing analytics, a 3D bike configurator, and the Forma AI panel"
       heroPriority
+      liveUrl={LIVE_URL}
       lede="Where every Forma creation lives, stays in sync, and gets published."
     >
       <section id="overview" className="section">

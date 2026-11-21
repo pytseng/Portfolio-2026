@@ -1,5 +1,6 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { worksHashForPath } from '../data/projects'
 
 type Props = {
   storageKey: string
@@ -18,6 +19,8 @@ function isUnlocked(storageKey: string) {
 }
 
 export function PasswordGate({ storageKey, title, children }: Props) {
+  const { pathname } = useLocation()
+  const backTo = `/${worksHashForPath(pathname)}`
   const inputId = useId()
   const [unlocked, setUnlocked] = useState(() => isUnlocked(storageKey))
   const [value, setValue] = useState('')
@@ -43,10 +46,8 @@ export function PasswordGate({ storageKey, title, children }: Props) {
   return (
     <div className="page gate-page">
       <header className="topbar">
-        <Link className="brand" to="/">
-          <span className="brand__back">←</span>
+        <Link className="brand" to={backTo} aria-label="Po Yen Tseng">
           <img className="brand__logo" src="/logo.png" alt="" />
-          <span>Po Yen Tseng</span>
         </Link>
       </header>
 

@@ -75,23 +75,23 @@ button {
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
   margin: 0 0 0.75rem;
 }
 
 h1 {
-  font-size: clamp(2.4rem, 9vw, 4.5rem);
+  font-size: clamp(2.2rem, 8vw, 3.8rem);
 }
 
 h2 {
-  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  font-size: clamp(1.55rem, 4.5vw, 2.15rem);
 }
 
 h3 {
-  font-size: clamp(1.2rem, 3.5vw, 1.45rem);
+  font-size: clamp(1.12rem, 3.2vw, 1.35rem);
 }
 
 p,

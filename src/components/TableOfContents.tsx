@@ -1,12 +1,30 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import type { TocItem } from '../data/formaCaseStudy'
+
+const DESKTOP_MQ = '(min-width: 1024px)'
+const HEADING_OFFSET = 24
+
+type NextStudy = {
+  title: string
+  path: string
+}
 
 type Props = {
   items: TocItem[]
   activeId: string
   open: boolean
   onOpenChange: (open: boolean) => void
+  next: NextStudy | null
+}
+
+function headingTop(section: HTMLElement) {
+  const heading =
+    section.querySelector<HTMLElement>(
+      ':scope > .section__label, :scope > h2, :scope > h3',
+    ) ?? section
+  return heading.getBoundingClientRect().top + window.scrollY
 }
 
 export function TableOfContents({
@@ -14,6 +32,7 @@ export function TableOfContents({
   activeId,
   open,
   onOpenChange,
+  next,
 }: Props) {
   const activeLabel =
     items.find((item) => item.id === activeId)?.label ?? 'Contents'
@@ -25,18 +44,33 @@ export function TableOfContents({
     }
   }, [open])
 
+  useEffect(() => {
+    const desktop = window.matchMedia(DESKTOP_MQ)
+    const onChange = () => {
+      if (desktop.matches) onOpenChange(false)
+    }
+    desktop.addEventListener('change', onChange)
+    return () => desktop.removeEventListener('change', onChange)
+  }, [onOpenChange])
+
   const scrollTo = (id: string) => {
     const el = document.getElementById(id)
     if (!el) return
     onOpenChange(false)
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const top = headingTop(el) - HEADING_OFFSET
     requestAnimationFrame(() => {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' })
     })
   }
 
   return (
     <>
       <aside className="toc-rail" aria-label="Table of contents">
+        <Link className="toc-rail__home" to="/#works">
+          <img className="toc-rail__mark" src="/mark-header.svg" alt="" />
+          <span>All work</span>
+        </Link>
         <p className="toc-rail__eyebrow">Contents</p>
         <ol className="toc-rail__list">
           {items.map((item, index) => (
@@ -58,6 +92,11 @@ export function TableOfContents({
             </li>
           ))}
         </ol>
+        {next ? (
+          <Link className="toc-rail__next" to={next.path}>
+            Next: {next.title} →
+          </Link>
+        ) : null}
       </aside>
 
       <div className="toc-mobile">
@@ -68,14 +107,10 @@ export function TableOfContents({
           aria-controls="toc-sheet"
           onClick={() => onOpenChange(true)}
         >
-          <span className="toc-mobile__meta">
-            <span className="toc-mobile__label">Contents</span>
+          <span className="toc-mobile__line">
+            Contents
+            <span aria-hidden="true"> · </span>
             <span className="toc-mobile__current">{activeLabel}</span>
-          </span>
-          <span className="toc-mobile__icon" aria-hidden="true">
-            <span />
-            <span />
-            <span />
           </span>
         </button>
       </div>

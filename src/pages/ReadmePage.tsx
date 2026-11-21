@@ -60,13 +60,23 @@ export function ReadmePage() {
           <article className="readme-card">
             <p>
               For AI interaction design, check out{' '}
-              <ProjectLink to="/secret-stash">SecretStash</ProjectLink> AI Gear
-              Concierge.
+              <ProjectLink to="/forma-cloud">Forma Cloud</ProjectLink>, an AI
+              that builds automation agents for enterprise commerce, and{' '}
+              <ProjectLink to="/secret-stash">SecretStash</ProjectLink>, a
+              consumer AI gear concierge.
             </p>
           </article>
           <article className="readme-card">
             <p>
-              For AI assisted design process, check out{' '}
+              For a thorough (and lengthy) 0–1 design process, check out{' '}
+              <span className="readme-card__hit">
+                <ProjectLink to="/forma-editor">Forma Editor</ProjectLink>.
+              </span>
+            </p>
+          </article>
+          <article className="readme-card">
+            <p>
+              For an AI-assisted design process, check out{' '}
               <span className="readme-card__hit">
                 <ProjectLink to="/gen-ai">Gen AI in Render Studio</ProjectLink>.
               </span>
@@ -75,20 +85,9 @@ export function ReadmePage() {
           <article className="readme-card">
             <p>
               For passion projects, check out{' '}
-              <ProjectLink to="/#side-quests">Side Quests</ProjectLink>
-            </p>
-          </article>
-          <article className="readme-card">
-            <p>
-              For thorough (and lengthy) 0 - 1 design process check out{' '}
-              <ProjectLink to="/forma-editor">Forma Editor</ProjectLink>
-            </p>
-          </article>
-          <article className="readme-card">
-            <p>
-              For design and strategic impact, check out{' '}
-              <ProjectLink to="/render-studio">Render Studio</ProjectLink> and{' '}
-              <ProjectLink to="/forma-cloud">Forma Cloud</ProjectLink>
+              <span className="readme-card__hit">
+                <ProjectLink to="/#side-quests">Side Quests</ProjectLink>.
+              </span>
             </p>
           </article>
         </div>
