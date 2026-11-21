@@ -45,6 +45,7 @@ export function PasswordGate({ storageKey, title, children }: Props) {
       <header className="topbar">
         <Link className="brand" to="/">
           <span className="brand__back">←</span>
+          <img className="brand__logo" src="/logo.png" alt="" />
           <span>Po Yen Tseng</span>
         </Link>
       </header>

@@ -50,16 +50,16 @@ export const projects: ProjectMeta[] = [
     title: 'README.MD',
     path: '/readme',
     thumbnail: `${CDN}/d89d07cb-f684-45f8-a2d3-0fc2a05fb34f/u3369982172_A_simple_approachablesoothing_3d_cheeseburger_in__5e62d7d0-9941-4177-9b66-d68acf7f203a_0.png`,
-    blurb: 'User guide — who I am, what I design, and where to look.',
+    blurb: 'Who I am, what I design, and where to look.',
     lane: 'selected',
   },
   {
-    slug: 'secret-stash',
-    title: 'SecretStash',
-    path: '/secret-stash',
-    thumbnail: mediaUrl(mediaAssets.secretStashHeroBg),
-    blurb:
-      'AI packing companion for international outdoor travel: weather-aware plans you can correct.',
+    slug: 'forma-cloud',
+    title: 'Forma Cloud',
+    path: '/forma-cloud',
+    thumbnail: mediaUrl(mediaAssets.formaCloudThumb),
+    thumbnailAlt: 'Forma Cloud',
+    blurb: 'Web hub linking factory 3D data to eCommerce.',
     lane: 'selected',
   },
   {
@@ -71,12 +71,12 @@ export const projects: ProjectMeta[] = [
     lane: 'selected',
   },
   {
-    slug: 'forma-cloud',
-    title: 'Forma Cloud',
-    path: '/forma-cloud',
-    thumbnail: mediaUrl(mediaAssets.formaCloudThumb),
-    thumbnailAlt: 'Forma Cloud',
-    blurb: 'Web hub linking factory 3D data to eCommerce.',
+    slug: 'secret-stash',
+    title: 'SecretStash',
+    path: '/secret-stash',
+    thumbnail: mediaUrl(mediaAssets.secretStashHeroBg),
+    blurb:
+      'AI packing companion for international outdoor travel: weather-aware plans you can correct.',
     lane: 'selected',
   },
   {
