@@ -322,31 +322,6 @@
   margin: 0 0 1rem;
 }
 
-.preface {
-  list-style: none;
-  margin: 0 0 1.15rem;
-  padding: 0;
-  display: grid;
-  gap: 0.55rem;
-}
-
-.preface li {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  font-family: var(--font-ui);
-  font-size: 0.95rem;
-  line-height: 1.35;
-  color: var(--ink);
-}
-
-.preface svg {
-  flex: 0 0 auto;
-  width: 1.15rem;
-  height: 1.15rem;
-  color: var(--accent);
-}
-
 .step-placeholders {
   margin: 0 0 0.4rem;
 }
@@ -782,6 +757,85 @@
   color: var(--ink);
 }
 
+.overview {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.overview__background,
+.overview__card {
+  min-width: 0;
+  padding: 1.05rem 1.15rem 1.15rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(31, 31, 31, 0.06);
+  background: #fff;
+}
+
+.overview__sub {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.45rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.overview__sub svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: none;
+}
+
+.overview__background > p,
+.overview__card > p {
+  margin: 0;
+}
+
+.overview__facts {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+}
+
+.overview__facts li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(31, 31, 31, 0.06);
+  background: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  font-weight: 650;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.overview__facts svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  color: var(--ink);
+}
+
+.overview__split {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.overview .industry-grid {
+  margin: 0.15rem 0 0;
+}
+
 .media-cluster .media-frame--video {
   aspect-ratio: 16 / 10;
 }
@@ -1189,6 +1243,14 @@
 
   .industry-grid {
     grid-template-columns: repeat(5, 1fr);
+  }
+
+  .overview__facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .overview__split {
+    grid-template-columns: 1fr 1fr;
   }
 
   .filmstrip {

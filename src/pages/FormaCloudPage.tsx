@@ -2,27 +2,28 @@ import { useState } from 'react'
 import {
   Bot,
   Building2,
+  CircleAlert,
   Cloud,
+  Flag,
   FolderKanban,
   LayoutDashboard,
+  Lightbulb,
   PenLine,
   Rocket,
   Users,
   type LucideIcon,
 } from 'lucide-react'
 import { CaseStudyLayout, Figure } from '../components/CaseStudyLayout'
-import { MediaPlaceholder } from '../components/MediaPlaceholder'
+import { FormaAiSection } from '../components/FormaAiSection'
+import { PipelineStepper, type Step } from '../components/PipelineStepper'
 import type { TocItem } from '../data/formaCaseStudy'
-import { CDN } from '../data/projects'
 import { mediaAssets } from '../data/mediaAssets'
 import { mediaUrl } from '../lib/media'
 
 const LIVE_URL = 'https://forma-cloud-rework.vercel.app/'
 
 const toc: TocItem[] = [
-  { id: 'context', label: 'Context' },
-  { id: 'user', label: 'User' },
-  { id: 'problem', label: 'Problem' },
+  { id: 'overview', label: 'Overview' },
   { id: 'solution', label: 'Solution' },
   { id: 'live', label: 'Live demo' },
   { id: 'pipeline', label: 'Three steps' },
@@ -35,15 +36,11 @@ const toc: TocItem[] = [
 ]
 
 const img = {
-  hero: `${CDN}/4ad9baa1-7c22-4248-b9d9-1edd63c43516/Thumbnail.png`,
+  hero: mediaUrl(mediaAssets.formaCloudHero),
   preview: mediaUrl(mediaAssets.formaCloudPreview),
   system: mediaUrl(mediaAssets.formaCloudSystem),
   productBefore: mediaUrl(mediaAssets.formaCloudProductBefore),
   productAfter: mediaUrl(mediaAssets.formaCloudProductAfter),
-  aiDescribe: mediaUrl(mediaAssets.formaCloudAiDescribe),
-  aiReview: mediaUrl(mediaAssets.formaCloudAiReview),
-  aiTest: mediaUrl(mediaAssets.formaCloudAiTest),
-  aiOn: mediaUrl(mediaAssets.formaCloudAiOn),
   iaProduct: mediaUrl(mediaAssets.formaCloudIaProduct),
   iaEndpoints: mediaUrl(mediaAssets.formaCloudIaEndpoints),
   iaIntegrations: mediaUrl(mediaAssets.formaCloudIaIntegrations),
@@ -51,15 +48,67 @@ const img = {
   iaApi: mediaUrl(mediaAssets.formaCloudIaApi),
   iaSupport: mediaUrl(mediaAssets.formaCloudIaSupport),
   onboarding: mediaUrl(mediaAssets.formaCloudOnboarding),
+  aiChips: mediaUrl(mediaAssets.formaCloudAiChips),
+  aiOfftopic: mediaUrl(mediaAssets.formaCloudAiOfftopic),
+  aiOfftopicPoster: mediaUrl(mediaAssets.formaCloudAiOfftopicPoster),
+  aiReasoning: mediaUrl(mediaAssets.formaCloudAiReasoning),
+  aiReasoningPoster: mediaUrl(mediaAssets.formaCloudAiReasoningPoster),
+  aiHover: mediaUrl(mediaAssets.formaCloudAiRuleHover),
 }
 
-const facts: { icon: LucideIcon; text: string }[] = [
-  { icon: Rocket, text: '0–1. Making the product happen.' },
-  { icon: Users, text: 'The team started as the PM and me.' },
+const aiSteps: Step[] = [
   {
-    icon: PenLine,
-    text: 'I was already senior designer on Forma Editor and Render Studio.',
+    id: 'describe',
+    num: '01',
+    title: 'Describe',
+    description: 'Type the rule in one sentence and send it.',
+    kind: 'video',
+    src: mediaUrl(mediaAssets.formaCloudAiStepDescribe),
+    poster: mediaUrl(mediaAssets.formaCloudAiStepDescribePoster),
+    alt: 'Typing a publishing rule into Forma AI and sending it',
+    plays: 1,
+    objectPosition: 'center',
   },
+  {
+    id: 'review',
+    num: '02',
+    title: 'Review',
+    description: 'The setup card, with each line traced to that sentence.',
+    kind: 'image',
+    src: mediaUrl(mediaAssets.formaCloudAiStepReview),
+    alt: 'The agent setup card for staging, Shopify, and Sofia’s approval',
+    plays: 1,
+    objectPosition: 'center',
+  },
+  {
+    id: 'test',
+    num: '03',
+    title: 'Test',
+    description: 'A test run on a real sample update.',
+    kind: 'video',
+    src: mediaUrl(mediaAssets.formaCloudAiStepTest),
+    poster: mediaUrl(mediaAssets.formaCloudAiStepTestPoster),
+    alt: 'A test of the rule on a sample product update',
+    plays: 1,
+    objectPosition: 'center',
+  },
+  {
+    id: 'on',
+    num: '04',
+    title: 'Turn on',
+    description: 'The saved agent, with its rule, pause, and delete.',
+    kind: 'image',
+    src: mediaUrl(mediaAssets.formaCloudAiStepOn),
+    alt: 'The Agents tab with the saved agent, its rule, and pause and delete',
+    plays: 1,
+    objectPosition: 'center',
+  },
+]
+
+const role: { icon: LucideIcon; label: string }[] = [
+  { icon: Rocket, label: 'From scratch to shipped' },
+  { icon: PenLine, label: 'Full ownership' },
+  { icon: Lightbulb, label: 'Co-started the idea' },
 ]
 
 const keywords: { icon: LucideIcon; label: string }[] = [
@@ -171,23 +220,6 @@ function ScreenSwitch({
   )
 }
 
-function IconRow({
-  items,
-}: {
-  items: { icon: LucideIcon; text: string }[]
-}) {
-  return (
-    <ul className="preface">
-      {items.map((item) => (
-        <li key={item.text}>
-          <item.icon aria-hidden="true" />
-          <span>{item.text}</span>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
 export function FormaCloudPage() {
   return (
     <CaseStudyLayout
@@ -195,44 +227,68 @@ export function FormaCloudPage() {
       title="Forma Cloud"
       toc={toc}
       heroImage={img.hero}
+      heroAlt="Forma Cloud product window showing analytics, a 3D bike configurator, and the Forma AI panel"
+      heroPriority
       lede="Where every Forma creation lives, stays in sync, and gets published."
     >
-      <section id="context" className="section">
-        <p className="section__label">Context</p>
-        <p>
-          Forma Cloud was a 0–1. Editor and Render Studio already existed. I
-          was the senior designer on both. The cloud product had to happen, and
-          it started with the PM and me.
-        </p>
-        <IconRow items={facts} />
-        <ul className="industry-grid" aria-label="What the work was">
-          {keywords.map((item) => (
-            <li className="industry-chip" key={item.label}>
-              <item.icon aria-hidden="true" />
-              <span>{item.label}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section id="user" className="section">
-        <p className="section__label">User</p>
-        <p>
-          The people already in Forma Editor and Render Studio — Unity’s
-          industrial 3D creation tools — kept asking for a place to organize
-          what they made, and to see what it did in sales and marketing.
-        </p>
-        <p>Those users are marketing and sales managers.</p>
-      </section>
-
-      <section id="problem" className="section">
-        <p className="section__label">Problem</p>
-        <p>
-          The assets coming out of the tools were good. Publishing them,
-          managing them, and understanding the impact was not. An existing
-          ecommerce platform had no easy way to take a configurable 3D product,
-          keep it current, and show what happened after it went live.
-        </p>
+      <section id="overview" className="section">
+        <p className="section__label">Overview</p>
+        <div className="overview">
+          <div className="overview__background">
+            <p className="overview__sub">
+              <Flag aria-hidden="true" />
+              Background
+            </p>
+            <p>
+              Forma Cloud was the hub to connect Forma Editor and other Unity
+              industrial products. It was a zero to one process started by the
+              PM and me.
+            </p>
+            <ul className="overview__facts">
+              {role.map((item) => (
+                <li key={item.label}>
+                  <item.icon aria-hidden="true" />
+                  <span>{item.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="overview__split">
+            <div className="overview__card">
+              <p className="overview__sub">
+                <Users aria-hidden="true" />
+                User
+              </p>
+              <p>
+                Forma Editor and Render Studio are Unity’s tools for creating
+                industrial 3D content. Most of the people using them were
+                marketing and sales managers, and they kept asking for two
+                things: a place to organize what they made, and a way to see
+                how it performed.
+              </p>
+            </div>
+            <div className="overview__card">
+              <p className="overview__sub">
+                <CircleAlert aria-hidden="true" />
+                Problem
+              </p>
+              <p>
+                Making 3D content was made easy with our tools. However, there
+                was no good way to publish the 3D creation, update them, or see
+                how it was performing on customer facing websites. Ecommerce
+                platforms just weren’t built for configurable 3D products.
+              </p>
+            </div>
+          </div>
+          <ul className="industry-grid" aria-label="What the work was">
+            {keywords.map((item) => (
+              <li className="industry-chip" key={item.label}>
+                <item.icon aria-hidden="true" />
+                <span>{item.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       <section id="solution" className="section">
@@ -246,20 +302,20 @@ export function FormaCloudPage() {
           shipped and what it did.
         </p>
         <Figure
-          className="figure--fit"
           src={img.system}
-          alt="Forma Editor and Render Studio write to one configurable model. Forma Cloud reads it and publishes to commerce platforms."
-          caption="One model. Editor and Render Studio write to it. Forma Cloud reads both and publishes."
+          alt="Forma Editor saves a configurable model to Unity Cloud Storage. Render Studio reads that model and saves images. Forma Cloud reads both, publishes to commerce platforms, and usage data comes back."
+          caption="Editor saves the model. Render Studio reads it and saves the images. Forma Cloud reads both, publishes, and usage comes back."
         />
       </section>
 
       <section id="live" className="section">
         <p className="section__label">Live demo</p>
         <p>
-          I built this interaction demo in a week. I did not have the
-          design-system files, and I did not have an industrial license to open
-          the real tools. Forma AI is in the demo as an add-on. It was not part
-          of the original scope.
+          I wanted people to try the product, not just look at screenshots,
+          so I rebuilt it as a working demo in a week, without the original
+          files or tool access. Then I went further and added Forma AI to test
+          how agents could help teams create and manage content in enterprise
+          software.
         </p>
         <div className="live-cta">
           <a
@@ -281,58 +337,23 @@ export function FormaCloudPage() {
       <section id="pipeline" className="section">
         <p className="section__label">Design highlight</p>
         <h3>From the editor, to Forma Cloud, to ecommerce</h3>
-        <p>Three steps. The clips for each one are still to come.</p>
-        <div className="media-cluster media-cluster--3 step-placeholders">
-          <MediaPlaceholder id="MEDIA::forma-cloud::step-editor" />
-          <MediaPlaceholder id="MEDIA::forma-cloud::step-cloud" />
-          <MediaPlaceholder id="MEDIA::forma-cloud::step-commerce" />
-        </div>
+        <p>How one model goes from the editor to a live storefront.</p>
+        <PipelineStepper
+          editorSrc={mediaUrl(mediaAssets.formaCloudStepEditor)}
+          cloudSrc={mediaUrl(mediaAssets.formaCloudStepCloud)}
+          storeSrc={mediaUrl(mediaAssets.formaCloudStepStore)}
+        />
       </section>
 
-      <section id="ai" className="section">
-        <p className="section__label">AI design</p>
-        <p>
-          The agent is how the job gets done, so the interface follows that
-          role. I did not give it a workspace of its own. The catalogue stays.
-          A panel beside it is enough.
-        </p>
-        <h3>Stay on the product</h3>
-        <p>
-          Starter chips only offer Forma work: automate publishing, check
-          endpoints, summarize activity, prepare a review. Off-topic questions
-          are refused before a model call. The panel only hands off into a
-          rule when someone is actually describing one.
-        </p>
-        <h3>Show the reasoning, then turn it on</h3>
-        <p>
-          While it works, the panel shows the step it is on. A test shows the
-          new version, what reached staging, what is still waiting on a person,
-          and what would go live. Nothing publishes until that test is
-          approved.
-        </p>
-        <div className="ai-steps">
-          <Figure
-            src={img.aiDescribe}
-            alt="Forma AI starter chips for publishing, endpoints, activity, and review"
-            caption="Describe"
-          />
-          <Figure
-            src={img.aiReview}
-            alt="A drafted publishing rule for staging, Shopify, and Salesforce"
-            caption="Review"
-          />
-          <Figure
-            src={img.aiTest}
-            alt="A simulated publish with the new finish, staging, and a person still to approve"
-            caption="Test"
-          />
-          <Figure
-            src={img.aiOn}
-            alt="The publishing agent switched on"
-            caption="Turn on"
-          />
-        </div>
-      </section>
+      <FormaAiSection
+        chips={img.aiChips}
+        offtopic={img.aiOfftopic}
+        offtopicPoster={img.aiOfftopicPoster}
+        reasoning={img.aiReasoning}
+        reasoningPoster={img.aiReasoningPoster}
+        hover={img.aiHover}
+        steps={aiSteps}
+      />
 
       <section id="ia" className="section">
         <p className="section__label">Information architecture</p>

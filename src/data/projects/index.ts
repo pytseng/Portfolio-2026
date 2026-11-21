@@ -11,6 +11,7 @@ export type ProjectMeta = {
   blurb: string
   lane: ProjectLane
   thumbnail?: string
+  thumbnailAlt?: string
   /** Live Vercel (or other) app URL — renders an embed card in Side quests */
   liveUrl?: string
   /** Show lock affordance; page is gated with PasswordGate */
@@ -70,6 +71,15 @@ export const projects: ProjectMeta[] = [
     lane: 'selected',
   },
   {
+    slug: 'forma-cloud',
+    title: 'Forma Cloud',
+    path: '/forma-cloud',
+    thumbnail: mediaUrl(mediaAssets.formaCloudThumb),
+    thumbnailAlt: 'Forma Cloud',
+    blurb: 'Web hub linking factory 3D data to eCommerce.',
+    lane: 'selected',
+  },
+  {
     slug: 'gen-ai',
     title: 'Gen AI in Render Studio',
     path: '/gen-ai',
@@ -83,14 +93,6 @@ export const projects: ProjectMeta[] = [
     path: '/render-studio',
     thumbnail: `${CDN}/1622387590296-0547A2FO0Q310CSC2RE7/Concept%2BMock%2B-%2BRS%2BCloud.jpg`,
     blurb: 'Marketing content factory for configurable 3D products.',
-    lane: 'selected',
-  },
-  {
-    slug: 'forma-cloud',
-    title: 'Forma Cloud',
-    path: '/forma-cloud',
-    thumbnail: `${CDN}/4ad9baa1-7c22-4248-b9d9-1edd63c43516/Thumbnail.png`,
-    blurb: 'Web hub linking factory 3D data to eCommerce.',
     lane: 'selected',
   },
   {

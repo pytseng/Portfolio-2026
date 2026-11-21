@@ -10,6 +10,9 @@ type Props = {
   toc: TocItem[]
   children: ReactNode
   heroImage?: string
+  heroAlt?: string
+  /** Above-the-fold hero: eager load and high fetch priority. */
+  heroPriority?: boolean
   lede?: string
 }
 
@@ -21,6 +24,8 @@ export function CaseStudyLayout({
   toc,
   children,
   heroImage,
+  heroAlt = '',
+  heroPriority = false,
   lede,
 }: Props) {
   const [tocOpen, setTocOpen] = useState(false)
@@ -97,7 +102,12 @@ export function CaseStudyLayout({
         {heroImage ? (
           <div className="hero__visual">
             <div className="hero__visual-zoom" ref={zoomRef}>
-              <img src={heroImage} alt="" />
+              <img
+                src={heroImage}
+                alt={heroAlt}
+                fetchPriority={heroPriority ? 'high' : undefined}
+                loading={heroPriority ? 'eager' : undefined}
+              />
             </div>
           </div>
         ) : null}

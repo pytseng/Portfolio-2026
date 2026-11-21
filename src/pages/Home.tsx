@@ -156,7 +156,11 @@ export function Home({ live = true }: { live?: boolean }) {
                 const media = (
                   <div className="work-card__media">
                     {project.thumbnail ? (
-                      <img src={project.thumbnail} alt="" loading="lazy" />
+                      <img
+                        src={project.thumbnail}
+                        alt={project.thumbnailAlt ?? ''}
+                        loading="lazy"
+                      />
                     ) : (
                       <span className="work-card__fallback" aria-hidden="true">
                         {project.title.slice(0, 1)}
